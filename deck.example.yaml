@@ -1,0 +1,34 @@
+version: "1"
+
+# the cluster configuration across all decks
+cluster:
+  provider: k3d
+  name: mycluster
+#  nativeConfig: # content of the native config file (e.g. https://k3d.io/v5.0.0/usage/configfile/
+#  args: []
+  ports:
+    - "61348:80"
+    - "31820:31820/UDP"
+
+decks:
+  - name: buzzword-counter
+    namespace: buzzword
+    sources:
+      - type: helm
+        repoURL: git@github.com:Blueshoe/buzzword-charts.git
+        targetRevision: HEAD
+        path: .
+        chart: chart-name  # Set this when pulling directly from a Helm repo. DO NOT set for git-hosted Helm charts.
+
+        parameters: # extra values for --set (take precedence)
+          - name: "ingress.domain"
+            value: mydomain.example.com
+          - name: "ingress.annotations.nginx-"
+            value: "true"
+
+        releaseName: buzz # Release name override (defaults to application name)
+
+        valueFiles: # Helm values (files) relative to 'path'
+          - helm_vars/development/values.development.yaml
+#      - type: kustomize
+#      - type: plain
