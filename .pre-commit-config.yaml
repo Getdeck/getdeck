@@ -1,0 +1,20 @@
+repos:
+  - repo: https://github.com/python/black.git
+    rev: 22.1.0
+    hooks:
+      - id: black
+        language_version: python3
+
+  # flake8 - style guide enforcement
+  - repo: https://gitlab.com/pycqa/flake8
+    rev: 4.0.1
+    hooks:
+      - id: flake8
+        additional_dependencies:
+          - flake8-black>=0.2.4
+
+  # gitlint - correct git commit format
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: v0.15.0
+    hooks:
+      - id: gitlint

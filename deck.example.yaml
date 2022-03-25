@@ -15,8 +15,8 @@ decks:
     namespace: buzzword
     sources:
       - type: helm
-        repoURL: git@github.com:Blueshoe/buzzword-charts.git
-        targetRevision: HEAD
+        ref: git@github.com:Blueshoe/buzzword-charts.git
+        targetRevision: HEAD # only relevant for git
         path: .
         chart: chart-name  # Set this when pulling directly from a Helm repo. DO NOT set for git-hosted Helm charts.
 
@@ -31,4 +31,8 @@ decks:
         valueFiles: # Helm values (files) relative to 'path'
           - helm_vars/development/values.development.yaml
 #      - type: kustomize
-#      - type: plain
+      - type: directory
+        ref: git@github.com:Blueshoe/buzzword-charts.git
+        targetRevision: HEAD
+        path: .
+        recursive: true
