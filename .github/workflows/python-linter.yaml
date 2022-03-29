@@ -14,8 +14,8 @@ jobs:
         python-version: '3.10'
     - name: Install Poetry
       uses: snok/install-poetry@v1
-    - name: Lint and flake8 client
+    - name: Lint and flake8 Deck
       run: |
         poetry install
         poetry run black . --check
-        poetry run flake8 --config ../setup.cfg
+        poetry run flake8
