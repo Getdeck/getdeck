@@ -15,13 +15,6 @@ jobs:
     - name: Install Poetry
       uses: snok/install-poetry@v1
     - name: Lint and flake8 client
-      working-directory: client/
-      run: |
-        poetry install
-        poetry run black . --check
-        poetry run flake8 --config ../setup.cfg
-    - name: Lint and flake8 operator
-      working-directory: operator/
       run: |
         poetry install
         poetry run black . --check
