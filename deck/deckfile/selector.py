@@ -7,11 +7,10 @@ import yaml
 from deck import configuration
 from deck.deckfile.file import (
     Deckfile,
-    DeckfileError,
     DeckfileNotFoundError,
     DeckfileVersionError,
 )
-from deck.deckfile.deckfile_1 import Deckfile_1_0, DeckfileHelmSource
+from deck.deckfile.deckfile_1 import Deckfile_1_0
 
 logger = logging.getLogger("deck")
 
@@ -31,7 +30,9 @@ class DeckfileSelector:
             with open(path_deckfile) as deckfile:
                 data = yaml.load(deckfile, Loader=yaml.FullLoader)
         except FileNotFoundError:
-            raise DeckfileNotFoundError(f"The Deckfile at the location {path_deckfile} does not exist.")
+            raise DeckfileNotFoundError(
+                f"The Deckfile at the location {path_deckfile} does not exist."
+            )
 
         # version
         version = str(data.get("version", "latest"))

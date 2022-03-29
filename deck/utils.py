@@ -17,7 +17,9 @@ def read_deckfile_from_location(location: str, config: ClientConfiguration) -> D
     protocol = sniff_protocol()
     if location == ".":
         # load default file from this location
-        return config.deckfile_selector.get(os.path.join(os.getcwd(), configuration.DECKFILE_FILE))
+        return config.deckfile_selector.get(
+            os.path.join(os.getcwd(), configuration.DECKFILE_FILE)
+        )
     elif protocol is None:
         # this is probably a file system location
         if os.path.isfile(location):
@@ -34,7 +36,9 @@ class CMDWrapper(object):
     def __init__(self, debug_output=False):
         self._debug_output = debug_output
 
-    def _execute(self, arguments, stdin: str = None, print_output: bool = False) -> subprocess.Popen:
+    def _execute(
+        self, arguments, stdin: str = None, print_output: bool = False
+    ) -> subprocess.Popen:
         cmd = [self.base_command] + arguments
         kwargs = self._get_kwargs()
         process = subprocess.Popen(cmd, **kwargs)

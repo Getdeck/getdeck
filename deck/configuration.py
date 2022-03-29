@@ -2,7 +2,7 @@ import os
 import sys
 import logging
 
-from deck.deckfile.selector import DeckfileSelector, deckfile_selector
+from deck.deckfile.selector import deckfile_selector
 
 console = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter("[%(levelname)s] %(message)s")
@@ -81,5 +81,3 @@ class ClientConfiguration(object):
 
 
 default_configuration = ClientConfiguration()
-
-

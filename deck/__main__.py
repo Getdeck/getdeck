@@ -34,7 +34,6 @@ def main():
     else:
         logger.setLevel(logging.INFO)
     logger.addHandler(configuration.console)
-
     match args.action:
         case "list":
             get_available_decks(args.Deckfile)

@@ -1,9 +1,12 @@
 import logging
 import os
+import re
+import subprocess
 from time import sleep
 from typing import List, Dict, Optional
 
-from deck import configuration
+from semantic_version import Version
+
 from deck.configuration import ClientConfiguration
 from deck.provider.abstract import AbstractK8sProvider
 from deck.provider.types import K8sProviderType
@@ -76,12 +79,22 @@ class K3d(AbstractK8sProvider, CMDWrapper):
                 sleep(2)
 
         if process.returncode != 0:
-            logger.error("Something went completely wrong with the cluster spin up (or we got a timeout).")
+            logger.error(
+                "Something went completely wrong with the cluster spin up (or we got a timeout)."
+            )
         else:
             # we now need to write the kubekonfig to a file
             config = process.stdout.read().strip()
-            if not os.path.isdir(os.path.join(self.config.CLI_KUBECONFIG_DIRECTORY, self.k3d_cluster_name)):
-                os.mkdir(os.path.join(self.config.CLI_KUBECONFIG_DIRECTORY, self.k3d_cluster_name))
+            if not os.path.isdir(
+                os.path.join(
+                    self.config.CLI_KUBECONFIG_DIRECTORY, self.k3d_cluster_name
+                )
+            ):
+                os.mkdir(
+                    os.path.join(
+                        self.config.CLI_KUBECONFIG_DIRECTORY, self.k3d_cluster_name
+                    )
+                )
             config_path = os.path.join(
                 self.config.CLI_KUBECONFIG_DIRECTORY,
                 self.k3d_cluster_name,
@@ -136,7 +149,9 @@ class K3d(AbstractK8sProvider, CMDWrapper):
         return True
 
     def version(self) -> Version:
-        process = subprocess.run([self.base_command, "--version"], capture_output=True, text=True)
+        process = subprocess.run(
+            [self.base_command, "--version"], capture_output=True, text=True
+        )
         output = str(process.stdout).strip()
         version_str = re.search(r"(\d+\.\d+\.\d+)", output).group(1)
         return Version(version_str)
@@ -148,6 +163,7 @@ class K3dBuilder:
 
     def __call__(
         self,
+        config: ClientConfiguration,
         id,
         name=None,
         **_ignored,
@@ -159,9 +175,9 @@ class K3dBuilder:
 
         # create instance
         instance = K3d(
-            id,
+            config=config,
+            id=id,
             name=name,
-            prefix=settings.K3D_CLUSTER_PREFIX,
         )
         self._instances[id] = instance
 

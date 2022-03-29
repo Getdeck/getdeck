@@ -15,4 +15,3 @@ def get_available_decks(location: str, config=default_configuration) -> List[str
     deck_names = [deck.name for deck in available_decks]
     logger.info(deck_names)
     return deck_names
-
