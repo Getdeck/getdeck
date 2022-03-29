@@ -3,6 +3,7 @@ import argparse
 import logging
 
 from deck import configuration
+from deck.api.list import get_available_decks
 
 logger = logging.getLogger("deck")
 parser = argparse.ArgumentParser(
@@ -36,7 +37,7 @@ def main():
 
     match args.action:
         case "list":
-            logger.info("list action")
+            get_available_decks(args.Deckfile)
         case "get":
             logger.info("get action")
         case "remove":
