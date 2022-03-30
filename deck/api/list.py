@@ -9,9 +9,8 @@ logger = logging.getLogger("deck")
 
 
 @stopwatch
-def get_available_decks(location: str, config=default_configuration) -> List[str]:
-    deckfile = read_deckfile_from_location(location, config)
+def get_available_decks(deckfile_location: str, config=default_configuration) -> List:
+    deckfile = read_deckfile_from_location(deckfile_location, config)
     available_decks = deckfile.get_decks()
-    deck_names = [deck.name for deck in available_decks]
-    logger.info(deck_names)
-    return deck_names
+    logger.debug(available_decks)
+    return available_decks

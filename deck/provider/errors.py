@@ -1,0 +1,2 @@
+class DeckClusterUnavailableError(Exception):
+    pass

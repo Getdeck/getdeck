@@ -2,7 +2,6 @@ import os
 import sys
 import logging
 
-from deck.deckfile.selector import deckfile_selector
 
 console = logging.StreamHandler(sys.stdout)
 formatter = logging.Formatter("[%(levelname)s] %(message)s")
@@ -20,13 +19,19 @@ class ClientConfiguration(object):
     def __init__(
         self,
         docker_client=None,
+        cluster_name_prefix: str = "",
     ):
+        from deck.deckfile.selector import deckfile_selector
         if docker_client:
             self.DOCKER = docker_client
-
+        self.TOOLER_BASE_IMAGE = "tooler"
+        self.TOOLER_USER_IMAGE = "deck-tooler"
         self.deckfile_selector = deckfile_selector
         self.CLI_KUBECONFIG_DIRECTORY = os.path.expanduser("~/.deck/")
-        self.K3D_CLUSTER_PREFIX = "deck-"
+        if not os.path.exists(self.CLI_KUBECONFIG_DIRECTORY):
+            os.mkdir(self.CLI_KUBECONFIG_DIRECTORY)
+        self.K3D_CLUSTER_PREFIX = cluster_name_prefix
+        self.kubeconfig = None
 
     def _init_docker(self):
         import docker
@@ -48,7 +53,10 @@ class ClientConfiguration(object):
         )
         from kubernetes.config import load_kube_config
 
-        load_kube_config()
+        if self.kubeconfig:
+            load_kube_config(self.kubeconfig)
+        else:
+            load_kube_config()
         self.K8S_CORE_API = CoreV1Api()
         self.K8S_RBAC_API = RbacAuthorizationV1Api()
         self.K8S_APP_API = AppsV1Api()

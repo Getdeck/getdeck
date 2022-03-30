@@ -2,6 +2,8 @@ import logging
 import os
 import re
 import subprocess
+import tempfile
+import traceback
 from time import sleep
 from typing import List, Dict, Optional
 
@@ -24,18 +26,18 @@ class K3d(AbstractK8sProvider, CMDWrapper):
     def __init__(
         self,
         config: ClientConfiguration,
-        id,
-        name: str = None,
+        name: str,
+        native_config: dict,
         _debug_output=False,
     ):
 
         # abstract kubernetes cluster
         AbstractK8sProvider.__init__(
             self,
-            id=id,
             name=name,
         )
         self.config = config
+        self.native_config = native_config
         # CMDWrapper
         self._debug_output = _debug_output
 
@@ -122,9 +124,23 @@ class K3d(AbstractK8sProvider, CMDWrapper):
         return False
 
     def create(self):
-        # todo
-        arguments = []
-        self._execute(arguments)
+        import yaml
+        arguments = ["cluster", "create", self.k3d_cluster_name]
+        logger.info(f"Creating a k3d cluster with name {self.k3d_cluster_name}")
+        logger.debug(f"K3d config is: " + str(self.native_config))
+        if self.native_config:
+            try:
+                with tempfile.NamedTemporaryFile() as temp:
+                    logger.debug("K3d config to: " + temp.name)
+                    content = yaml.dump(self.native_config, default_flow_style=False)
+                    temp.write(content.encode("utf-8"))
+                    temp.flush()
+                    arguments.extend(["--config", temp.name])
+                    logger.debug(arguments)
+                    process = self._execute(arguments, print_output=True)
+            except Exception as e:
+                logger.debug(traceback.print_exc())
+                raise e
         return True
 
     def start(self):
@@ -132,9 +148,7 @@ class K3d(AbstractK8sProvider, CMDWrapper):
         p = self._execute(arguments)
         if p.returncode != 0:
             return False
-        data = self.storage.get()
-        data.kubeconfig_path = self.get_kubeconfig()
-        self.storage.set(data)
+        # data.kubeconfig_path = self.get_kubeconfig()
         return True
 
     def stop(self):
@@ -143,9 +157,9 @@ class K3d(AbstractK8sProvider, CMDWrapper):
         return True
 
     def delete(self):
+        logger.info(f"Deleting the k3d cluster with name {self.k3d_cluster_name}")
         arguments = ["cluster", "delete", self.k3d_cluster_name]
         self._execute(arguments)
-        self.storage.delete()
         return True
 
     def version(self) -> Version:
@@ -156,6 +170,15 @@ class K3d(AbstractK8sProvider, CMDWrapper):
         version_str = re.search(r"(\d+\.\d+\.\d+)", output).group(1)
         return Version(version_str)
 
+    def ready(self) -> bool:
+        pass
+
+    def install(self) -> bool:
+        logger.debug("Installing k3d now")
+
+    def update(self) -> bool:
+        logger.debug("Updating k3d now")
+
 
 class K3dBuilder:
     def __init__(self):
@@ -164,21 +187,15 @@ class K3dBuilder:
     def __call__(
         self,
         config: ClientConfiguration,
-        id,
         name=None,
+        native_config: dict = None,
         **_ignored,
     ):
-        # get instance from cache
-        instance = self._instances.get(id, None)
-        if instance:
-            return instance
-
         # create instance
         instance = K3d(
             config=config,
-            id=id,
             name=name,
+            native_config=native_config
         )
-        self._instances[id] = instance
 
         return instance

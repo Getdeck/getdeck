@@ -3,12 +3,21 @@ version: "1"
 # the cluster configuration across all decks
 cluster:
   provider: k3d
-  name: mycluster
-#  nativeConfig: # content of the native config file (e.g. https://k3d.io/v5.0.0/usage/configfile/
-#  args: []
-  ports:
-    - "61348:80"
-    - "31820:31820/UDP"
+  minVersion: 4.0.0
+  name: another-cluster
+  nativeConfig: # content of the native config file (e.g. https://k3d.io/v5.0.0/usage/configfile/)
+    apiVersion: k3d.io/v1alpha2
+    kind: Simple
+    servers: 1 # same as `--servers 1`
+    agents: 1 # same as `--agents 2`
+    image: rancher/k3s:v1.20.4-k3s1 # same as `--image rancher/k3s:v1.20.4-k3s1`
+    ports:
+      - port: 8080:80
+        nodeFilters:
+          - loadbalancer
+      - port: 31820:31820/UDP
+        nodeFilters:
+          - agent[0]
 
 decks:
   - name: buzzword-counter
@@ -17,22 +26,22 @@ decks:
       - type: helm
         ref: git@github.com:Blueshoe/buzzword-charts.git
         targetRevision: HEAD # only relevant for git
-        path: .
-        chart: chart-name  # Set this when pulling directly from a Helm repo. DO NOT set for git-hosted Helm charts.
+        path: buzzword-counter
+#        chart: chart-name  # Set this when pulling directly from a Helm repo. DO NOT set for git-hosted Helm charts.
 
-        parameters: # extra values for --set (take precedence)
-          - name: "ingress.domain"
-            value: mydomain.example.com
-          - name: "ingress.annotations.nginx-"
-            value: "true"
+#        parameters: # extra values for --set (take precedence)
+#          - name: "ingress.domain"
+#            value: mydomain.example.com
+#          - name: "ingress.annotations.nginx-"
+#            value: "true"
 
         releaseName: buzz # Release name override (defaults to application name)
 
-        valueFiles: # Helm values (files) relative to 'path'
-          - helm_vars/development/values.development.yaml
+#        valueFiles: # Helm values (files) relative to 'path'
+#          - helm_vars/development/values.development.yaml
 #      - type: kustomize
-      - type: directory
-        ref: git@github.com:Blueshoe/buzzword-charts.git
-        targetRevision: HEAD
-        path: .
-        recursive: true
+#      - type: directory
+#        ref: git@github.com:Blueshoe/buzzword-charts.git
+#        targetRevision: HEAD
+#        path: .
+#        recursive: true

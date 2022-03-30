@@ -5,11 +5,7 @@ from typing import Union
 import yaml
 
 from deck import configuration
-from deck.deckfile.file import (
-    Deckfile,
-    DeckfileNotFoundError,
-    DeckfileVersionError,
-)
+from deck.deckfile.file import Deckfile
 from deck.deckfile.deckfile_1 import Deckfile_1_0
 
 logger = logging.getLogger("deck")

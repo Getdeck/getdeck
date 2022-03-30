@@ -3,7 +3,7 @@ import argparse
 import logging
 
 from deck import configuration
-from deck.api.list import get_available_decks
+from deck.api import get_available_decks, run_deck, remove_cluster
 
 logger = logging.getLogger("deck")
 parser = argparse.ArgumentParser(
@@ -19,8 +19,11 @@ list_parser = action.add_parser("list")
 
 # rollout the cluster and install the deck from the given deck.yaml
 get_parser = action.add_parser("get")
+get_parser.add_argument("--name", help="the Deck that you want to run", required=False)
 
 remove_parser = action.add_parser("remove")
+remove_parser.add_argument("--name", help="the Deck that you want to remove", required=False)
+remove_parser.add_argument("--cluster", help="Remove the local Kubernetes cluster", action="store_true", required=False)
 
 check_parser = action.add_parser("check")
 
@@ -36,11 +39,15 @@ def main():
     logger.addHandler(configuration.console)
     match args.action:
         case "list":
-            get_available_decks(args.Deckfile)
+            decks = get_available_decks(args.Deckfile)
+            names = [deck.name for deck in decks]
+            logger.info(names)
+
         case "get":
-            logger.info("get action")
+            run_deck(args.Deckfile, args.name)
         case "remove":
-            logger.info("remove action")
+            if args.cluster:
+                remove_cluster(args.Deckfile)
         case "check":
             logger.info("check action")
         case "version":

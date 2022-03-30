@@ -4,6 +4,12 @@ from semantic_version import Version
 
 
 class IK8sProvider(ABC):
+
+    @abstractmethod
+    def get_kubeconfig(self) -> bool:
+        raise NotImplementedError
+
+
     @abstractmethod
     def create(self) -> bool:
         raise NotImplementedError
@@ -29,6 +35,22 @@ class IK8sProvider(ABC):
         raise NotImplementedError
 
     @abstractmethod
+    def install(self) -> bool:
+        """
+        Install this K8s provider on the local system
+        :return:
+        """
+        raise NotImplementedError
+
+    @abstractmethod
+    def update(self) -> bool:
+        """
+        Update this K8s provider on the local system
+        :return:
+        """
+        raise NotImplementedError
+
+    @abstractmethod
     def version(self) -> Version:
         """
         Best return a type that allows working comparisons between versions of the same provider.
@@ -42,10 +64,8 @@ class AbstractK8sProvider(IK8sProvider):
 
     def __init__(
         self,
-        id: str,
         name: str = None,
     ) -> None:
-        self.id = id
         self.name = name
 
     @property
@@ -53,8 +73,7 @@ class AbstractK8sProvider(IK8sProvider):
         name = self.name
         if name:
             return name
-        id = self.id
-        return id
+        return name
 
     @property
     def k8s_provider_type(self):
