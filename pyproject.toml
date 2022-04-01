@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "Deck"
-version = "0.1.0"
+version = "0.2.0"
 description = "Deck, a CLI that creates reproducible Kubernetes environments for development and testing"
 authors = ["Michael Schilonka <michael@unikube.io>"]
 readme = "README.md"
