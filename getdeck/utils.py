@@ -6,11 +6,11 @@ import tempfile
 from git import Repo
 from semantic_version import Version
 
-from deck import configuration
-from deck.configuration import ClientConfiguration
-from deck.deckfile.file import Deckfile
-from deck.provider.abstract import AbstractK8sProvider
-from deck.provider.types import K8sProviderType
+from getdeck import configuration
+from getdeck.configuration import ClientConfiguration
+from getdeck.deckfile.file import Deckfile
+from getdeck.provider.abstract import AbstractK8sProvider
+from getdeck.provider.types import K8sProviderType
 
 logger = logging.getLogger("deck")
 
@@ -67,7 +67,7 @@ def ensure_cluster(
     do_install: bool = True,
 ) -> AbstractK8sProvider:
     from kubernetes.client.rest import ApiException
-    from deck.provider.factory import kubernetes_cluster_factory
+    from getdeck.provider.factory import kubernetes_cluster_factory
 
     cluster_config = deckfile.get_cluster()
     if ignore_cluster or cluster_config is None:

@@ -1,10 +1,10 @@
 import logging
 from typing import Union, List
 
-from deck.configuration import ClientConfiguration
-from deck.deckfile.file import DeckfileHelmSource, DeckfileDirectorySource, Deckfile
-from deck.sources.helm import generate_helm_source
-from deck.sources.types import GeneratedDeck, K8sSourceFile
+from getdeck.configuration import ClientConfiguration
+from getdeck.deckfile.file import DeckfileHelmSource, DeckfileDirectorySource, Deckfile
+from getdeck.sources.helm import generate_helm_source
+from getdeck.sources.types import GeneratedDeck, K8sSourceFile
 
 logger = logging.getLogger("deck")
 

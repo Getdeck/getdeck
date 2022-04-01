@@ -1,8 +1,8 @@
 import logging
 from typing import Callable
 
-from deck.configuration import default_configuration
-from deck.api import stopwatch
+from getdeck.configuration import default_configuration
+from getdeck.api import stopwatch
 
 
 logger = logging.getLogger("deck")
@@ -14,7 +14,7 @@ def remove_cluster(
     config=default_configuration,
     ignore_cluster: bool = False,
 ) -> bool:
-    from deck.utils import read_deckfile_from_location, ensure_cluster
+    from getdeck.utils import read_deckfile_from_location, ensure_cluster
 
     deckfile = read_deckfile_from_location(deckfile_location, config)
     k8s_provider = ensure_cluster(deckfile, config, ignore_cluster, do_install=False)
@@ -36,9 +36,9 @@ def remove_deck(
     if progress_callback:
         progress_callback(0)
 
-    from deck.utils import read_deckfile_from_location, ensure_cluster
-    from deck.k8s import k8s_delete_object
-    from deck.sources.utils import prepare_k8s_workload_for_deck
+    from getdeck.utils import read_deckfile_from_location, ensure_cluster
+    from getdeck.k8s import k8s_delete_object
+    from getdeck.sources.utils import prepare_k8s_workload_for_deck
 
     deckfile = read_deckfile_from_location(deckfile_location, config)
     if progress_callback:

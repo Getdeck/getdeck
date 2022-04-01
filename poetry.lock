@@ -26,6 +26,7 @@ mypy-extensions = ">=0.4.3"
 pathspec = ">=0.9.0"
 platformdirs = ">=2"
 tomli = {version = ">=1.1.0", markers = "python_version < \"3.11\""}
+typing-extensions = {version = ">=3.10.0.0", markers = "python_version < \"3.10\""}
 
 [package.extras]
 colorama = ["colorama (>=0.4.3)"]
@@ -458,8 +459,8 @@ test = ["websockets"]
 
 [metadata]
 lock-version = "1.1"
-python-versions = "^3.10.0"
-content-hash = "3f33b9fe56967b57487d812c3d8c266b066c7dc17e52dbe73bccd5cd88f2bef9"
+python-versions = "^3.8.0"
+content-hash = "865154a3de8c86b5e957394adc1d6880c1d58814cb1cb25afbd1a8dce82a189f"
 
 [metadata.files]
 attrs = [

@@ -1,15 +1,15 @@
 import logging
 from typing import List
 
-from deck.api.utils import stopwatch
-from deck.configuration import default_configuration
+from getdeck.api.utils import stopwatch
+from getdeck.configuration import default_configuration
 
 logger = logging.getLogger("deck")
 
 
 @stopwatch
 def get_available_decks(deckfile_location: str, config=default_configuration) -> List:
-    from deck.utils import read_deckfile_from_location
+    from getdeck.utils import read_deckfile_from_location
 
     deckfile = read_deckfile_from_location(deckfile_location, config)
     available_decks = deckfile.get_decks()

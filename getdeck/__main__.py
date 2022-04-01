@@ -59,8 +59,8 @@ version_parser = action.add_parser("version")
 
 
 def main():
-    from deck import configuration
-    from deck.api import get_available_decks, run_deck, remove_cluster, remove_deck
+    from getdeck import configuration
+    from getdeck.api import get_available_decks, run_deck, remove_cluster, remove_deck
 
     try:
         args = parser.parse_args()

@@ -2,7 +2,7 @@ import logging
 import re
 from typing import Callable, Any, Tuple, List
 
-from deck.configuration import ClientConfiguration
+from getdeck.configuration import ClientConfiguration
 
 logger = logging.getLogger("deck")
 

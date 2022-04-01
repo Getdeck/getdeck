@@ -4,8 +4,8 @@ from typing import List, Dict, Union
 
 from pydantic import BaseModel
 
-from deck.configuration import ClientConfiguration
-from deck.provider.abstract import AbstractK8sProvider
+from getdeck.configuration import ClientConfiguration
+from getdeck.provider.abstract import AbstractK8sProvider
 
 logger = logging.getLogger("deck")
 
@@ -17,8 +17,8 @@ class DeckfileCluster(BaseModel):
     nativeConfig: dict = None
 
     def get_provider(self, config: ClientConfiguration) -> AbstractK8sProvider:
-        from deck.provider.factory import kubernetes_cluster_factory
-        from deck.provider.types import K8sProviderType
+        from getdeck.provider.factory import kubernetes_cluster_factory
+        from getdeck.provider.types import K8sProviderType
 
         # get selected kubernetes cluster from factory
         try:

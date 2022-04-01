@@ -3,7 +3,7 @@ import logging
 import os
 from typing import List, Union
 
-from deck.configuration import ClientConfiguration
+from getdeck.configuration import ClientConfiguration
 
 logger = logging.getLogger("deck")
 

@@ -1,9 +1,9 @@
 import logging
 from typing import Callable
 
-from deck.api import stopwatch, remove
-from deck.configuration import default_configuration
-from deck.k8s import get_ingress_display
+from getdeck.api import stopwatch, remove
+from getdeck.configuration import default_configuration
+from getdeck.k8s import get_ingress_display
 
 logger = logging.getLogger("deck")
 
@@ -16,11 +16,11 @@ def run_deck(
     config=default_configuration,
     progress_callback: Callable = None,
 ) -> bool:
-    from deck.sources.utils import prepare_k8s_workload_for_deck
-    from deck.utils import read_deckfile_from_location, ensure_cluster
+    from getdeck.sources.utils import prepare_k8s_workload_for_deck
+    from getdeck.utils import read_deckfile_from_location, ensure_cluster
     from kubernetes.client import V1Namespace, V1ObjectMeta
     from kubernetes.client.rest import ApiException
-    from deck.k8s import k8s_create_or_patch
+    from getdeck.k8s import k8s_create_or_patch
 
     cluster_created = False
     if progress_callback:

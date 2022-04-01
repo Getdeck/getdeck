@@ -3,7 +3,7 @@ from typing import List, Optional
 
 from pydantic import BaseModel
 
-from deck.deckfile.file import Deckfile, DeckfileCluster, DeckfileDeck
+from getdeck.deckfile.file import Deckfile, DeckfileCluster, DeckfileDeck
 
 logger = logging.getLogger("deck")
 

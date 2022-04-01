@@ -1,9 +1,9 @@
 import logging
 
-from deck.configuration import ClientConfiguration
-from deck.provider.k3d import K3dBuilder
-from deck.provider.kubectl import KubectlCtxBuilder
-from deck.provider.types import K8sProviderType
+from getdeck.configuration import ClientConfiguration
+from getdeck.provider.k3d import K3dBuilder
+from getdeck.provider.kubectl import KubectlCtxBuilder
+from getdeck.provider.types import K8sProviderType
 
 logger = logging.getLogger("deck")
 

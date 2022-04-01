@@ -21,7 +21,7 @@ class ClientConfiguration(object):
         docker_client=None,
         cluster_name_prefix: str = "",
     ):
-        from deck.deckfile.selector import deckfile_selector
+        from getdeck.deckfile.selector import deckfile_selector
 
         if docker_client:
             self.DOCKER = docker_client

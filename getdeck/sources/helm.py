@@ -6,14 +6,14 @@ from typing import List
 
 import yaml
 
-from deck.configuration import ClientConfiguration
-from deck.deckfile.file import DeckfileHelmSource
-from deck.sources import tooler
-from deck.sources.types import K8sSourceFile
+from getdeck.configuration import ClientConfiguration
+from getdeck.deckfile.file import DeckfileHelmSource
+from getdeck.sources import tooler
+from getdeck.sources.types import K8sSourceFile
 
 from git import Repo
 
-from deck.utils import sniff_protocol
+from getdeck.utils import sniff_protocol
 
 logger = logging.getLogger("deck")
 

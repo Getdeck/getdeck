@@ -3,9 +3,9 @@ from typing import List, Optional
 
 from semantic_version import Version
 
-from deck.configuration import ClientConfiguration
-from deck.provider.abstract import AbstractK8sProvider
-from deck.provider.types import K8sProviderType
+from getdeck.configuration import ClientConfiguration
+from getdeck.provider.abstract import AbstractK8sProvider
+from getdeck.provider.types import K8sProviderType
 
 
 logger = logging.getLogger("deck")
