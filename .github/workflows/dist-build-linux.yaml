@@ -3,7 +3,7 @@
 name: Build Linux binary
 
 env:
-  PYOXIDIZER_DOWNLOAD: https://github.com/indygreg/PyOxidizer/releases/download/pyoxidizer%2F0.20.0/PyOxidizer-0.20.0-exe-x86_64-apple-darwin.zip
+  PYOXIDIZER_DOWNLOAD: https://github.com/indygreg/PyOxidizer/releases/download/pyoxidizer%2F0.20.0/PyOxidizer-0.20.0-exe-x86-64-linux.zip
 
 on:
   push:
@@ -24,7 +24,7 @@ jobs:
     - name: Setup PyOxidizer and build
       run: |
         wget ${PYOXIDIZER_DOWNLOAD}
-        unzip PyOxidizer-0.20.0-exe-x86_64-apple-darwin.zip
+        unzip PyOxidizer-0.20.0-exe-x86-64-linux.zip
         sudo chmod +x ./pyoxidizer
         ./pyoxidizer build exe --release
         cp `find build/ -name "deck"` ./deck

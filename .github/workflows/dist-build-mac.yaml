@@ -3,7 +3,7 @@
 name: Build OSX binary
 
 env:
-  PYOXIDIZER_DOWNLOAD: https://github.com/indygreg/PyOxidizer/releases/download/pyoxidizer%2F0.18.0/pyoxidizer-0.18.0-macos-universal.zip
+  PYOXIDIZER_DOWNLOAD: https://github.com/indygreg/PyOxidizer/releases/download/pyoxidizer%2F0.20.0/PyOxidizer-0.20.0-exe-x86_64-apple-darwin.zip
 
 on:
   workflow_dispatch: {}
@@ -29,7 +29,7 @@ jobs:
     - name: Setup PyOxidizer and build
       run: |
         wget ${PYOXIDIZER_DOWNLOAD}
-        unzip pyoxidizer-0.18.0-macos-universal.zip
+        unzip PyOxidizer-0.20.0-exe-x86_64-apple-darwin.zip
         sudo chmod +x ./macos-universal/pyoxidizer
         ./macos-universal/pyoxidizer build exe --release
         cp `find build/ -name "deck"` ./deck
