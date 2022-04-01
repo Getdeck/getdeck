@@ -10,6 +10,6 @@ def set_version():
             "sed",
             "-i",
             f's/__VERSION__ = "[^"]*"/__VERSION__ = "{version}"/g',
-            "deck/configuration.py",
+            "getdeck/configuration.py",
         ]
     )
