@@ -41,6 +41,7 @@ build-backend = "poetry.core.masonry.api"
 
 [tool.poetry.scripts]
 deck = "deck.__main__:main"
+setversion = "version:set_version"
 
 [tool.poetry.urls]
 issues = "https://github.com/Schille/deck/issues"
