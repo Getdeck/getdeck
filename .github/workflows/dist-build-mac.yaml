@@ -1,0 +1,73 @@
+# This workflow will build a PyOxidizer binary for Mac OS when a tag is pushed
+
+name: Build OSX binary
+
+env:
+  PYOXIDIZER_DOWNLOAD: https://github.com/indygreg/PyOxidizer/releases/download/pyoxidizer%2F0.18.0/pyoxidizer-0.18.0-macos-universal.zip
+
+on:
+  workflow_dispatch: {}
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: macos-10.15
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Setup XCode
+      uses: maxim-lobanov/setup-xcode@v1
+      with:
+        xcode-version: latest-stable
+    - name: Setup PyOxidizer and build
+      run: |
+        wget ${PYOXIDIZER_DOWNLOAD}
+        unzip pyoxidizer-0.18.0-macos-universal.zip
+        sudo chmod +x ./macos-universal/pyoxidizer
+        ./macos-universal/pyoxidizer build exe --release
+        cp `find build/ -name "deck"` ./deck
+        cat pyproject.toml | grep version -m 1 | awk '{ print "APP_VERSION="substr($3, 2, length($3) -2)}' >> $GITHUB_ENV
+    - name: Codesign executable
+      env:
+        MACOS_DEVELOPER_HASH: ${{ secrets.MACOS_DEVELOPER_HASH }}
+        MACOS_APP_HASH: ${{ secrets.MACOS_APP_HASH }}
+        MACOS_CERTIFICATE: ${{ secrets.MACOS_CERTIFICATE }}
+        MACOS_KEYCHAIN_PASS: ${{ secrets.MACOS_KEYCHAIN_PASS }}
+        MACOS_CERTIFICATE_PWD: ${{ secrets.MACOS_CERTIFICATE_PWD }}
+      run: |
+        echo $MACOS_CERTIFICATE | base64 --decode > certificate.p12
+        security create-keychain -p $MACOS_KEYCHAIN_PASS build.keychain
+        security default-keychain -s build.keychain
+        security unlock-keychain -p $MACOS_KEYCHAIN_PASS build.keychain
+        security import certificate.p12 -k build.keychain -P $MACOS_CERTIFICATE_PWD -T /usr/bin/codesign
+        security set-key-partition-list -S apple-tool:,apple:,codesign: -s -k $MACOS_KEYCHAIN_PASS build.keychain
+        
+        echo "<?xml version=\"1.0\" encoding=\"UTF-8\"?>
+        <!DOCTYPE plist PUBLIC \"-//Apple//DTD PLIST 1.0//EN\" \"http://www.apple.com/DTDs/PropertyList-1.0.dtd\">
+        <plist version=\"1.0\">
+        <dict>
+              <key>com.apple.security.cs.allow-jit</key>
+              <true/>
+              <key>com.apple.security.cs.allow-unsigned-executable-memory</key>
+              <true/>
+              <key>com.apple.security.cs.disable-library-validation</key>
+              <true/>
+        </dict>
+        </plist>" > entitlements.plist
+        
+        echo "Now running codesign"
+        /usr/bin/codesign --deep --force --options=runtime --entitlements ./entitlements.plist --sign $MACOS_APP_HASH --timestamp ./deck
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: deck-${{ env.APP_VERSION }}-darwin-amd64
+        path: |
+          deck
+          LICENSE
+          README.md
+        retention-days: 5

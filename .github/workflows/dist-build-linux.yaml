@@ -1,0 +1,40 @@
+# This workflow will build a PyOxidizer binary for linux when a tag is pushed
+
+name: Build Linux binary
+
+env:
+  PYOXIDIZER_DOWNLOAD: https://github.com/indygreg/PyOxidizer/releases/download/pyoxidizer%2F0.18.0/pyoxidizer-0.18.0-linux-x86_64.zip
+
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+    runs-on: ubuntu-18.04
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Setup PyOxidizer and build
+      run: |
+        wget ${PYOXIDIZER_DOWNLOAD}
+        unzip pyoxidizer-0.18.0-linux-x86_64.zip
+        sudo chmod +x ./pyoxidizer
+        ./pyoxidizer build exe --release
+        cp `find build/ -name "deck"` ./deck
+        strip -s ./deck
+        cp README.md ./README.md
+        cat pyproject.toml | grep version -m 1 | awk '{ print "APP_VERSION="substr($3, 2, length($3) -2)}' >> $GITHUB_ENV
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: deck-${{ env.APP_VERSION }}-linux-amd64
+        path: |
+          deck
+          LICENSE
+          README.md
+        retention-days: 5

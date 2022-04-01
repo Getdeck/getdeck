@@ -24,21 +24,41 @@ decks:
     namespace: buzzword
     sources:
       - type: helm
+        ref: https://kubernetes.github.io/dashboard/
+        chart: kubernetes-dashboard
+        releaseName: dashboard
+        parameters:
+          - name: ingress.enabled
+            value: true
+          - name: ingress.hosts
+            value: '{dashboard.127.0.0.1.nip.io}'
+          - name: protocolHttp
+            value: true
+          - name: service.externalPort
+            value: 8080
+          - name: serviceAccount.create
+            value: true
+          - name: rbac.clusterReadOnlyRole
+            value: true
+
+      - type: helm
+        ref: https://charts.bitnami.com/bitnami
+        chart: solr
+        releaseName: solr
+        parameters:
+          - name: ingress.enabled
+            value: true
+          - name: ingress.hostname
+            value: solr.127.0.0.1.nip.io
+
+      - type: helm
         ref: git@github.com:Blueshoe/buzzword-charts.git
         targetRevision: HEAD # only relevant for git
+        releaseName: buzzword-counter # Release name override (defaults to application name)
         path: buzzword-counter
-#        chart: chart-name  # Set this when pulling directly from a Helm repo. DO NOT set for git-hosted Helm charts.
-
-#        parameters: # extra values for --set (take precedence)
-#          - name: "ingress.domain"
-#            value: mydomain.example.com
-#          - name: "ingress.annotations.nginx-"
-#            value: "true"
-
-        releaseName: buzz # Release name override (defaults to application name)
-
 #        valueFiles: # Helm values (files) relative to 'path'
 #          - helm_vars/development/values.development.yaml
+
 #      - type: kustomize
 #      - type: directory
 #        ref: git@github.com:Blueshoe/buzzword-charts.git

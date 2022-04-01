@@ -5,6 +5,7 @@ from typing import Union
 import yaml
 
 from deck import configuration
+from deck.deckfile.errors import DeckfileNotFoundError, DeckfileVersionError
 from deck.deckfile.file import Deckfile
 from deck.deckfile.deckfile_1 import Deckfile_1_0
 
@@ -37,7 +38,12 @@ class DeckfileSelector:
         # get class
         deckfile_class = self.options.get(version)
         if not deckfile_class:
-            raise DeckfileVersionError
+            if version:
+                raise DeckfileVersionError(
+                    f"This Deckfile version {version} is not supported"
+                )
+            else:
+                raise DeckfileVersionError("Version in Deckfile is missing")
         logger.debug("The raw Deckfile data: " + str(data))
         return deckfile_class(**data)
 

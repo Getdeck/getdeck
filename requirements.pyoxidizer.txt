@@ -1,0 +1,4 @@
+docker==5.0.3
+kubernetes==23.3.0
+semantic-version==2.9.0
+GitPython==3.1.27

@@ -1,3 +1,3 @@
-from .list import *
-from .get import *
-from .remove import *
+from .list import *  # noqa
+from .get import *  # noqa
+from .remove import *  # noqa

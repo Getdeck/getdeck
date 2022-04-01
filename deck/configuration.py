@@ -22,6 +22,7 @@ class ClientConfiguration(object):
         cluster_name_prefix: str = "",
     ):
         from deck.deckfile.selector import deckfile_selector
+
         if docker_client:
             self.DOCKER = docker_client
         self.TOOLER_BASE_IMAGE = "tooler"
@@ -50,6 +51,7 @@ class ClientConfiguration(object):
             RbacAuthorizationV1Api,
             AppsV1Api,
             CustomObjectsApi,
+            NetworkingV1Api,
         )
         from kubernetes.config import load_kube_config
 
@@ -61,6 +63,7 @@ class ClientConfiguration(object):
         self.K8S_RBAC_API = RbacAuthorizationV1Api()
         self.K8S_APP_API = AppsV1Api()
         self.K8S_CUSTOM_OBJECT_API = CustomObjectsApi()
+        self.K8S_NETWORKING_API = NetworkingV1Api()
 
     def __getattr__(self, item):
         if item in [
@@ -68,6 +71,7 @@ class ClientConfiguration(object):
             "K8S_RBAC_API",
             "K8S_APP_API",
             "K8S_CUSTOM_OBJECT_API",
+            "K8S_NETWORKING_API",
         ]:
             try:
                 return self.__getattribute__(item)
@@ -80,6 +84,15 @@ class ClientConfiguration(object):
                 self._init_docker()
 
         return self.__getattribute__(item)
+
+    def get_k8s_api(self, api_name: str):
+        return {
+            "CoreV1Api": self.K8S_CORE_API,
+            "RbacAuthorizationV1Api": self.K8S_RBAC_API,
+            "AppsV1Api": self.K8S_APP_API,
+            "CustomObjectsApi": self.K8S_CUSTOM_OBJECT_API,
+            "NetworkingV1Api": self.K8S_NETWORKING_API,
+        }.get(api_name)
 
     def to_dict(self):
         return {k: v for k, v in self.__dict__.items() if k.isupper()}

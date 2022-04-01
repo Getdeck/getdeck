@@ -19,7 +19,7 @@ logger = logging.getLogger("deck")
 
 class K3d(AbstractK8sProvider, CMDWrapper):
     kubernetes_cluster_type = K8sProviderType.k3d
-
+    provider_type = "k3d"
     base_command = "k3d"
     _cluster = []
 
@@ -125,9 +125,10 @@ class K3d(AbstractK8sProvider, CMDWrapper):
 
     def create(self):
         import yaml
+
         arguments = ["cluster", "create", self.k3d_cluster_name]
         logger.info(f"Creating a k3d cluster with name {self.k3d_cluster_name}")
-        logger.debug(f"K3d config is: " + str(self.native_config))
+        logger.debug(f"K3d config is:  {str(self.native_config)}")
         if self.native_config:
             try:
                 with tempfile.NamedTemporaryFile() as temp:
@@ -137,7 +138,7 @@ class K3d(AbstractK8sProvider, CMDWrapper):
                     temp.flush()
                     arguments.extend(["--config", temp.name])
                     logger.debug(arguments)
-                    process = self._execute(arguments, print_output=True)
+                    self._execute(arguments, print_output=True)
             except Exception as e:
                 logger.debug(traceback.print_exc())
                 raise e
@@ -179,6 +180,13 @@ class K3d(AbstractK8sProvider, CMDWrapper):
     def update(self) -> bool:
         logger.debug("Updating k3d now")
 
+    def get_ports(self) -> List[str]:
+        try:
+            ports = self.native_config["ports"]
+            return [port["port"] for port in ports]
+        except KeyError:
+            return []
+
 
 class K3dBuilder:
     def __init__(self):
@@ -192,10 +200,6 @@ class K3dBuilder:
         **_ignored,
     ):
         # create instance
-        instance = K3d(
-            config=config,
-            name=name,
-            native_config=native_config
-        )
+        instance = K3d(config=config, name=name, native_config=native_config)
 
         return instance

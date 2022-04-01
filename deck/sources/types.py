@@ -9,4 +9,6 @@ class K8sSourceFile(BaseModel):
 
 
 class GeneratedDeck(BaseModel):
+    name: str
+    namespace: str
     files: List[K8sSourceFile]
