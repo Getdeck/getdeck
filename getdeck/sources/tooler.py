@@ -44,9 +44,9 @@ def build_user_container(config: ClientConfiguration):
     RUN addgroup -g ${GROUP_ID} -S tooler && adduser -u ${USER_ID} -S tooler -G tooler
     RUN chown ${USER_ID}:${GROUP_ID} /sources
     RUN chown ${USER_ID}:${GROUP_ID} /output
+
     WORKDIR /sources
-    USER tooler
-    """
+    USER tooler"""
         ).encode("utf-8")
     )
     build_args = {"USER_ID": str(uid), "GROUP_ID": str(gid)}

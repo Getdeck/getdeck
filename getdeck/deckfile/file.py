@@ -43,6 +43,7 @@ class DeckfileHelmSource(BaseModel):
     releaseName: str
     valueFiles: List[str] = ["values.yaml"]
     helmArgs: List[str] = None
+    helmPlugins: List[str] = None
 
 
 class DeckfileDirectorySource(BaseModel):
@@ -54,7 +55,7 @@ class DeckfileDirectorySource(BaseModel):
 
 class DeckfileDeck(BaseModel):
     name: str
-    namespace: str
+    namespace: str = "default"
     sources: List[Union[DeckfileHelmSource, DeckfileDirectorySource]]
 
 

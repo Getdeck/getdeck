@@ -37,10 +37,6 @@ def run_deck(
     #  1.b check or set up local cluster
     if not k8s_provider.exists():
         k8s_provider.create()
-        logger.info(
-            f"Create a new cluster with provider {k8s_provider.k8s_provider_type} "
-            f"named {k8s_provider.display_name}"
-        )
         logger.info(f"Published ports are: {k8s_provider.get_ports()}")
         cluster_created = True
     else:
