@@ -23,19 +23,22 @@ def fetch_sources_with_git(
 ) -> List[K8sSourceFile]:
     _k8s_version = get_k8s_api_version(config)
     k8s_workload_files = []
-    HELM_CMD = []
-    HELM_CMD.extend(["helm", "dep", "up", source.path, "&&"])
-    HELM_CMD.extend(["helm", "template", f"{source.releaseName}"])
-    HELM_CMD.extend([f"{source.path}/"])
-    HELM_CMD.extend(["--namespace", namespace])
+    helm_cmd = []
+    helm_cmd.extend(["helm", "dep", "up", source.path, "&&"])
+    helm_cmd.extend(["helm"])
+    if source.helmPlugins:
+        helm_cmd.extend(source.helmPlugins)
+    helm_cmd.extend(["template", f"{source.releaseName}"])
+    helm_cmd.extend([f"{source.path}/"])
+    helm_cmd.extend(["--namespace", namespace])
     if source.valueFiles:
         for _valuefile in source.valueFiles:
-            HELM_CMD.extend(["--values", os.path.join(source.path, _valuefile)])
+            helm_cmd.extend(["--values", os.path.join(source.path, _valuefile)])
     if source.parameters:
         for parameter in source.parameters:
-            HELM_CMD.extend(["--set", f"{parameter.name}={parameter.value}"])
-    HELM_CMD.extend(["--output-dir", "/output"])
-    HELM_CMD.extend(["--kube-version", _k8s_version, "--api-versions", _k8s_version])
+            helm_cmd.extend(["--set", f"{parameter.name}={parameter.value}"])
+    helm_cmd.extend(["--output-dir", "/output"])
+    helm_cmd.extend(["--kube-version", _k8s_version, "--api-versions", _k8s_version])
     tmp_source = tempfile.TemporaryDirectory()
     tmp_output = tempfile.TemporaryDirectory()
     try:
@@ -44,7 +47,7 @@ def fetch_sources_with_git(
         # run tooler
         tooler.run(
             config,
-            HELM_CMD,
+            helm_cmd,
             volume_mounts=[f"{tmp_source.name}:/sources", f"{tmp_output.name}:/output"],
         )
         tmp_source.cleanup()
@@ -75,11 +78,13 @@ def fetch_sources_from_helm_repo(
 ) -> List[K8sSourceFile]:
     _k8s_version = get_k8s_api_version(config)
     k8s_workload_files = []
-    HELM_CMD = []
-    HELM_CMD.extend(["helm", "repo", "add", "this", source.ref, "&&"])
-    HELM_CMD.extend(
+    helm_cmd = []
+    helm_cmd.extend(["helm", "repo", "add", "this", source.ref, "&&"])
+    helm_cmd.extend(["helm"])
+    if source.helmPlugins:
+        helm_cmd.extend(source.helmPlugins)
+    helm_cmd.extend(
         [
-            "helm",
             "template",
             f"{source.releaseName}",
             f"this/{source.chart}",
@@ -90,19 +95,19 @@ def fetch_sources_from_helm_repo(
     if source.parameters:
         for parameter in source.parameters:
             try:
-                HELM_CMD.extend(["--set", f"{parameter['name']}={parameter['value']}"])
+                helm_cmd.extend(["--set", f"{parameter['name']}={parameter['value']}"])
             except KeyError:
                 logger.error(
                     f"The parameters in Deck with ref {source.ref} are malformed"
                 )
 
-    HELM_CMD.extend(["--output-dir", "/output"])
-    HELM_CMD.extend(["--kube-version", _k8s_version, "--api-versions", _k8s_version])
+    helm_cmd.extend(["--output-dir", "/output"])
+    helm_cmd.extend(["--kube-version", _k8s_version, "--api-versions", _k8s_version])
     if source.helmArgs:
-        HELM_CMD.extend(source.helmArgs)
+        helm_cmd.extend(source.helmArgs)
     tmp_output = tempfile.TemporaryDirectory()
     try:
-        tooler.run(config, HELM_CMD, volume_mounts=[f"{tmp_output.name}:/output"])
+        tooler.run(config, helm_cmd, volume_mounts=[f"{tmp_output.name}:/output"])
 
         for root, _dirs, files in os.walk(tmp_output.name):
             for _file in files:

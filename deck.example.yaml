@@ -4,7 +4,7 @@ version: "1"
 cluster:
   provider: k3d
   minVersion: 4.0.0
-  name: mumpiz
+  name: another-cluster
   nativeConfig: # content of the native config file (e.g. https://k3d.io/v5.0.0/usage/configfile/)
     apiVersion: k3d.io/v1alpha2
     kind: Simple
@@ -20,15 +20,54 @@ cluster:
           - agent[0]
 
 decks:
-  - name: mumpiz-platform
+  - name: buzzword-counter
+    namespace: buzzword
     sources:
       - type: helm
-        ref: git@github.com:Blueshoe/mumpiz-helm.git
-        path: mumpiz
-        releaseName: mumpiz
-        helmPlugins:
-          - secret
-        valueFiles: # Helm values (files) relative to 'path'
-          - helm_vars/development/values.development.yaml
-          - helm_vars/development/secrets.development.yaml
-          - helm_vars/development/values.shared.yaml
+        ref: https://kubernetes.github.io/dashboard/
+        chart: kubernetes-dashboard
+        releaseName: dashboard
+        parameters:
+          - name: ingress.enabled
+            value: true
+          - name: ingress.hosts
+            value: '{dashboard.127.0.0.1.nip.io}'
+          - name: protocolHttp
+            value: true
+          - name: service.externalPort
+            value: 8080
+          - name: serviceAccount.create
+            values: false
+
+      - type: helm
+        ref: https://charts.bitnami.com/bitnami
+        chart: solr
+        releaseName: solr
+        parameters:
+          - name: ingress.enabled
+            value: true
+          - name: ingress.hostname
+            value: solr.127.0.0.1.nip.io
+
+      - type: helm
+        ref: git@github.com:Blueshoe/buzzword-charts.git
+        targetRevision: HEAD # only relevant for git
+        path: buzzword-counter
+#        chart: chart-name  # Set this when pulling directly from a Helm repo. DO NOT set for git-hosted Helm charts.
+
+#        parameters: # extra values for --set (take precedence)
+#          - name: "ingress.domain"
+#            value: mydomain.example.com
+#          - name: "ingress.annotations.nginx-"
+#            value: "true"
+
+        releaseName: buzzword-counter # Release name override (defaults to application name)
+
+#        valueFiles: # Helm values (files) relative to 'path'
+#          - helm_vars/development/values.development.yaml
+#      - type: kustomize
+#      - type: directory
+#        ref: git@github.com:Blueshoe/buzzword-charts.git
+#        targetRevision: HEAD
+#        path: .
+#        recursive: true
