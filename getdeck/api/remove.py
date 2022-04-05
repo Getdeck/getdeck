@@ -62,6 +62,9 @@ def remove_deck(
                 k8s_delete_object(config, file.content, generated_deck.namespace)
                 if progress_callback:
                     progress_callback(max(50, int(i / total * 50) - 1))
+            except RuntimeError as e:
+                logger.error(f"There was an error removing a workload: {e}")
+                continue
             except Exception as e:
                 logger.error(f"There was an error removing the workload: {e}")
                 raise e

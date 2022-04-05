@@ -138,7 +138,10 @@ class K3d(AbstractK8sProvider, CMDWrapper):
                     temp.flush()
                     arguments.extend(["--config", temp.name])
                     logger.debug(arguments)
-                    self._execute(arguments, print_output=True)
+                    self._execute(
+                        arguments,
+                        print_output=True if logger.level == logging.DEBUG else False,
+                    )
             except Exception as e:
                 logger.debug(traceback.print_exc())
                 raise e

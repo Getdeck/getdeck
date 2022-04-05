@@ -1,8 +1,6 @@
 FROM alpine
 LABEL maintainer="Schille"
 
-# Ignore to update versions here
-# docker build --no-cache --build-arg KUBECTL_VERSION=${tag} --build-arg HELM_VERSION=${helm} --build-arg KUSTOMIZE_VERSION=${kustomize_version} -t ${image}:${tag} .
 ARG HELM_VERSION=3.8.1
 ARG KUBECTL_VERSION=1.23.5
 ARG KUSTOMIZE_VERSION=v3.8.1
