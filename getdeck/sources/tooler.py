@@ -9,7 +9,9 @@ from getdeck.configuration import ClientConfiguration
 logger = logging.getLogger("deck")
 
 
-def run(config: ClientConfiguration, cmd: Union[str, List], volume_mounts: List[str] = None) -> str:
+def run(
+    config: ClientConfiguration, cmd: Union[str, List], volume_mounts: List[str] = None
+) -> str:
     import docker
 
     # check if this image is already present on this machine
@@ -21,7 +23,12 @@ def run(config: ClientConfiguration, cmd: Union[str, List], volume_mounts: List[
         cmd = " ".join(cmd)
 
     if gnupg_socket := gnupg_agent_socket_path():
-        volume_mounts.extend([f"{gnupg_socket}:{gnupg_socket}", f"{gnupg_home_path()}:/home/tooler/.gnupg"])
+        volume_mounts.extend(
+            [
+                f"{gnupg_socket}:{gnupg_socket}",
+                f"{gnupg_home_path()}:/home/tooler/.gnupg",
+            ]
+        )
 
     exec_cmd = f'bash -c "{cmd}"'
     logger.debug("Tooler running with: " + str(exec_cmd))
@@ -38,8 +45,8 @@ def run(config: ClientConfiguration, cmd: Union[str, List], volume_mounts: List[
 
 def gnupg_home_path() -> str:
     result = subprocess.run("echo $GNUPGHOME", shell=True, stdout=subprocess.PIPE)
-    if result.stdout.decode('utf-8').strip():
-        return result.stdout.decode('utf-8').strip()
+    if result.stdout.decode("utf-8").strip():
+        return result.stdout.decode("utf-8").strip()
     else:
         return os.path.expanduser("~/.gnupg")
 
@@ -49,8 +56,10 @@ def gnupg_agent_socket_path() -> str:
     :return: the agent socket to mount
     """
     try:
-        result = subprocess.run(["gpgconf", "--list-dir", "agent-extra-socket"], stdout=subprocess.PIPE)
-        return result.stdout.decode('utf-8').strip()
+        result = subprocess.run(
+            ["gpgconf", "--list-dir", "agent-extra-socket"], stdout=subprocess.PIPE
+        )
+        return result.stdout.decode("utf-8").strip()
     except FileNotFoundError:
         # gnupg is not installed
         return ""
