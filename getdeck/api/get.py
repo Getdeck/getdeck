@@ -37,7 +37,6 @@ def run_deck(
     #  1.b check or set up local cluster
     if not k8s_provider.exists():
         k8s_provider.create()
-        logger.info(f"Published ports are: {k8s_provider.get_ports()}")
         cluster_created = True
     else:
         logger.info("Cluster already exists")
@@ -53,6 +52,7 @@ def run_deck(
             # remove this just created cluster as it probably is in an inconsistent state from the beginning
             remove.remove_cluster(deckfile_location, config)
         raise e
+    logger.info(f"Applying Deck {generated_deck.name}")
     if progress_callback:
         progress_callback(30)
     #
@@ -90,10 +90,11 @@ def run_deck(
             raise e
     if progress_callback:
         progress_callback(100)
-    logger.info(f"All workloads from Deck '{generated_deck.name}' applied")
+    logger.info(f"All workloads from Deck {generated_deck.name} applied")
 
-    ingress = get_ingress_display(config, "buzzword")
+    ingress = get_ingress_display(config, generated_deck.namespace)
     if ingress:
         for path in ingress:
             logger.info(f"Ingress: {path[0]} -> {path[1]}")
+    logger.info(f"Published ports are: {k8s_provider.get_ports()}")
     return True
