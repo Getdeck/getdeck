@@ -5,7 +5,6 @@ import tempfile
 
 import requests
 from git import Repo
-from requests import HTTPError
 from semantic_version import Version
 
 from getdeck import configuration
@@ -76,7 +75,9 @@ def read_deckfile_from_location(location: str, config: ClientConfiguration) -> D
             return deckfile
         except Exception as e:
             download.close()
-            raise RuntimeError(f"Cannot read Deckfile from http(s) location {location}: {e}")
+            raise RuntimeError(
+                f"Cannot read Deckfile from http(s) location {location}: {e}"
+            )
     else:
         raise RuntimeError("Cannot read Deckfile")
 

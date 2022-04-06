@@ -2,7 +2,12 @@ import logging
 from typing import Union, List
 
 from getdeck.configuration import ClientConfiguration
-from getdeck.deckfile.file import DeckfileHelmSource, DeckfileDirectorySource, Deckfile, DeckfileFileSource
+from getdeck.deckfile.file import (
+    DeckfileHelmSource,
+    DeckfileDirectorySource,
+    Deckfile,
+    DeckfileFileSource,
+)
 from getdeck.sources.file import generate_file_source
 from getdeck.sources.helm import generate_helm_source
 from getdeck.sources.types import GeneratedDeck, K8sSourceFile
@@ -15,11 +20,15 @@ def fetch_deck_source(
     source: Union[DeckfileFileSource, DeckfileHelmSource, DeckfileDirectorySource],
     namespace: str = "default",
 ) -> List[K8sSourceFile]:
-    logger.info(f"Processing source {source.__class__.__name__}: {'no ref' if not getattr(source, 'ref') else getattr(source, 'ref')}")
+    logger.info(
+        "Processing source "
+        f"{source.__class__.__name__}: {'no ref' if not source.ref else source.ref}"
+    )
     if type(source) == DeckfileHelmSource:
         return generate_helm_source(config, source, namespace)
     if type(source) == DeckfileFileSource:
         return generate_file_source(config, source, namespace)
+
 
 def prepare_k8s_workload_for_deck(
     config: ClientConfiguration, deckfile: Deckfile, deck_name: str

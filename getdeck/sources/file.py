@@ -1,5 +1,4 @@
 import logging
-import tempfile
 from typing import List
 
 import requests
@@ -23,11 +22,7 @@ def fetch_file_from_http(source: DeckfileFileSource):
 
         for doc in docs:
             if doc:
-                k8s_workload_files.append(
-                    K8sSourceFile(
-                        name=source.ref, content=doc
-                    )
-                )
+                k8s_workload_files.append(K8sSourceFile(name=source.ref, content=doc))
         return k8s_workload_files
     except Exception as e:
         logger.error(f"Error loading files from http {e}")
@@ -45,8 +40,6 @@ def generate_file_source(
         if protocol in ["http", "https"]:
             return fetch_file_from_http(source)
         else:
-            raise RuntimeError(f"Protocol {protocol} not supported for DeckfileFileSource")
-
-
-
-
+            raise RuntimeError(
+                f"Protocol {protocol} not supported for DeckfileFileSource"
+            )
