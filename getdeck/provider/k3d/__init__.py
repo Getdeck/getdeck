@@ -4,7 +4,6 @@ import re
 import subprocess
 import tempfile
 import traceback
-from time import sleep
 from typing import List, Dict, Optional
 
 from semantic_version import Version
@@ -71,19 +70,10 @@ class K3d(AbstractK8sProvider, CMDWrapper):
 
     def get_kubeconfig(self, wait=10) -> Optional[str]:
         arguments = ["kubeconfig", "get", self.k3d_cluster_name]
-        # this is a nasty busy wait, but we don't have another chance
-        for i in range(1, wait):
-            process = self._execute(arguments)
-            if process.returncode == 0:
-                break
-            else:
-                logger.info(f"Waiting for the cluster to be ready ({i}/{wait}).")
-                sleep(2)
+        process = self._execute(arguments)
 
         if process.returncode != 0:
-            logger.error(
-                "Something went completely wrong with the cluster spin up (or we got a timeout)."
-            )
+            logger.error(f"Could not get kubeconfig for {self.k3d_cluster_name}")
         else:
             # we now need to write the kubekonfig to a file
             config = process.stdout.read().strip()
