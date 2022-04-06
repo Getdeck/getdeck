@@ -3,7 +3,9 @@ import os
 import subprocess
 import tempfile
 
+import requests
 from git import Repo
+from requests import HTTPError
 from semantic_version import Version
 
 from getdeck import configuration
@@ -51,11 +53,30 @@ def read_deckfile_from_location(location: str, config: ClientConfiguration) -> D
         try:
             repo = Repo.clone_from(ref, tmp_dir.name)
             repo.git.checkout(rev)
-            return config.deckfile_selector.get(
+            deckfile = config.deckfile_selector.get(
                 os.path.join(tmp_dir.name, configuration.DECKFILE_FILE)
             )
+            tmp_dir.cleanup()
+            return deckfile
         except Exception:
+            tmp_dir.cleanup()
             raise RuntimeError(f"Cannot checkout {rev} from {ref}")
+    elif protocol in ["http", "https"]:
+        download = tempfile.NamedTemporaryFile()
+        try:
+            logger.debug(f"Requesting {location}")
+            with requests.get(location, stream=True, timeout=10.0) as res:
+                res.raise_for_status()
+                for chunk in res.iter_content(chunk_size=4096):
+                    if chunk:
+                        download.write(chunk)
+                download.flush()
+            deckfile = config.deckfile_selector.get(download.name)
+            download.close()
+            return deckfile
+        except Exception as e:
+            download.close()
+            raise RuntimeError(f"Cannot read Deckfile from http(s) location {location}: {e}")
     else:
         raise RuntimeError("Cannot read Deckfile")
 

@@ -35,6 +35,7 @@ class DeckfileCluster(BaseModel):
 
 
 class DeckfileHelmSource(BaseModel):
+    type: str = "helm"
     ref: str
     targetRevision: str = None
     path: str = None
@@ -46,7 +47,14 @@ class DeckfileHelmSource(BaseModel):
     helmPlugins: List[str] = None
 
 
+class DeckfileFileSource(BaseModel):
+    type: str = "file"
+    ref: str = None
+    content: Dict = None
+
+
 class DeckfileDirectorySource(BaseModel):
+    type: str = "directory"
     ref: str
     targetRevision: str
     path: str
@@ -56,7 +64,7 @@ class DeckfileDirectorySource(BaseModel):
 class DeckfileDeck(BaseModel):
     name: str
     namespace: str = "default"
-    sources: List[Union[DeckfileHelmSource, DeckfileDirectorySource]]
+    sources: List[Union[DeckfileHelmSource, DeckfileDirectorySource, DeckfileFileSource]]
 
 
 class Deckfile(ABC):
