@@ -4,7 +4,7 @@ import subprocess
 import tempfile
 
 import requests
-from git import Repo
+from git import Repo, GitError
 from semantic_version import Version
 
 from getdeck import configuration
@@ -57,9 +57,12 @@ def read_deckfile_from_location(location: str, config: ClientConfiguration) -> D
             )
             tmp_dir.cleanup()
             return deckfile
-        except Exception:
+        except GitError as e:
             tmp_dir.cleanup()
-            raise RuntimeError(f"Cannot checkout {rev} from {ref}")
+            raise RuntimeError(f"Cannot checkout {rev} from {ref}: {e}")
+        except Exception as e:
+            tmp_dir.cleanup()
+            raise e
     elif protocol in ["http", "https"]:
         download = tempfile.NamedTemporaryFile()
         try:
