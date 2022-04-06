@@ -36,7 +36,15 @@ def fetch_sources_with_git(
             helm_cmd.extend(["--values", os.path.join(source.path, _valuefile)])
     if source.parameters:
         for parameter in source.parameters:
-            helm_cmd.extend(["--set", f"{parameter.name}={parameter.value}"])
+            try:
+                val = parameter["value"]
+                if type(val) == bool:
+                    val = str(val).lower()
+                helm_cmd.extend(["--set", f"{parameter['name']}={val}"])
+            except KeyError:
+                logger.error(
+                    f"The parameters in Deck with ref {source.ref} are malformed"
+                )
     helm_cmd.extend(["--output-dir", "/output"])
     helm_cmd.extend(["--kube-version", _k8s_version, "--api-versions", _k8s_version])
     tmp_source = tempfile.TemporaryDirectory()
@@ -95,7 +103,10 @@ def fetch_sources_from_helm_repo(
     if source.parameters:
         for parameter in source.parameters:
             try:
-                helm_cmd.extend(["--set", f"{parameter['name']}={parameter['value']}"])
+                val = parameter["value"]
+                if type(val) == bool:
+                    val = str(val).lower()
+                helm_cmd.extend(["--set", f"{parameter['name']}={val}"])
             except KeyError:
                 logger.error(
                     f"The parameters in Deck with ref {source.ref} are malformed"
