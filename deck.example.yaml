@@ -21,7 +21,7 @@ cluster:
 
 decks:
   - name: buzzword-counter
-    namespace: buzzword
+    namespace: default
     sources:
       - type: helm
         ref: https://kubernetes.github.io/dashboard/
@@ -37,17 +37,27 @@ decks:
           - name: service.externalPort
             value: 8080
           - name: serviceAccount.create
-            values: false
-
-      - type: helm
-        ref: https://charts.bitnami.com/bitnami
-        chart: solr
-        releaseName: solr
-        parameters:
-          - name: ingress.enabled
             value: true
-          - name: ingress.hostname
-            value: solr.127.0.0.1.nip.io
+          - name: serviceAccount.name
+            value: kubernetes-dashboard
+#      - type: file
+#        ref: https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
+
+      - type: file
+        content:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: kubernetes-dashboard
+            namespace: kubernetes-dashboard
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: cluster-admin
+          subjects:
+            - kind: ServiceAccount
+              name: kubernetes-dashboard
+              namespace: default
 
       - type: helm
         ref: git@github.com:Blueshoe/buzzword-charts.git

@@ -25,7 +25,9 @@ def run_deck(
     cluster_created = False
     if progress_callback:
         progress_callback(0)
+
     deckfile = read_deckfile_from_location(deckfile_location, config)
+
     if progress_callback:
         progress_callback(5)
     #
