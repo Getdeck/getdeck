@@ -107,16 +107,6 @@ class K3d(AbstractK8sProvider, CMDWrapper):
             file.close()
             return config_path
 
-    @staticmethod
-    def _get_random_unused_port() -> int:
-        import socket
-
-        tcp = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        tcp.bind(("", 0))
-        addr, port = tcp.getsockname()
-        tcp.close()
-        return port
-
     def exists(self) -> bool:
         for cluster in self._clusters():
             if cluster["name"] == self.k3d_cluster_name:

@@ -3,6 +3,8 @@ import argparse
 import logging
 import os
 
+from getdeck.api import stop_cluster
+
 os.environ["PYOXIDIZER"] = "1"
 
 logger = logging.getLogger("deck")
@@ -55,6 +57,18 @@ remove_parser.add_argument(
     "Deckfile", help="the deck.yaml location (as file, git or https)"
 )
 
+stop_parser = action.add_parser("stop")
+stop_parser.add_argument(
+    "-I",
+    "--no-cluster",
+    help="do not set up the cluster, use current kubectl context",
+    action="store_true",
+    required=False,
+)
+stop_parser.add_argument(
+    "Deckfile", help="the deck.yaml location (as file, git or https)"
+)
+
 version_parser = action.add_parser("version")
 
 
@@ -80,6 +94,8 @@ def main():
                 remove_cluster(args.Deckfile, ignore_cluster=args.no_cluster)
             else:
                 remove_deck(args.Deckfile, args.name, ignore_cluster=args.no_cluster)
+        elif args.action == "stop":
+            stop_cluster(args.Deckfile, ignore_cluster=args.no_cluster)
         elif args.action == "version":
             logger.info(f"Deck version: {configuration.__VERSION__}")
         else:

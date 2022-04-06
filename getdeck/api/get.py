@@ -39,7 +39,8 @@ def run_deck(
         k8s_provider.create()
         cluster_created = True
     else:
-        logger.info("Cluster already exists")
+        logger.info("Cluster already exists, starting it")
+        k8s_provider.start()
     if progress_callback:
         progress_callback(20)
     #
