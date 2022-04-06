@@ -32,7 +32,6 @@ def fetch_file_from_http(source: DeckfileFileSource):
 def generate_file_source(
     config: ClientConfiguration, source: DeckfileFileSource, namespace: str = "default"
 ) -> List[K8sSourceFile]:
-    print(source)
     if source.content is not None:
         return [K8sSourceFile(name="Deckfile", content=source.content)]
     if source.ref is not None:
