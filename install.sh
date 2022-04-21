@@ -1,6 +1,6 @@
 #!/bin/bash
 
-download_url=$(curl -L -s https://api.github.com/repos/Schille/deck/releases/latest | grep '"browser_download_url": ".*linux.*"' | grep -Eo "(http|https)://[a-zA-Z0-9./?=_%:-]*")
+download_url=$(curl -L -s https://api.github.com/repos/getdeck/getdeck/releases/latest | grep '"browser_download_url": ".*linux.*"' | grep -Eo "(http|https)://[a-zA-Z0-9./?=_%:-]*")
 file_name=$(echo $download_url | grep -oE '[^/]+$')
 curl -L $download_url -o /tmp/$file_name
 unzip -o /tmp/$file_name -d /tmp/deck
