@@ -5,6 +5,7 @@ from typing import List, Dict, Union
 from pydantic import BaseModel
 
 from getdeck.configuration import ClientConfiguration
+from getdeck.deckfile.errors import DeckfileError
 from getdeck.provider.abstract import AbstractK8sProvider
 
 logger = logging.getLogger("deck")
@@ -67,6 +68,25 @@ class DeckfileDeck(BaseModel):
     sources: List[
         Union[DeckfileHelmSource, DeckfileDirectorySource, DeckfileFileSource]
     ]
+
+    def __init__(self, *args, **data):
+        print("buk")
+        super(DeckfileDeck, self).__init__(*args, **data)
+        tsources = data.get("sources")
+        self.sources = []
+        if tsources:
+            try:
+                for source in tsources:
+                    if source["type"].lower() == "helm":
+                        self.sources.append(DeckfileHelmSource(**source))
+                    elif source["type"].lower() == "file":
+                        self.sources.append(DeckfileFileSource(**source))
+                    elif source["type"].lower() == "directory":
+                        self.sources.append(DeckfileDirectorySource(**source))
+            except KeyError:
+                raise DeckfileError(
+                    f"A source from Deck {data.get('name')} did not specify the 'type' argument."
+                )
 
 
 class Deckfile(ABC):

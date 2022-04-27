@@ -28,7 +28,7 @@ def fetch_sources_with_git(
     helm_cmd.extend(["helm"])
     if source.helmPlugins:
         helm_cmd.extend(source.helmPlugins)
-    helm_cmd.extend(["template", f"{source.releaseName}"])
+    helm_cmd.extend(["template", f"{source.releaseName}", "--include-crds"])
     helm_cmd.extend([f"{source.path}/"])
     helm_cmd.extend(["--namespace", namespace])
     if source.valueFiles:
@@ -60,7 +60,8 @@ def fetch_sources_with_git(
         )
         tmp_source.cleanup()
 
-        for root, _dirs, files in os.walk(tmp_output.name):
+        for root, dirs, files in os.walk(tmp_output.name):
+            dirs.sort()
             for _file in files:
                 if _file.endswith(".yaml"):
                     with open(os.path.join(root, _file)) as manifest:
@@ -96,6 +97,7 @@ def fetch_sources_from_helm_repo(
             "template",
             f"{source.releaseName}",
             f"this/{source.chart}",
+            "--include-crds",
             "--namespace",
             namespace,
         ]
@@ -120,7 +122,8 @@ def fetch_sources_from_helm_repo(
     try:
         tooler.run(config, helm_cmd, volume_mounts=[f"{tmp_output.name}:/output"])
 
-        for root, _dirs, files in os.walk(tmp_output.name):
+        for root, dirs, files in os.walk(tmp_output.name):
+            dirs.sort()
             for _file in files:
                 if _file.endswith(".yaml"):
                     with open(os.path.join(root, _file)) as manifest:

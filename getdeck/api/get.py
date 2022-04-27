@@ -80,6 +80,7 @@ def run_deck(
     logger.info(f"Installing {total} files(s)")
     for i, file in enumerate(generated_deck.files):
         try:
+            logger.debug(file.name)
             k8s_create_or_patch(config, file.content, generated_deck.namespace)
             if progress_callback:
                 progress_callback(max(50, int(i / total * 50) - 1))

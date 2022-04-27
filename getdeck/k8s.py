@@ -116,7 +116,7 @@ def k8s_call_api(
         # api could not be found, try a manual REST call
         group, _, version = obj["apiVersion"].partition("/")
         kind_plural = {"ingress": "ingresses"}.get(
-            obj["kind"].lower(), f"{obj['kind']}s"
+            obj["kind"].lower(), f"{obj['kind'].lower()}s"
         )
         logger.debug(
             f"Running a REST {action} operation for {obj['kind']} "
