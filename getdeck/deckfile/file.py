@@ -70,7 +70,6 @@ class DeckfileDeck(BaseModel):
     ]
 
     def __init__(self, *args, **data):
-        print("buk")
         super(DeckfileDeck, self).__init__(*args, **data)
         tsources = data.get("sources")
         self.sources = []
