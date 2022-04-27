@@ -52,6 +52,7 @@ class ClientConfiguration(object):
             AppsV1Api,
             CustomObjectsApi,
             NetworkingV1Api,
+            ApiextensionsV1Api,
         )
         from kubernetes.config import load_kube_config
 
@@ -64,6 +65,7 @@ class ClientConfiguration(object):
         self.K8S_APP_API = AppsV1Api()
         self.K8S_CUSTOM_OBJECT_API = CustomObjectsApi()
         self.K8S_NETWORKING_API = NetworkingV1Api()
+        self.K8S_EXTENSION_API = ApiextensionsV1Api()
 
     def __getattr__(self, item):
         if item in [
@@ -72,6 +74,7 @@ class ClientConfiguration(object):
             "K8S_APP_API",
             "K8S_CUSTOM_OBJECT_API",
             "K8S_NETWORKING_API",
+            "K8S_EXTENSION_API",
         ]:
             try:
                 return self.__getattribute__(item)
@@ -92,6 +95,7 @@ class ClientConfiguration(object):
             "AppsV1Api": self.K8S_APP_API,
             "CustomObjectsApi": self.K8S_CUSTOM_OBJECT_API,
             "NetworkingV1Api": self.K8S_NETWORKING_API,
+            "ApiextensionsV1Api": self.K8S_EXTENSION_API,
         }.get(api_name)
 
     def to_dict(self):
