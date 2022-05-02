@@ -33,6 +33,8 @@ class ClientConfiguration(object):
             os.mkdir(self.CLI_KUBECONFIG_DIRECTORY)
         self.K3D_CLUSTER_PREFIX = cluster_name_prefix
         self.kubeconfig = None
+        self.K8S_OBJECT_RETRY = 30
+        self.K8S_OBJECT_RETRY_TIMEOUT = 2  # in s
 
     def _init_docker(self):
         import docker
@@ -53,6 +55,7 @@ class ClientConfiguration(object):
             CustomObjectsApi,
             NetworkingV1Api,
             ApiextensionsV1Api,
+            AdmissionregistrationV1Api,
         )
         from kubernetes.config import load_kube_config
 
@@ -66,6 +69,7 @@ class ClientConfiguration(object):
         self.K8S_CUSTOM_OBJECT_API = CustomObjectsApi()
         self.K8S_NETWORKING_API = NetworkingV1Api()
         self.K8S_EXTENSION_API = ApiextensionsV1Api()
+        self.K8S_ADMISSION_API = AdmissionregistrationV1Api()
 
     def __getattr__(self, item):
         if item in [
@@ -75,6 +79,7 @@ class ClientConfiguration(object):
             "K8S_CUSTOM_OBJECT_API",
             "K8S_NETWORKING_API",
             "K8S_EXTENSION_API",
+            "K8S_ADMISSION_API"
         ]:
             try:
                 return self.__getattribute__(item)
@@ -96,6 +101,7 @@ class ClientConfiguration(object):
             "CustomObjectsApi": self.K8S_CUSTOM_OBJECT_API,
             "NetworkingV1Api": self.K8S_NETWORKING_API,
             "ApiextensionsV1Api": self.K8S_EXTENSION_API,
+            "AdmissionregistrationV1Api": self.K8S_ADMISSION_API
         }.get(api_name)
 
     def to_dict(self):
