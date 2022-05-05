@@ -65,6 +65,7 @@ class DeckfileDirectorySource(BaseModel):
 class DeckfileDeck(BaseModel):
     name: str
     namespace: str = "default"
+    notes: str = ""
     sources: List[
         Union[DeckfileHelmSource, DeckfileDirectorySource, DeckfileFileSource]
     ]
