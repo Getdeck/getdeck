@@ -164,10 +164,20 @@ class K3d(AbstractK8sProvider, CMDWrapper):
         pass
 
     def install(self) -> bool:
-        logger.debug("Installing k3d now")
+        try:
+            subprocess.run(
+                "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash",
+                shell=True,
+                check=True,
+            )
+            return True
+        except subprocess.CalledProcessError:
+            raise RuntimeError("Could not install k3d")
+        except KeyboardInterrupt:
+            raise RuntimeError("Could not install k3d")
 
     def update(self) -> bool:
-        logger.debug("Updating k3d now")
+        return self.install()
 
     def get_ports(self) -> List[str]:
         try:
