@@ -101,4 +101,6 @@ def run_deck(
         for path in ingress:
             logger.info(f"Ingress: {path[0]} -> {path[1]}")
     logger.info(f"Published ports are: {k8s_provider.get_ports()}")
+    if notes := deckfile.get_deck(deck_name).notes:
+        logger.info(notes)
     return True
