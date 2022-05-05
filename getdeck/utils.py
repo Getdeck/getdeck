@@ -124,28 +124,44 @@ def ensure_cluster(
         )
     else:
         k8s_provider = cluster_config.get_provider(config)
-        version = k8s_provider.version()
-
         try:
-            if cluster_config.minVersion:
-                if Version(cluster_config.minVersion) > version:
-                    logger.warning(
-                        f"{cluster_config.provider} is installed in version {version}, "
-                        f"but minVersion is {cluster_config.minVersion}"
+            try:
+                version = k8s_provider.version()
+                if cluster_config.minVersion:
+                    if Version(cluster_config.minVersion) > version:
+                        logger.warning(
+                            f"{cluster_config.provider} is installed in version {version}, "
+                            f"but minVersion is {cluster_config.minVersion}"
+                        )
+                        if do_install:
+                            confirm = input(
+                                f"Do you want to update your local {cluster_config.provider}? [y/N] "
+                            )
+                            if confirm.lower() != "y":
+                                logger.info("Operation aborted")
+                                exit()
+                            k8s_provider.update()
+                else:
+                    logger.debug(
+                        f"{cluster_config.provider} is installed in version {version}"
                     )
-                    if do_install:
-                        k8s_provider.update()
-            else:
-                logger.info(
-                    f"{cluster_config.provider} is installed in version {version}"
-                )
-        except FileNotFoundError:
-            if do_install:
-                logger.info(
-                    f"{cluster_config.provider} is not installed, going to install now"
-                )
+            except FileNotFoundError:
                 #  this K8s provider is not yet installed
-                k8s_provider.install()
+                logger.warning(
+                    f"The required cluster provider {cluster_config.provider} is currently not "
+                    f"installed on your system"
+                )
+                if do_install:
+                    confirm = input(
+                        f"Do you want to install {cluster_config.provider} on your local system? [y/N] "
+                    )
+                    if confirm.lower() != "y":
+                        logger.info("Operation aborted")
+                        exit()
+                    k8s_provider.install()
+        except KeyboardInterrupt:
+            print()  # add a newline
+            raise RuntimeError("Operation aborted")
         return k8s_provider
 
 
