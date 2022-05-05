@@ -118,10 +118,16 @@ class K3d(AbstractK8sProvider, CMDWrapper):
                     temp.flush()
                     arguments.extend(["--config", temp.name])
                     logger.debug(arguments)
-                    self._execute(
+                    p = self._execute(
                         arguments,
                         print_output=True if logger.level == logging.DEBUG else False,
                     )
+                    if p.returncode != 0:
+                        raise RuntimeError(
+                            f"Could not create cluster due to underlying errors with "
+                            f"the provider {self.provider_type}. Please run 'deck' with "
+                            f"the debug flag to find out what is causing the error"
+                        )
             except Exception as e:
                 logger.debug(traceback.print_exc())
                 raise e
