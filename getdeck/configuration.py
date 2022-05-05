@@ -79,7 +79,7 @@ class ClientConfiguration(object):
             "K8S_CUSTOM_OBJECT_API",
             "K8S_NETWORKING_API",
             "K8S_EXTENSION_API",
-            "K8S_ADMISSION_API"
+            "K8S_ADMISSION_API",
         ]:
             try:
                 return self.__getattribute__(item)
@@ -101,7 +101,7 @@ class ClientConfiguration(object):
             "CustomObjectsApi": self.K8S_CUSTOM_OBJECT_API,
             "NetworkingV1Api": self.K8S_NETWORKING_API,
             "ApiextensionsV1Api": self.K8S_EXTENSION_API,
-            "AdmissionregistrationV1Api": self.K8S_ADMISSION_API
+            "AdmissionregistrationV1Api": self.K8S_ADMISSION_API,
         }.get(api_name)
 
     def to_dict(self):
