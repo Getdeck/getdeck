@@ -3,7 +3,7 @@
 name: Build OSX binary
 
 env:
-  PYOXIDIZER_DOWNLOAD: https://github.com/indygreg/PyOxidizer/releases/download/pyoxidizer%2F0.20.0/PyOxidizer-0.20.0-exe-x86_64-apple-darwin.zip
+  PYOXIDIZER_DOWNLOAD: https://github.com/indygreg/PyOxidizer/releases/download/pyoxidizer%2F0.20.0/PyOxidizer-0.20.0-exe-macos-universal.zip
 
 on:
   workflow_dispatch: {}
@@ -29,9 +29,9 @@ jobs:
     - name: Setup PyOxidizer and build
       run: |
         wget ${PYOXIDIZER_DOWNLOAD}
-        unzip PyOxidizer-0.20.0-exe-x86_64-apple-darwin.zip
-        sudo chmod +x ./macos-universal/pyoxidizer
-        ./macos-universal/pyoxidizer build exe --release
+        unzip PyOxidizer-0.20.0-exe-macos-universal.zip
+        sudo chmod +x ./pyoxidizer
+        ./pyoxidizer build exe --release
         cp `find build/ -name "deck"` ./deck
         cat pyproject.toml | grep version -m 1 | awk '{ print "APP_VERSION="substr($3, 2, length($3) -2)}' >> $GITHUB_ENV
     - name: Codesign executable
@@ -67,7 +67,7 @@ jobs:
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
-        name: deck-${{ env.APP_VERSION }}-darwin-amd64
+        name: deck-${{ env.APP_VERSION }}-darwin-universal
         path: |
           deck
           LICENSE
@@ -75,9 +75,9 @@ jobs:
         retention-days: 5
     - name: Create release zip
       if: ${{ github.event.release && github.event.action == 'published' }}
-      run: zip deck-${{ env.APP_VERSION }}-darwin-amd64.zip "deck" "LICENSE" "README.md"
+      run: zip deck-${{ env.APP_VERSION }}-darwin-universal.zip "deck" "LICENSE" "README.md"
     - name: Attach files to release
       uses: softprops/action-gh-release@v1
       if: ${{ github.event.release && github.event.action == 'published' }}
       with:
-        files: deck-${{ env.APP_VERSION }}-darwin-amd64.zip
+        files: deck-${{ env.APP_VERSION }}-darwin-universal.zip
