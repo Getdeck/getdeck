@@ -7,9 +7,11 @@ from getdeck.deckfile.file import (
     DeckfileDirectorySource,
     Deckfile,
     DeckfileFileSource,
+    DeckfileKustomizeSource,
 )
-from getdeck.sources.file import generate_file_source
-from getdeck.sources.helm import generate_helm_source
+from getdeck.sources.file import FileFetcher, Fetcher
+from getdeck.sources.helm import HelmFetcher
+from getdeck.sources.kustomize import KustomizeFetcher
 from getdeck.sources.types import GeneratedDeck, K8sSourceFile
 
 logger = logging.getLogger("deck")
@@ -17,17 +19,31 @@ logger = logging.getLogger("deck")
 
 def fetch_deck_source(
     config: ClientConfiguration,
-    source: Union[DeckfileFileSource, DeckfileHelmSource, DeckfileDirectorySource],
+    source: Union[
+        DeckfileFileSource,
+        DeckfileHelmSource,
+        DeckfileDirectorySource,
+        DeckfileKustomizeSource,
+    ],
     namespace: str = "default",
 ) -> List[K8sSourceFile]:
     logger.info(
         "Processing source "
         f"{source.__class__.__name__}: {'no ref' if not source.ref else source.ref}"
     )
-    if type(source) == DeckfileHelmSource:
-        return generate_helm_source(config, source, namespace)
-    if type(source) == DeckfileFileSource:
-        return generate_file_source(config, source, namespace)
+    if isinstance(source, DeckfileHelmSource):
+        fetcher = HelmFetcher(source, config, namespace)
+    elif isinstance(source, DeckfileFileSource):
+        fetcher = FileFetcher(source, config, namespace)
+    elif isinstance(source, DeckfileKustomizeSource):
+        fetcher = KustomizeFetcher(source, config, namespace)
+    else:
+        logger.info(
+            "Skipping source "
+            f"{source.__class__.__name__}: {'no ref' if not source.ref else source.ref}"
+        )
+        fetcher = Fetcher(source, config, namespace)
+    return fetcher.fetch()
 
 
 def prepare_k8s_workload_for_deck(

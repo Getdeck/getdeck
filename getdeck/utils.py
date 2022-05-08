@@ -19,12 +19,15 @@ logger = logging.getLogger("deck")
 def sniff_protocol(ref: str):
     if "#" in ref:
         ref, rev = ref.split("#")
-    if ref.lower().startswith("git") or ref.lower().endswith(".git"):
+    ref_lo = ref.lower()
+    if ref_lo.startswith("git") or ref_lo.endswith(".git"):
         return "git"
-    if ref.lower().startswith("http"):
-        return "http"
-    if ref.lower().startswith("https"):
+    if ref_lo.startswith("https"):
         return "https"
+    if ref_lo.startswith("http"):
+        return "http"
+    if ref_lo[0] in "./~":
+        return "local"
     return None
 
 
@@ -35,13 +38,6 @@ def read_deckfile_from_location(location: str, config: ClientConfiguration) -> D
         return config.deckfile_selector.get(
             os.path.join(os.getcwd(), configuration.DECKFILE_FILE)
         )
-    elif protocol is None:
-        # this is probably a file system location
-        if os.path.isfile(location):
-            logger.debug("Is file location")
-            return config.deckfile_selector.get(location)
-        else:
-            raise RuntimeError(f"Cannot identify {location} as Deckfile")
     elif protocol == "git":
         if "#" in location:
             ref, rev = location.split("#")
@@ -81,6 +77,13 @@ def read_deckfile_from_location(location: str, config: ClientConfiguration) -> D
             raise RuntimeError(
                 f"Cannot read Deckfile from http(s) location {location}: {e}"
             )
+    elif protocol in (None, "local"):
+        # this is probably a file system location
+        if os.path.isfile(location):
+            logger.debug("Is file location")
+            return config.deckfile_selector.get(location)
+        else:
+            raise RuntimeError(f"Cannot identify {location} as Deckfile")
     else:
         raise RuntimeError("Cannot read Deckfile")
 

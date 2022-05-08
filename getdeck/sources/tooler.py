@@ -2,9 +2,16 @@ import io
 import logging
 import os
 import subprocess
+import tempfile
+from functools import cached_property
 from typing import List, Union
 
+from git import Repo
+
 from getdeck.configuration import ClientConfiguration
+from getdeck.sources import tooler
+from getdeck.sources.file import FileFetcher
+from getdeck.sources.types import K8sSourceFile
 
 logger = logging.getLogger("deck")
 
@@ -94,3 +101,59 @@ def build_user_container(config: ClientConfiguration):
         buildargs=build_args,
         tag=config.TOOLER_USER_IMAGE,
     )
+
+
+class ToolerFetcher(FileFetcher):
+    SOURCES = "/sources"
+    OUTPUT = "/output"
+
+    def fetch_content(self, **kwargs) -> List[K8sSourceFile]:
+        raise NotImplementedError
+
+    def fetch_local(self, **kwargs):
+        raise NotImplementedError
+
+    def fetch_remote(self, git=False):
+        cmd = self.build_command()
+        try:
+            if git:
+                repo = Repo.clone_from(self.source.ref, self.tmp_source.name)
+                repo.git.checkout(self.source.targetRevision)
+            self.run_tooler(cmd)
+            return self.collect_workload_files()
+        finally:
+            self.cleanup()
+
+    def fetch_http(self, **kwargs) -> List[K8sSourceFile]:
+        return self.fetch_remote(git=False)
+
+    def fetch_git(self, **kwargs) -> List[K8sSourceFile]:
+        return self.fetch_remote(git=True)
+
+    @cached_property
+    def tmp_output(self):
+        return tempfile.TemporaryDirectory()
+
+    @cached_property
+    def tmp_source(self):
+        return tempfile.TemporaryDirectory()
+
+    def cleanup(self):
+        self.tmp_output.cleanup()
+        self.tmp_source.cleanup()
+
+    def build_command(self) -> List[str]:
+        raise NotImplementedError
+
+    def run_tooler(self, cmd):
+        tooler.run(
+            self.config,
+            cmd,
+            volume_mounts=[
+                f"{self.tmp_source.name}:{self.SOURCES}",
+                f"{self.tmp_output.name}:{self.OUTPUT}",
+            ],
+        )
+
+    def collect_workload_files(self):
+        raise NotImplementedError
