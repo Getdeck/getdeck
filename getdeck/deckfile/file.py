@@ -38,7 +38,7 @@ class DeckfileCluster(BaseModel):
 class DeckfileHelmSource(BaseModel):
     type: str = "helm"
     ref: str
-    targetRevision: str = None
+    targetRevision: str = ""
     path: str = None
     chart: str = None  # this is set when pulling directly from a Helm repo
     parameters: List[Dict] = None  # Helm value overrides (take precedence)
@@ -56,15 +56,15 @@ class DeckfileFileSource(BaseModel):
 
 class DeckfileKustomizeSource(BaseModel):
     type: str = "kustomize"
-    ref: str = None
-    targetRevision: str = None
-    path: str
+    ref: str
+    targetRevision: str = ""
+    path: str = ""
 
 
 class DeckfileDirectorySource(BaseModel):
     type: str = "directory"
     ref: str
-    targetRevision: str
+    targetRevision: str = ""
     path: str
     recursive: bool
 

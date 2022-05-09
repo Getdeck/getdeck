@@ -117,8 +117,7 @@ class ToolerFetcher(FileFetcher):
         cmd = self.build_command()
         try:
             if git:
-                repo = Repo.clone_from(self.source.ref, self.tmp_source.name)
-                repo.git.checkout(self.source.targetRevision)
+                self._checkout_git()
             self.run_tooler(cmd)
             return self.collect_workload_files()
         finally:
@@ -129,6 +128,11 @@ class ToolerFetcher(FileFetcher):
 
     def fetch_git(self, **kwargs) -> List[K8sSourceFile]:
         return self.fetch_remote(git=True)
+
+    def _checkout_git(self):
+        repo = Repo.clone_from(self.source.ref, self.tmp_source.name)
+        if self.source.targetRevision:
+            repo.git.checkout(self.source.targetRevision)
 
     @cached_property
     def tmp_output(self):
