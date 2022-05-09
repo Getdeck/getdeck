@@ -81,3 +81,11 @@ decks:
 #        targetRevision: HEAD
 #        path: .
 #        recursive: true
+
+  - name: polls
+    namespace: polls
+    sources:
+    - type: kustomize
+      ref: git@github.com:Blueshoe/java-spring-example-charts.git
+      targetRevision: main
+      path: polls_k/overlays/development

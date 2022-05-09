@@ -38,7 +38,7 @@ class DeckfileCluster(BaseModel):
 class DeckfileHelmSource(BaseModel):
     type: str = "helm"
     ref: str
-    targetRevision: str = None
+    targetRevision: str = ""
     path: str = None
     chart: str = None  # this is set when pulling directly from a Helm repo
     parameters: List[Dict] = None  # Helm value overrides (take precedence)
@@ -54,10 +54,17 @@ class DeckfileFileSource(BaseModel):
     content: Dict = None
 
 
+class DeckfileKustomizeSource(BaseModel):
+    type: str = "kustomize"
+    ref: str
+    targetRevision: str = ""
+    path: str = ""
+
+
 class DeckfileDirectorySource(BaseModel):
     type: str = "directory"
     ref: str
-    targetRevision: str
+    targetRevision: str = ""
     path: str
     recursive: bool
 
@@ -67,7 +74,12 @@ class DeckfileDeck(BaseModel):
     namespace: str = "default"
     notes: str = ""
     sources: List[
-        Union[DeckfileHelmSource, DeckfileDirectorySource, DeckfileFileSource]
+        Union[
+            DeckfileHelmSource,
+            DeckfileDirectorySource,
+            DeckfileFileSource,
+            DeckfileKustomizeSource,
+        ]
     ]
 
     def __init__(self, *args, **data):
@@ -83,6 +95,8 @@ class DeckfileDeck(BaseModel):
                         self.sources.append(DeckfileFileSource(**source))
                     elif source["type"].lower() == "directory":
                         self.sources.append(DeckfileDirectorySource(**source))
+                    elif source["type"].lower() == "kustomize":
+                        self.sources.append(DeckfileKustomizeSource(**source))
             except KeyError:
                 raise DeckfileError(
                     f"A source from Deck {data.get('name')} did not specify the 'type' argument."
