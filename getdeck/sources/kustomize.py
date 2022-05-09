@@ -11,14 +11,12 @@ logger = logging.getLogger("deck")
 
 
 class KustomizeFetcher(ToolerFetcher):
-    SOURCES = "/sources"
-    OUTPUT = "/output"
     FILENAME = "manifest.yaml"
 
     @property
     def type(self) -> str:
         if self.source.ref is None:
-            raise RuntimeError("`source.ref` not specififed")
+            raise RuntimeError("`source.ref` not specified")
         protocol = sniff_protocol(self.source.ref)
         return protocol
 

@@ -23,7 +23,7 @@ class HelmFetcher(ToolerFetcher):
         helm_cmd.extend(self._helm_with_plugins())
         helm_cmd.extend(self._helm_template())
         helm_cmd.extend(self._helm_source_params())
-        helm_cmd.extend(["--output-dir", "/output"])
+        helm_cmd.extend(["--output-dir", self.OUTPUT])
         helm_cmd.extend(self._helm_api_versions())
         helm_cmd.extend(self._helm_extra_args())
         return helm_cmd
