@@ -2,6 +2,7 @@ import io
 import logging
 import os
 import subprocess
+import sys
 import tempfile
 from functools import cached_property
 from typing import List, Union
@@ -76,13 +77,19 @@ def build_user_container(config: ClientConfiguration):
     uid = os.geteuid()
     gid = os.getgid()
 
+    if sys.platform in ["darwin"]:
+        user_group_add = "RUN addgroup -S tooler && adduser -S tooler -G tooler"
+    else:
+        user_group_add = "RUN addgroup -g ${GROUP_ID} -S tooler && adduser -u ${USER_ID} -S tooler -G tooler"
+
     Dockerfile = io.BytesIO(
         (
             f"FROM {config.TOOLER_BASE_IMAGE} "
-            + """
+            + f""""
     ARG USER_ID
     ARG GROUP_ID
-    RUN addgroup -g ${GROUP_ID} -S tooler && adduser -u ${USER_ID} -S tooler -G tooler
+    {user_group_add}"""
+            + """
     RUN chown ${USER_ID}:${GROUP_ID} /sources
     RUN chown ${USER_ID}:${GROUP_ID} /output
 
