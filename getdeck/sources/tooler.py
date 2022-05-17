@@ -2,6 +2,7 @@ import io
 import logging
 import os
 import subprocess
+import sys
 import tempfile
 from functools import cached_property
 from typing import List, Union
@@ -73,25 +74,30 @@ def gnupg_agent_socket_path() -> str:
 
 
 def build_user_container(config: ClientConfiguration):
+    logger.info("Building a local Tooler image for source generation")
     uid = os.geteuid()
     gid = os.getgid()
 
+    if sys.platform in ["darwin"]:
+        user_group_add = "RUN addgroup -S tooler && adduser -S tooler -G tooler"
+    else:
+        user_group_add = "RUN addgroup -g ${GROUP_ID} -S tooler && adduser -u ${USER_ID} -S tooler -G tooler"
+
     Dockerfile = io.BytesIO(
         (
-            f"FROM {config.TOOLER_BASE_IMAGE} "
-            + """
-    ARG USER_ID
-    ARG GROUP_ID
-    RUN addgroup -g ${GROUP_ID} -S tooler && adduser -u ${USER_ID} -S tooler -G tooler
-    RUN chown ${USER_ID}:${GROUP_ID} /sources
-    RUN chown ${USER_ID}:${GROUP_ID} /output
-
-    WORKDIR /sources
-    USER tooler
-    ENV HELM_DATA_HOME=/usr/local/share/helm"""
+            f"FROM {config.TOOLER_BASE_IMAGE}\n"
+            "ARG USER_ID\n"
+            "ARG GROUP_ID\n"
+            f"{user_group_add}\n"
+            "RUN chown ${USER_ID}:${GROUP_ID} /sources\n"
+            "RUN chown ${USER_ID}:${GROUP_ID} /output\n"
+            "WORKDIR /sources\n"
+            "USER tooler\n"
+            "ENV HELM_DATA_HOME=/usr/local/share/helm\n"
         ).encode("utf-8")
     )
     build_args = {"USER_ID": str(uid), "GROUP_ID": str(gid)}
+    logger.debug(Dockerfile.read().decode("utf-8"))
     # update tooler base image
     # config.DOCKER.images.pull("tooler")
     image, build_logs = config.DOCKER.images.build(
