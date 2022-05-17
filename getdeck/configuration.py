@@ -25,8 +25,8 @@ class ClientConfiguration(object):
 
         if docker_client:
             self.DOCKER = docker_client
-        self.TOOLER_BASE_IMAGE = "quay.io/getdeck/tooler"
-        self.TOOLER_USER_IMAGE = "deck-tooler"
+        self.TOOLER_BASE_IMAGE = f"quay.io/getdeck/tooler:{__VERSION__}"
+        self.TOOLER_USER_IMAGE = f"deck-tooler:{__VERSION__}"
         self.deckfile_selector = deckfile_selector
         self.CLI_KUBECONFIG_DIRECTORY = os.path.expanduser("~/.deck/")
         if not os.path.exists(self.CLI_KUBECONFIG_DIRECTORY):
