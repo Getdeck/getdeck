@@ -85,17 +85,15 @@ def build_user_container(config: ClientConfiguration):
 
     Dockerfile = io.BytesIO(
         (
-            f"""FROM {config.TOOLER_BASE_IMAGE} 
-            ARG USER_ID
-            ARG GROUP_ID
-                {user_group_add}"""
-            + """
-            RUN chown ${USER_ID}:${GROUP_ID} /sources
-            RUN chown ${USER_ID}:${GROUP_ID} /output
-        
-            WORKDIR /sources
-            USER tooler
-            ENV HELM_DATA_HOME=/usr/local/share/helm"""
+            f"FROM {config.TOOLER_BASE_IMAGE}\n"
+            "ARG USER_ID\n"
+            "ARG GROUP_ID\n"
+            f"{user_group_add}\n"
+            "RUN chown ${USER_ID}:${GROUP_ID} /sources\n"
+            "RUN chown ${USER_ID}:${GROUP_ID} /output\n"
+            "WORKDIR /sources\n"
+            "USER tooler\n"
+            "ENV HELM_DATA_HOME=/usr/local/share/helm\n"
         ).encode("utf-8")
     )
     build_args = {"USER_ID": str(uid), "GROUP_ID": str(gid)}
