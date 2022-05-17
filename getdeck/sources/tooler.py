@@ -74,6 +74,7 @@ def gnupg_agent_socket_path() -> str:
 
 
 def build_user_container(config: ClientConfiguration):
+    logger.info("Building a local Tooler image for source generation")
     uid = os.geteuid()
     gid = os.getgid()
 
@@ -84,21 +85,21 @@ def build_user_container(config: ClientConfiguration):
 
     Dockerfile = io.BytesIO(
         (
-            f"FROM {config.TOOLER_BASE_IMAGE} "
-            + f""""
-    ARG USER_ID
-    ARG GROUP_ID
-    {user_group_add}"""
+            f"""FROM {config.TOOLER_BASE_IMAGE} 
+            ARG USER_ID
+            ARG GROUP_ID
+                {user_group_add}"""
             + """
-    RUN chown ${USER_ID}:${GROUP_ID} /sources
-    RUN chown ${USER_ID}:${GROUP_ID} /output
-
-    WORKDIR /sources
-    USER tooler
-    ENV HELM_DATA_HOME=/usr/local/share/helm"""
+            RUN chown ${USER_ID}:${GROUP_ID} /sources
+            RUN chown ${USER_ID}:${GROUP_ID} /output
+        
+            WORKDIR /sources
+            USER tooler
+            ENV HELM_DATA_HOME=/usr/local/share/helm"""
         ).encode("utf-8")
     )
     build_args = {"USER_ID": str(uid), "GROUP_ID": str(gid)}
+    logger.debug(Dockerfile.read().decode("utf-8"))
     # update tooler base image
     # config.DOCKER.images.pull("tooler")
     image, build_logs = config.DOCKER.images.build(
