@@ -26,7 +26,7 @@ class KustomizeFetcher(ToolerFetcher):
             "kustomize",
             self._target(),
             ">",
-            f"{self.OUTPUT}/{self.FILENAME}"
+            f"{self.OUTPUT}/{self.FILENAME}",
         ]
 
     def collect_workload_files(self):

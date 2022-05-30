@@ -176,9 +176,11 @@ class K3d(AbstractK8sProvider, CMDWrapper):
                     check=True,
                 )
             else:
-                raise RuntimeError("Cannot automatically install k3d on Windows. Please install " 
-                                   "it manually with 'choco install k3d' or follow the "
-                                   "documentation: https://k3d.io/stable/#installation")
+                raise RuntimeError(
+                    "Cannot automatically install k3d on Windows. Please install "
+                    "it manually with 'choco install k3d' or follow the "
+                    "documentation: https://k3d.io/stable/#installation"
+                )
             return True
         except subprocess.CalledProcessError:
             raise RuntimeError("Could not install k3d")

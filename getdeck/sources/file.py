@@ -36,7 +36,7 @@ class Fetcher:
         handler = methodcaller(f"fetch_{self.type}", **kwargs)
         try:
             return handler(self)
-        except (NotImplementedError,):
+        except NotImplementedError:
             logger.warning(self.not_supported_message)
             return []
 
