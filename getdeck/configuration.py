@@ -14,6 +14,31 @@ __VERSION__ = "0.7.1"
 
 DECKFILE_FILE = "deck.yaml"
 
+def fix_pywin32_in_frozen_build() -> None:
+    import os
+    import site
+    if sys.platform != "win32" or not getattr(sys, "frozen", False):
+        return
+
+    site.addsitedir(sys.path[0])
+    customsite = os.path.join(sys.path[0], "lib")
+    site.addsitedir(customsite)
+
+    # sys.path has been extended; use final
+    # path to locate dll folder and add it to path
+    path = sys.path[-1]
+    path = path.replace("Pythonwin", "pywin32_system32")
+    os.environ["PATH"] += ";" + path
+
+    # import pythoncom module
+    import importlib
+    import importlib.machinery
+
+    for name in ["pythoncom", "pywintypes"]:
+        filename = os.path.join(path, name + "39.dll")
+        loader = importlib.machinery.ExtensionFileLoader(name, filename)
+        spec = importlib.machinery.ModuleSpec(name=name, loader=loader, origin=filename)
+        _mod = importlib._bootstrap._load(spec)  # type: ignore
 
 class ClientConfiguration(object):
     def __init__(
@@ -21,6 +46,8 @@ class ClientConfiguration(object):
         docker_client=None,
         cluster_name_prefix: str = "",
     ):
+        if sys.platform == "win32":
+            fix_pywin32_in_frozen_build()
         from getdeck.deckfile.selector import deckfile_selector
 
         if docker_client:

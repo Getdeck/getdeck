@@ -3,6 +3,22 @@
 # https://pyoxidizer.readthedocs.io/en/stable/ for details of this
 # configuration file format.
 
+def resource_callback(policy, resource):
+    if type(resource) in ("File"):
+        if "pywin" in resource.path or "pypiwin" in resource.path:
+            resource.add_location = "filesystem-relative:lib"
+            resource.add_include = True
+
+    if type(resource) in ("PythonExtensionModule"):
+        if resource.name in ["_ssl", "win32.win32file", "win32.win32pipe"]:
+            resource.add_location = "filesystem-relative:lib"
+            resource.add_include = True
+    elif type(resource) in ("PythonModuleSource", "PythonPackageResource", "PythonPackageDistributionResource"):
+        if resource.name in ["pywin32_bootstrap", "pythoncom", "pypiwin32", "pywin32", "pythonwin", "win32", "win32com", "win32comext"]:
+            resource.add_location = "filesystem-relative:lib"
+            resource.add_include = True
+
+
 def make_exe():
     # Obtain the default PythonDistribution for our build target. We link
     # this distribution into our produced executable and extract the Python
@@ -15,9 +31,6 @@ def make_exe():
     # to attributes and calling functions.
     policy = dist.make_python_packaging_policy()
 
-    # Enable support for non-classified "file" resources to be added to
-    # resource collections.
-    # policy.allow_files = True
 
     # Control support for loading Python extensions and other shared libraries
     # from memory. This is only supported on Windows and is ignored on other
@@ -26,91 +39,46 @@ def make_exe():
 
     # Control whether to generate Python bytecode at various optimization
     # levels. The default optimization level used by Python is 0.
-    # policy.bytecode_optimize_level_zero = True
-    policy.bytecode_optimize_level_one = True
+    policy.bytecode_optimize_level_zero = True
+    # policy.bytecode_optimize_level_one = True
     # policy.bytecode_optimize_level_two = True
 
-    # Package all available Python extensions in the distribution.
-    # policy.extension_module_filter = "all"
-
-    # Package the minimum set of Python extensions in the distribution needed
-    # to run a Python interpreter. Various functionality from the Python
-    # standard library won't work with this setting! But it can be used to
-    # reduce the size of generated executables by omitting unused extensions.
-    # policy.extension_module_filter = "no-copyleft"
-
-    # Package Python extensions in the distribution not having additional
-    # library dependencies. This will exclude working support for SSL,
-    # compression formats, and other functionality.
-    # policy.extension_module_filter = "no-libraries"
-
-    # Controls whether `File` instances are emitted by the file scanner.
-    # policy.file_scanner_emit_files = False
-
-    # Controls the `add_include` attribute of "classified" resources
-    # (`PythonModuleSource`, `PythonPackageResource`, etc).
-    # policy.include_classified_resources = True
-
-    # Toggle whether Python module source code for modules in the Python
-    # distribution's standard library are included.
-    # policy.include_distribution_sources = False
-
-    # Toggle whether Python package resource files for the Python standard
-    # library are included.
-    # policy.include_distribution_resources = False
+    policy.extension_module_filter = "all"
 
     # Controls the `add_include` attribute of `File` resources.
-    # policy.include_file_resources = False
+    policy.include_file_resources = True
+    # policy.set_resource_handling_mode("files")
 
     # Controls the `add_include` attribute of `PythonModuleSource` not in
     # the standard library.
-    policy.include_non_distribution_sources = False
+    # policy.include_non_distribution_sources = False
 
-    # Toggle whether files associated with tests are included.
     policy.include_test = False
-
-    # Use in-memory location for adding resources by default.
     policy.resources_location = "in-memory"
-
-    # Attempt to add resources relative to the built binary when
-    # `resources_location` fails.
-    policy.resources_location_fallback = "filesystem-relative:prefix"
-
-    # The configuration of the embedded Python interpreter can be modified
-    # by setting attributes on the instance. Some of these are
-    # documented below.
+    policy.resources_location_fallback = "filesystem-relative:lib"
+    policy.allow_files = True
+    policy.file_scanner_emit_files = True
+    policy.register_resource_callback(resource_callback)
     python_config = dist.make_python_interpreter_config()
+    python_config.module_search_paths = ["$ORIGIN", "$ORIGIN/lib"]
 
-    # Evaluate a string as Python code when the interpreter starts.
     python_config.run_command = "from getdeck.__main__ import main; main()"
 
-    # Produce a PythonExecutable from a Python distribution, embedded
-    # resources, and other options. The returned object represents the
-    # standalone executable that will be built.
     exe = dist.to_python_executable(
         name="deck",
-
-        # If no argument passed, the default `PythonPackagingPolicy` for the
-        # distribution is used.
         packaging_policy=policy,
-
-        # If no argument passed, the default `PythonInterpreterConfig` is used.
         config=python_config,
     )
 
-    # Invoke `pip install` using a requirements file and add the collected resources
-    # to our binary.
-    exe.add_python_resources(exe.pip_install(["-r", "requirements.pyoxidizer.txt"]))
-    # we need to install pydantic without binary
+    exe.add_python_resources(exe.read_package_root(CWD, ["getdeck"]))
+    exe.add_python_resources(exe.pip_install(["--no-deps", "docker"]))
     exe.add_python_resources(exe.pip_install(["--no-binary", "pydantic", "pydantic"]))
-
-    # Read Python files from a local directory and add them to our embedded
-    # context, taking just the resources belonging to the `foo` and `bar`
-    # Python packages.
-    exe.add_python_resources(exe.read_package_root(
-        path=".",
-        packages=["getdeck"],
-    ))
+    exe.add_python_resources(exe.pip_install(["kubernetes", "pywin32==304",
+                                              "pypiwin32==223", "semantic-version==2.9.0",
+                                              "GitPython==3.1.27", "PyYAML==6.0"]))
+    
+    exe.windows_runtime_dlls_mode = "always"
+    exe.windows_subsystem = "console"
 
     return exe
 

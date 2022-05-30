@@ -31,9 +31,6 @@ pydantic = "^1.9.0"
 semantic-version = "^2.9.0"
 GitPython = "^3.1.27"
 PyYAML = "^6.0"
-pypiwin32 = [
-    { markers = "sys_platform == 'win32'", version="*"}
-]
 
 
 [tool.poetry.dev-dependencies]
