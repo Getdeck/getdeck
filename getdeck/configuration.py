@@ -14,9 +14,11 @@ __VERSION__ = "0.7.1"
 
 DECKFILE_FILE = "deck.yaml"
 
+
 def fix_pywin32_in_frozen_build() -> None:
     import os
     import site
+
     if sys.platform != "win32" or not getattr(sys, "frozen", False):
         return
 
@@ -38,7 +40,8 @@ def fix_pywin32_in_frozen_build() -> None:
         filename = os.path.join(path, name + "39.dll")
         loader = importlib.machinery.ExtensionFileLoader(name, filename)
         spec = importlib.machinery.ModuleSpec(name=name, loader=loader, origin=filename)
-        _mod = importlib._bootstrap._load(spec)  # type: ignore
+        importlib._bootstrap._load(spec)  # type: ignore
+
 
 class ClientConfiguration(object):
     def __init__(
