@@ -43,17 +43,18 @@ jobs:
         mkdir build\x86_64-pc-windows-msvc\release\install\
         ./pyoxidizer.exe build install --release
         ls .\build\x86_64-pc-windows-msvc\release\install\
-        xcopy .\build\x86_64-pc-windows-msvc\release\install\* ..\build /s /e /k /i /y
-        copy README.md ../build/
-        ls ../build
+        mkdir dist
+        xcopy .\build\x86_64-pc-windows-msvc\release\install\* ..\dist /s /e /k /i /y
+        copy README.md ../dist/
+        ls ../dist
     - name: Create release zip
-      run: 7z a -r deck-${{ env.APP_VERSION }}-x86_64-pc-windows.zip "/build"
+      run: 7z a -r deck-${{ env.APP_VERSION }}-x86_64-pc-windows.zip "/dist"
     - name: Upload Artifact
       uses: actions/upload-artifact@v2
       with:
         name: getdeck-${{ env.APP_VERSION }}-x86_64-pc-windows
         path: |
-          deck-${{ env.APP_VERSION }}-x86_64-pc-windows.zip
+          dist/*
         retention-days: 5
     - name: Attach files to release
       uses: softprops/action-gh-release@v1
