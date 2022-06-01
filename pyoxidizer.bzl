@@ -86,12 +86,12 @@ def make_exe():
     )
 
     exe.add_python_resources(exe.read_package_root(CWD, ["getdeck"]))
-    exe.add_python_resources(exe.setup_py_install("./build/pywin32/", extra_global_arguments=["--skip-verstamp"]))
+
     exe.add_python_resources(exe.pip_install(["--no-deps", "docker"]))
-    exe.add_python_resources(exe.pip_install(["--no-binary", ":all:", "PyYAML", "pydantic", "kubernetes"]))
+    exe.add_python_resources(exe.pip_install(["PyYAML", "pydantic", "kubernetes"]))
     
     exe.add_python_resources(exe.pip_install(["semantic-version==2.9.0", "GitPython==3.1.27"]))
-
+    exe.add_python_resources(exe.setup_py_install("./build/pywin32/", extra_global_arguments=["--skip-verstamp"]))
     
     exe.windows_runtime_dlls_mode = "always"
 
