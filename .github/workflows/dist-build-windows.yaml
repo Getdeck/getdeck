@@ -33,6 +33,7 @@ jobs:
         mkdir build 
         cd build
         git clone https://github.com/mhammond/pywin32.git
+        cd pywin32
         git checkout b304
     - name: Setup PyOxidizer and build
       run: |
