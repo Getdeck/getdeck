@@ -18,12 +18,27 @@ def resource_callback(policy, resource):
             resource.add_location = "filesystem-relative:lib"
             resource.add_include = True
 
+def resource_callback1(policy, resource):
+    if type(resource) in ("File"):
+        if "pywin" in resource.path or "pypiwin" in resource.path:
+            resource.add_location = "in-memory"
+            resource.add_include = True
+
+    if type(resource) in ("PythonExtensionModule"):
+        if resource.name in ["_ssl", "win32.win32file", "win32.win32pipe"]:
+            resource.add_location = "in-memory"
+            resource.add_include = True
+    elif type(resource) in ("PythonModuleSource", "PythonPackageResource", "PythonPackageDistributionResource"):
+        if resource.name in ["pywin32_bootstrap", "pythoncom", "pypiwin32", "pywin32", "pythonwin", "win32", "win32com", "win32comext"]:
+            resource.add_location = "in-memory"
+            resource.add_include = True
+
 
 def make_exe():
     # Obtain the default PythonDistribution for our build target. We link
     # this distribution into our produced executable and extract the Python
     # standard library from it.
-    dist = default_python_distribution()
+    dist = default_python_distribution(flavor="standalone_static")
 
     # This function creates a `PythonPackagingPolicy` instance, which
     # influences how executables are built and how resources are added to
@@ -39,8 +54,8 @@ def make_exe():
 
     # Control whether to generate Python bytecode at various optimization
     # levels. The default optimization level used by Python is 0.
-    policy.bytecode_optimize_level_zero = True
-    # policy.bytecode_optimize_level_one = True
+    # policy.bytecode_optimize_level_zero = True
+    policy.bytecode_optimize_level_one = True
     # policy.bytecode_optimize_level_two = True
 
     policy.extension_module_filter = "all"
@@ -55,10 +70,10 @@ def make_exe():
 
     policy.include_test = False
     policy.resources_location = "in-memory"
-    policy.resources_location_fallback = "filesystem-relative:lib"
+    policy.resources_location_fallback = "in-memory"
     policy.allow_files = True
     policy.file_scanner_emit_files = True
-    policy.register_resource_callback(resource_callback)
+    policy.register_resource_callback(resource_callback1)
     python_config = dist.make_python_interpreter_config()
     python_config.module_search_paths = ["$ORIGIN", "$ORIGIN/lib"]
 
@@ -71,14 +86,14 @@ def make_exe():
     )
 
     exe.add_python_resources(exe.read_package_root(CWD, ["getdeck"]))
+    exe.add_python_resources(exe.setup_py_install("./build/pywin32/"))
     exe.add_python_resources(exe.pip_install(["--no-deps", "docker"]))
-    exe.add_python_resources(exe.pip_install(["--no-binary", "pydantic", "pydantic"]))
-    exe.add_python_resources(exe.pip_install(["kubernetes", "pywin32==304",
-                                              "pypiwin32==223", "semantic-version==2.9.0",
-                                              "GitPython==3.1.27", "PyYAML==6.0"]))
+    exe.add_python_resources(exe.pip_install(["--no-binary", ":all:", "PyYAML", "pydantic", "kubernetes"]))
+    
+    exe.add_python_resources(exe.pip_install(["semantic-version==2.9.0", "GitPython==3.1.27"]))
+
     
     exe.windows_runtime_dlls_mode = "always"
-    exe.windows_subsystem = "console"
 
     return exe
 
