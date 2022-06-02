@@ -106,6 +106,7 @@ def make_msi(exe):
 
 
 # Tell PyOxidizer about the build targets defined above.
+register_target("exe", make_exe)
 register_target("winexe", make_win_exe)
 register_target("resources", make_embedded_resources, depends=["exe"], default_build_script=True)
 register_target("wininstall", make_install, depends=["winexe"], default=True)
