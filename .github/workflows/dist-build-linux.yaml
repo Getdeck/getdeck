@@ -9,6 +9,8 @@ on:
   push:
     tags:
       - '*'
+    branches:
+      - 'windows-port'
   release:
     types: [published]
 
