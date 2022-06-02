@@ -28,13 +28,6 @@ jobs:
       run: |
         python .github\scripts\get_version.py
         echo "${{ env.APP_VERSION }}"
-    - name: Get pywin32
-      run: |
-        mkdir build 
-        cd build
-        git clone https://github.com/mhammond/pywin32.git
-        cd pywin32
-        git checkout b304
     - name: Setup PyOxidizer and build
       run: |
         Invoke-WebRequest 'https://github.com/indygreg/PyOxidizer/releases/download/pyoxidizer%2F0.20.0/PyOxidizer-0.20.0-exe-x86_64-pc-windows.zip' -OutFile .\PyOxidizer-0.20.0-exe-x86_64-pc-windows.zip

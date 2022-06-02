@@ -29,7 +29,7 @@ def make_exe():
 
     policy.include_test = False
     policy.resources_location = "in-memory"
-    policy.resources_location_fallback = None
+    policy.resources_location_fallback = "filesystem-relative:lib"
     policy.allow_files = True
     policy.file_scanner_emit_files = True
     policy.register_resource_callback(resource_callback)
