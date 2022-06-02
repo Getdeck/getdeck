@@ -53,4 +53,4 @@ jobs:
       uses: softprops/action-gh-release@v1
       if: ${{ github.event.release && github.event.action == 'published' }}
       with:
-        files: deck-${{ env.APP_VERSION }}-x86_64-pc-windows.zip
+        files: deck-${{ env.APP_VERSION }}-windows-x86_64.zip
