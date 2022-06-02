@@ -39,7 +39,7 @@ def make_exe():
     # linux, mac
     exe.add_python_resources(exe.read_package_root(CWD, ["getdeck"]))
     exe.add_python_resources(exe.pip_install(["--no-deps", "docker"]))
-    exe.add_python_resources(exe.pip_install(["--no-binary", "pydantic", """PyYAML", "pydantic", "kubernetes"]))
+    exe.add_python_resources(exe.pip_install(["--no-binary", "pydantic", "PyYAML", "pydantic", "kubernetes"]))
     exe.add_python_resources(exe.pip_install(["semantic-version==2.9.0", "GitPython==3.1.27"]))
     return exe
 
@@ -73,7 +73,7 @@ def make_win_exe():
     # windows
     exe.add_python_resources(exe.read_package_root(CWD, ["getdeck"]))
     exe.add_python_resources(exe.pip_install(["--no-deps", "docker"]))
-    exe.add_python_resources(exe.pip_install(["--no-binary", "pydantic", """PyYAML", "pydantic", "kubernetes"]))
+    exe.add_python_resources(exe.pip_install(["--no-binary", "pydantic", "PyYAML", "pydantic", "kubernetes"]))
     exe.add_python_resources(exe.pip_install(["semantic-version==2.9.0", "GitPython==3.1.27"]))
     exe.add_python_resources(exe.pip_install(["pywin32"]))
     exe.windows_runtime_dlls_mode = "always"
