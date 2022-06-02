@@ -20,6 +20,31 @@ def resource_callback(policy, resource):
 def make_exe():
     dist = default_python_distribution()
     policy = dist.make_python_packaging_policy()
+    policy.allow_in_memory_shared_library_loading = True
+    policy.bytecode_optimize_level_one = True
+    policy.include_non_distribution_sources = False
+    policy.include_test = False
+    policy.resources_location = "in-memory"
+    policy.resources_location_fallback = "filesystem-relative:prefix"
+    python_config = dist.make_python_interpreter_config()
+
+    python_config.run_command = "from getdeck.__main__ import main; main()"
+
+    exe = dist.to_python_executable(
+        name="deck",
+        packaging_policy=policy,
+        config=python_config,
+    )
+
+    exe.add_python_resources(exe.read_package_root(CWD, ["getdeck"]))
+    exe.add_python_resources(exe.pip_install(["--no-deps", "docker"]))
+    exe.add_python_resources(exe.pip_install(["PyYAML", "pydantic", "kubernetes"]))
+    exe.add_python_resources(exe.pip_install(["semantic-version==2.9.0", "GitPython==3.1.27"]))
+    return exe
+
+def make_win_exe():
+    dist = default_python_distribution()
+    policy = dist.make_python_packaging_policy()
 
     policy.allow_in_memory_shared_library_loading = True
 
@@ -49,9 +74,7 @@ def make_exe():
     exe.add_python_resources(exe.pip_install(["PyYAML", "pydantic", "kubernetes"]))
     exe.add_python_resources(exe.pip_install(["semantic-version==2.9.0", "GitPython==3.1.27"]))
     exe.add_python_resources(exe.pip_install(["pywin32"]))
-    
     exe.windows_runtime_dlls_mode = "always"
-
     return exe
 
 def make_embedded_resources(exe):
@@ -82,46 +105,11 @@ def make_msi(exe):
     )
 
 
-# Dynamically enable automatic code signing.
-def register_code_signers():
-    # You will need to run with `pyoxidizer build --var ENABLE_CODE_SIGNING 1` for
-    # this if block to be evaluated.
-    if not VARS.get("ENABLE_CODE_SIGNING"):
-        return
-
-    # Use a code signing certificate in a .pfx/.p12 file, prompting the
-    # user for its path and password to open.
-    # pfx_path = prompt_input("path to code signing certificate file")
-    # pfx_password = prompt_password(
-    #     "password for code signing certificate file",
-    #     confirm = True
-    # )
-    # signer = code_signer_from_pfx_file(pfx_path, pfx_password)
-
-    # Use a code signing certificate in the Windows certificate store, specified
-    # by its SHA-1 thumbprint. (This allows you to use YubiKeys and other
-    # hardware tokens if they speak to the Windows certificate APIs.)
-    # sha1_thumbprint = prompt_input(
-    #     "SHA-1 thumbprint of code signing certificate in Windows store"
-    # )
-    # signer = code_signer_from_windows_store_sha1_thumbprint(sha1_thumbprint)
-
-    # Choose a code signing certificate automatically from the Windows
-    # certificate store.
-    # signer = code_signer_from_windows_store_auto()
-
-    # Activate your signer so it gets called automatically.
-    # signer.activate()
-
-
-# Call our function to set up automatic code signers.
-register_code_signers()
-
 # Tell PyOxidizer about the build targets defined above.
-register_target("exe", make_exe)
+register_target("winexe", make_win_exe)
 register_target("resources", make_embedded_resources, depends=["exe"], default_build_script=True)
-register_target("install", make_install, depends=["exe"], default=True)
-register_target("msi_installer", make_msi, depends=["exe"])
+register_target("wininstall", make_install, depends=["winexe"], default=True)
+register_target("msi_installer", make_msi, depends=["winexe"])
 
 # Resolve whatever targets the invoker of this configuration file is requesting
 # be resolved.
