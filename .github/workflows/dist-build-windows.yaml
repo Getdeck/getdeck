@@ -34,7 +34,7 @@ jobs:
         7z x PyOxidizer-0.20.0-exe-x86_64-pc-windows.zip
         ls
         mkdir build\x86_64-pc-windows-msvc\release\install\
-        ./pyoxidizer.exe build install --release
+        ./pyoxidizer.exe build wininstall --release
         ls .\build\x86_64-pc-windows-msvc\release\install\
         mkdir dist
         xcopy .\build\x86_64-pc-windows-msvc\release\install\* .\dist /s /e /k /i /y
