@@ -8,7 +8,6 @@ def resource_callback(policy, resource):
         if "pywin" in resource.path or "pypiwin" in resource.path:
             resource.add_location = "filesystem-relative:lib"
             resource.add_include = True
-
     if type(resource) in ("PythonExtensionModule"):
         if resource.name in ["_ssl", "win32.win32file", "win32.win32pipe"]:
             resource.add_location = "filesystem-relative:lib"
@@ -17,63 +16,23 @@ def resource_callback(policy, resource):
         if resource.name in ["pywin32_bootstrap", "pythoncom", "pypiwin32", "pywin32", "pythonwin", "win32", "win32com", "win32comext"]:
             resource.add_location = "filesystem-relative:lib"
             resource.add_include = True
-
-def resource_callback1(policy, resource):
-    if type(resource) in ("File"):
-        if "pywin" in resource.path or "pypiwin" in resource.path:
-            resource.add_location = "in-memory"
-            resource.add_include = True
-
-    if type(resource) in ("PythonExtensionModule"):
-        if resource.name in ["_ssl", "win32.win32file", "win32.win32pipe"]:
-            resource.add_location = "in-memory"
-            resource.add_include = True
-    elif type(resource) in ("PythonModuleSource", "PythonPackageResource", "PythonPackageDistributionResource"):
-        if resource.name in ["pywin32_bootstrap", "pythoncom", "pypiwin32", "pywin32", "pythonwin", "win32", "win32com", "win32comext"]:
-            resource.add_location = "in-memory"
-            resource.add_include = True
-
 
 def make_exe():
-    # Obtain the default PythonDistribution for our build target. We link
-    # this distribution into our produced executable and extract the Python
-    # standard library from it.
-    dist = default_python_distribution(flavor="standalone")
-
-    # This function creates a `PythonPackagingPolicy` instance, which
-    # influences how executables are built and how resources are added to
-    # the executable. You can customize the default behavior by assigning
-    # to attributes and calling functions.
+    dist = default_python_distribution()
     policy = dist.make_python_packaging_policy()
 
-
-    # Control support for loading Python extensions and other shared libraries
-    # from memory. This is only supported on Windows and is ignored on other
-    # platforms.
     policy.allow_in_memory_shared_library_loading = True
 
-    # Control whether to generate Python bytecode at various optimization
-    # levels. The default optimization level used by Python is 0.
-    # policy.bytecode_optimize_level_zero = True
     policy.bytecode_optimize_level_one = True
-    # policy.bytecode_optimize_level_two = True
-
     policy.extension_module_filter = "all"
-
-    # Controls the `add_include` attribute of `File` resources.
     policy.include_file_resources = True
-    # policy.set_resource_handling_mode("files")
-
-    # Controls the `add_include` attribute of `PythonModuleSource` not in
-    # the standard library.
-    # policy.include_non_distribution_sources = False
 
     policy.include_test = False
     policy.resources_location = "in-memory"
-    policy.resources_location_fallback = "in-memory"
+    policy.resources_location_fallback = None
     policy.allow_files = True
     policy.file_scanner_emit_files = True
-    policy.register_resource_callback(resource_callback1)
+    policy.register_resource_callback(resource_callback)
     python_config = dist.make_python_interpreter_config()
     python_config.module_search_paths = ["$ORIGIN", "$ORIGIN/lib"]
 
@@ -86,12 +45,10 @@ def make_exe():
     )
 
     exe.add_python_resources(exe.read_package_root(CWD, ["getdeck"]))
-
     exe.add_python_resources(exe.pip_install(["--no-deps", "docker"]))
     exe.add_python_resources(exe.pip_install(["PyYAML", "pydantic", "kubernetes"]))
-    
     exe.add_python_resources(exe.pip_install(["semantic-version==2.9.0", "GitPython==3.1.27"]))
-    exe.add_python_resources(exe.setup_py_install("./build/pywin32/", extra_global_arguments=["--skip-verstamp"]))
+    exe.add_python_resources(exe.pip_install(["pywin32"]))
     
     exe.windows_runtime_dlls_mode = "always"
 
