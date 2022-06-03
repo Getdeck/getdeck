@@ -60,7 +60,7 @@ def read_deckfile_from_location(location: str, config: ClientConfiguration) -> D
             tmp_dir.cleanup()
             raise e
     elif protocol in ["http", "https"]:
-        download = tempfile.NamedTemporaryFile()
+        download = tempfile.NamedTemporaryFile(delete=False)
         try:
             logger.debug(f"Requesting {location}")
             with requests.get(location, stream=True, timeout=10.0) as res:
@@ -69,11 +69,13 @@ def read_deckfile_from_location(location: str, config: ClientConfiguration) -> D
                     if chunk:
                         download.write(chunk)
                 download.flush()
-            deckfile = config.deckfile_selector.get(download.name)
             download.close()
+            deckfile = config.deckfile_selector.get(download.name)
+            os.remove(download.name)
             return deckfile
         except Exception as e:
             download.close()
+            os.remove(download.name)
             raise RuntimeError(
                 f"Cannot read Deckfile from http(s) location {location}: {e}"
             )

@@ -75,10 +75,14 @@ def gnupg_agent_socket_path() -> str:
 
 def build_user_container(config: ClientConfiguration):
     logger.info("Building a local Tooler image for source generation")
-    uid = os.geteuid()
-    gid = os.getgid()
+    if sys.platform != "win32":
+        uid = os.getuid()
+        gid = os.getgid()
+    else:
+        uid = 1000
+        gid = 1000
 
-    if sys.platform in ["darwin"]:
+    if sys.platform in ["darwin", "win32"]:
         user_group_add = "RUN addgroup -S tooler && adduser -S tooler -G tooler"
     else:
         user_group_add = "RUN addgroup -g ${GROUP_ID} -S tooler && adduser -u ${USER_ID} -S tooler -G tooler"
@@ -136,6 +140,7 @@ class ToolerFetcher(FileFetcher):
         return self.fetch_remote(git=True)
 
     def _checkout_git(self):
+        logger.debug(f"Cloning from {self.source.ref} to {self.tmp_source.name}")
         repo = Repo.clone_from(self.source.ref, self.tmp_source.name)
         if self.source.targetRevision:
             repo.git.checkout(self.source.targetRevision)

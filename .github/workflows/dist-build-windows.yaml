@@ -1,0 +1,56 @@
+# This workflow will build a PyOxidizer binary for Windows when a tag is pushed
+
+name: Build Windows binary
+
+env:
+  PYOXIDIZER_DOWNLOAD: https://github.com/indygreg/PyOxidizer/releases/download/pyoxidizer%2F0.20.0/PyOxidizer-0.20.0-exe-x86_64-pc-windows.zip
+
+on:
+  workflow_dispatch: {}
+  push:
+    tags:
+      - '*'
+    branches:
+      - 'windows-port'
+  release:
+    types: [published]
+
+jobs:
+  build:
+    runs-on: windows-2019
+    steps:
+    - uses: actions/checkout@v2
+    - name: Set up Python
+      uses: actions/setup-python@v2
+      with:
+        python-version: '3.9'
+    - name: Determine App Version
+      run: |
+        python .github\scripts\get_version.py
+        echo "${{ env.APP_VERSION }}"
+    - name: Setup PyOxidizer and build
+      run: |
+        Invoke-WebRequest 'https://github.com/indygreg/PyOxidizer/releases/download/pyoxidizer%2F0.20.0/PyOxidizer-0.20.0-exe-x86_64-pc-windows.zip' -OutFile .\PyOxidizer-0.20.0-exe-x86_64-pc-windows.zip
+        7z x PyOxidizer-0.20.0-exe-x86_64-pc-windows.zip
+        ls
+        mkdir build\x86_64-pc-windows-msvc\release\wininstall\
+        ./pyoxidizer.exe build wininstall --release
+        ls .\build\x86_64-pc-windows-msvc\release\wininstall\
+        mkdir dist
+        xcopy .\build\x86_64-pc-windows-msvc\release\wininstall\* .\dist /s /e /k /i /y
+        copy README.md ./dist/
+        ls ./dist
+    - name: Upload Artifact
+      uses: actions/upload-artifact@v2
+      with:
+        name: deck-${{ env.APP_VERSION }}-windows-x86_64
+        path: |
+          dist/
+        retention-days: 5
+    - name: Create release zip
+      run: 7z a -r deck-${{ env.APP_VERSION }}-windows-x86_64.zip "dist/"
+    - name: Attach files to release
+      uses: softprops/action-gh-release@v1
+      if: ${{ github.event.release && github.event.action == 'published' }}
+      with:
+        files: deck-${{ env.APP_VERSION }}-windows-x86_64.zip

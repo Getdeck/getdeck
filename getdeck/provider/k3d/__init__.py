@@ -1,6 +1,7 @@
 import logging
 import os
 import re
+import sys
 import subprocess
 import tempfile
 import traceback
@@ -111,24 +112,27 @@ class K3d(AbstractK8sProvider, CMDWrapper):
         logger.debug(f"K3d config is:  {str(self.native_config)}")
         if self.native_config:
             try:
-                with tempfile.NamedTemporaryFile() as temp:
-                    logger.debug("K3d config to: " + temp.name)
-                    content = yaml.dump(self.native_config, default_flow_style=False)
-                    temp.write(content.encode("utf-8"))
-                    temp.flush()
-                    arguments.extend(["--config", temp.name])
-                    logger.debug(arguments)
-                    p = self._execute(
-                        arguments,
-                        print_output=True if logger.level == logging.DEBUG else False,
+                temp = tempfile.NamedTemporaryFile(delete=False)
+                logger.debug("K3d config to: " + temp.name)
+                content = yaml.dump(self.native_config, default_flow_style=False)
+                temp.write(content.encode("utf-8"))
+                temp.flush()
+                temp.close()
+                arguments.extend(["--config", temp.name])
+                logger.debug(arguments)
+                p = self._execute(
+                    arguments,
+                    print_output=True if logger.level == logging.DEBUG else False,
+                )
+                os.remove(temp.name)
+                if p.returncode != 0:
+                    raise RuntimeError(
+                        f"Could not create cluster due to underlying errors with "
+                        f"the provider {self.provider_type}. Please run 'deck' with "
+                        f"the debug flag to find out what is causing the error"
                     )
-                    if p.returncode != 0:
-                        raise RuntimeError(
-                            f"Could not create cluster due to underlying errors with "
-                            f"the provider {self.provider_type}. Please run 'deck' with "
-                            f"the debug flag to find out what is causing the error"
-                        )
             except Exception as e:
+                temp.close()
                 logger.debug(traceback.print_exc())
                 raise e
         return True
@@ -165,11 +169,18 @@ class K3d(AbstractK8sProvider, CMDWrapper):
 
     def install(self) -> bool:
         try:
-            subprocess.run(
-                "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash",
-                shell=True,
-                check=True,
-            )
+            if sys.platform != "win32":
+                subprocess.run(
+                    "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash",
+                    shell=True,
+                    check=True,
+                )
+            else:
+                raise RuntimeError(
+                    "Cannot automatically install k3d on Windows. Please install "
+                    "it manually with 'choco install k3d' or follow the "
+                    "documentation: https://k3d.io/stable/#installation"
+                )
             return True
         except subprocess.CalledProcessError:
             raise RuntimeError("Could not install k3d")
