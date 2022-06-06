@@ -3,8 +3,6 @@ from typing import Callable
 
 from getdeck.api import stopwatch, remove
 from getdeck.configuration import default_configuration
-from getdeck.k8s import get_ingress_display
-from getdeck.utils import wait_for_pods_ready
 
 logger = logging.getLogger("deck")
 
@@ -24,6 +22,7 @@ def run_deck(
     from kubernetes.client import V1Namespace, V1ObjectMeta
     from kubernetes.client.rest import ApiException
     from getdeck.k8s import k8s_create_or_patch
+    from getdeck.k8s import get_ingress_display
 
     cluster_created = False
     if progress_callback:
@@ -113,6 +112,8 @@ def run_deck(
 
 
 def _wait_ready(config, generated_deck, timeout):
+    from getdeck.utils import wait_for_pods_ready
+
     logger.info(
         f"Now waiting for all Pods in namespace '{generated_deck.namespace}' to become "
         f"ready within {timeout} seconds."
