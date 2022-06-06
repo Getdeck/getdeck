@@ -2,6 +2,7 @@ import logging
 import os
 import subprocess
 import tempfile
+from time import sleep
 
 import requests
 from git import Repo, GitError
@@ -222,3 +223,49 @@ class CMDWrapper(object):
     def _get_environment(self):
         env = os.environ.copy()
         return env
+
+
+def wait_for_pods_ready(
+    config: ClientConfiguration, namespace: str = "default", timeout: int = 120
+):
+    _ready = False
+    i = 0
+
+    def _pod_ready(_pod):
+        if not _pod.status.conditions:
+            return False
+        return (
+            sorted(_pod.status.conditions, key=lambda x: x.last_transition_time)[
+                -1
+            ].type
+            == "ContainersReady"
+        )
+
+    def _print_message():
+        if i % 10 == 0:
+            #  print a notification after 10s
+            logger.info(
+                f"Waiting for all Pods of the Deck to become ready ({i} s / {timeout} s)"
+            )
+
+    while i <= timeout:
+        try:
+            pods = config.K8S_CORE_API.list_namespaced_pod(namespace)
+            if len(pods.items) == 0:
+                sleep(1)
+                i = i + 1
+                _print_message()
+                continue
+            for pod in pods.items:
+                if not _pod_ready(pod):
+                    sleep(1)
+                    i = i + 1
+                    _print_message()
+                    break
+            else:
+                _ready = True
+                break
+        except Exception as e:
+            logger.debug(e)
+            continue
+    return _ready
