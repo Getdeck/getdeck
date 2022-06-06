@@ -4,6 +4,7 @@ from typing import Callable
 from getdeck.api import stopwatch, remove
 from getdeck.configuration import default_configuration
 from getdeck.k8s import get_ingress_display
+from getdeck.utils import wait_for_pods_ready
 
 logger = logging.getLogger("deck")
 
@@ -13,6 +14,8 @@ def run_deck(
     deckfile_location: str,
     deck_name: str = None,
     ignore_cluster: bool = False,
+    wait: bool = False,
+    timeout: int = 120,
     config=default_configuration,
     progress_callback: Callable = None,
 ) -> bool:
@@ -103,4 +106,21 @@ def run_deck(
     logger.info(f"Published ports are: {k8s_provider.get_ports()}")
     if notes := deckfile.get_deck(deck_name).notes:
         logger.info(notes)
+
+    if wait:
+        _wait_ready(config, generated_deck, timeout)
     return True
+
+
+def _wait_ready(config, generated_deck, timeout):
+    logger.info(
+        f"Now waiting for all Pods in namespace '{generated_deck.namespace}' to become "
+        f"ready within {timeout} seconds."
+    )
+    ready = wait_for_pods_ready(
+        config, namespace=generated_deck.namespace, timeout=timeout
+    )
+    if not ready:
+        raise RuntimeError(
+            f"The Pods of this Deck did not become ready in time (timout was {timeout} s)."
+        )

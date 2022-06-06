@@ -32,6 +32,33 @@ get_parser.add_argument(
     required=False,
 )
 get_parser.add_argument(
+    "-W",
+    "--wait",
+    help="Wait for the Pods of the Deck to become ready",
+    action="store_true",
+    required=False,
+)
+
+
+def check_positive(value):
+    try:
+        ivalue = int(value)
+    except ValueError:
+        raise argparse.ArgumentTypeError("timeout must be a positive integer value")
+    if ivalue <= 0:
+        raise argparse.ArgumentTypeError("timeout must be a positive integer value")
+    return ivalue
+
+
+get_parser.add_argument(
+    "-T",
+    "--timeout",
+    help="Timeout (in seconds, default 120) for the Pods of the Deck to become ready; if exceeded the run fails",
+    default=120,
+    type=check_positive,
+    required=False,
+)
+get_parser.add_argument(
     "Deckfile", help="the deck.yaml location (as file, git or https)"
 )
 
@@ -88,7 +115,16 @@ def main():
             names = [deck.name for deck in decks]
             logger.info(names)
         elif args.action == "get":
-            run_deck(args.Deckfile, args.name, ignore_cluster=args.no_cluster)
+            if args.wait:
+                run_deck(
+                    args.Deckfile,
+                    args.name,
+                    ignore_cluster=args.no_cluster,
+                    wait=True,
+                    timeout=int(args.timeout),
+                )
+            else:
+                run_deck(args.Deckfile, args.name, ignore_cluster=args.no_cluster)
         elif args.action == "remove":
             if args.cluster:
                 remove_cluster(args.Deckfile, ignore_cluster=args.no_cluster)
