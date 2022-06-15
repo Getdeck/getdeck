@@ -181,7 +181,11 @@ class CMDWrapper(object):
         self._debug_output = debug_output
 
     def _execute(
-        self, arguments, stdin: str = None, print_output: bool = False, base_command: str = None,
+        self,
+        arguments,
+        stdin: str = None,
+        print_output: bool = False,
+        base_command: str = None,
     ) -> subprocess.Popen:
         if base_command:
             cmd = [base_command] + arguments

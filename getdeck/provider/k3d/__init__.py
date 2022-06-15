@@ -133,7 +133,7 @@ class K3d(AbstractK8sProvider, CMDWrapper):
                     )
             except Exception as e:
                 temp.close()
-                logger.debug(traceback.print_exc())
+                logger.debug(traceback.format_exc())
                 raise e
         return True
 

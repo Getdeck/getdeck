@@ -61,11 +61,13 @@ class Kind(AbstractK8sProvider, CMDWrapper):
                 # todo handle this output
                 if len(cluster) != 2:
                     continue
-                clusters.append({
-                    "name": entry,
-                    "servers": cluster[1],
-                    "agents": cluster[0],
-                })
+                clusters.append(
+                    {
+                        "name": entry,
+                        "servers": cluster[1],
+                        "agents": cluster[0],
+                    }
+                )
             self._cluster = clusters
         return self._cluster
 
@@ -120,7 +122,10 @@ class Kind(AbstractK8sProvider, CMDWrapper):
                 temp.close()
                 arguments.extend(["--config", temp.name])
                 logger.debug(arguments)
-                p = self._execute(arguments, print_output=True if logger.level == logging.DEBUG else False)
+                p = self._execute(
+                    arguments,
+                    print_output=True if logger.level == logging.DEBUG else False,
+                )
                 # os.remove(temp.name)
                 print(p.returncode)
                 print(p)
@@ -132,7 +137,7 @@ class Kind(AbstractK8sProvider, CMDWrapper):
                     )
             except Exception as e:
                 temp.close()
-                logger.debug(traceback.print_exc())
+                logger.debug(traceback.format_exc())
                 raise e
         return True
 
@@ -181,15 +186,22 @@ class Kind(AbstractK8sProvider, CMDWrapper):
         try:
             if sys.platform != "win32":
                 subprocess.run(
-                    "curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.14.0/kind-linux-amd64;chmod +x ./kind;sudo mv ./kind /usr/local/bin/kind",
+                    "curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.14.0/kind-linux-amd64;chmod +x ./kind;"
+                    "sudo mv ./kind /usr/local/bin/kind",
                     shell=True,
                     check=True,
                 )
             else:
-                subprocess.run(
-                    "curl.exe -Lo kind-windows-amd64.exe https://kind.sigs.k8s.io/dl/v0.14.0/kind-windows-amd64;Move-Item .\kind-windows-amd64.exe c:\some-dir-in-your-PATH\kind.exe",
-                    shell=True,
-                    check=True,
+                # subprocess.run(
+                #     "curl.exe -Lo kind-windows-amd64.exe https://kind.sigs.k8s.io/dl/v0.14.0/kind-windows-amd64;Move"
+                #     "-Item .\kind-windows-amd64.exe c:\some-dir-in-your-PATH\kind.exe",
+                #     shell=True,
+                #     check=True,
+                # )
+                raise RuntimeError(
+                    "Cannot automatically install k3d on Windows. Please install "
+                    "it manually with 'choco install k3d' or follow the "
+                    "documentation: https://k3d.io/stable/#installation"
                 )
             return True
         except subprocess.CalledProcessError:
