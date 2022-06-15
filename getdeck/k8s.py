@@ -138,7 +138,7 @@ def k8s_call_api(
     if api is None:
         # api could not be found, try a manual REST call
         group, _, version = obj["apiVersion"].partition("/")
-        kind_plural = {"ingress": "ingresses"}.get(
+        kind_plural = {"ingress": "ingresses", "storageclass": "storageclasses"}.get(
             obj["kind"].lower(), f"{obj['kind'].lower()}s"
         )
         if namespace:
