@@ -1,0 +1,93 @@
+version: "1"
+
+# the cluster configuration across all decks
+cluster:
+  provider: kind
+  minVersion: 0.14.0
+  name: another-cluster
+  nativeConfig: # content of the native config file (e.g. https://kind.sigs.k8s.io/docs/user/configuration/)
+    apiVersion: kind.x-k8s.io/v1alpha4
+    kind: Cluster
+    nodes:
+      - role: control-plane
+        kubeadmConfigPatches:
+        - |
+          kind: InitConfiguration
+          nodeRegistration:
+            kubeletExtraArgs:
+              node-labels: "ingress-ready=true"
+        extraPortMappings:
+          - containerPort: 80
+            hostPort: 8080
+          - containerPort: 31820
+            hostPort: 31820
+            protocol: udp
+      - role: worker
+
+
+decks:
+  - name: buzzword-counter
+    namespace: default
+    sources:
+      - type: helm
+        ref: https://kubernetes.github.io/dashboard/
+        chart: kubernetes-dashboard
+        releaseName: dashboard
+        parameters:
+          - name: ingress.enabled
+            value: true
+          - name: ingress.hosts
+            value: '{dashboard.127.0.0.1.nip.io}'
+          - name: protocolHttp
+            value: true
+          - name: service.externalPort
+            value: 8080
+          - name: serviceAccount.create
+            value: true
+          - name: serviceAccount.name
+            value: kubernetes-dashboard
+#      - type: file
+#        ref: https://raw.githubusercontent.com/kubernetes/dashboard/v2.5.0/aio/deploy/recommended.yaml
+
+      - type: file
+        content:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: kubernetes-dashboard
+            namespace: kubernetes-dashboard
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: cluster-admin
+          subjects:
+            - kind: ServiceAccount
+              name: kubernetes-dashboard
+              namespace: default
+      - type: file
+        ref: https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/kind/deploy.yaml
+
+
+
+#      - type: helm
+#        ref: git@github.com:Blueshoe/buzzword-charts.git
+#        targetRevision: HEAD # only relevant for git
+#        path: buzzword-counter
+##        chart: chart-name  # Set this when pulling directly from a Helm repo. DO NOT set for git-hosted Helm charts.
+#
+##        parameters: # extra values for --set (take precedence)
+##          - name: "ingress.domain"
+##            value: mydomain.example.com
+##          - name: "ingress.annotations.nginx-"
+##            value: "true"
+#
+#        releaseName: buzzword-counter # Release name override (defaults to application name)
+
+#        valueFiles: # Helm values (files) relative to 'path'
+#          - helm_vars/development/values.development.yaml
+#      - type: kustomize
+#      - type: directory
+#        ref: git@github.com:Blueshoe/buzzword-charts.git
+#        targetRevision: HEAD
+#        path: .
+#        recursive: true

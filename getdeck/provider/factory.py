@@ -3,6 +3,7 @@ import logging
 from getdeck.configuration import ClientConfiguration
 from getdeck.provider.k3d import K3dBuilder
 from getdeck.provider.kubectl import KubectlCtxBuilder
+from getdeck.provider.kind import KindBuilder
 from getdeck.provider.types import K8sProviderType
 
 logger = logging.getLogger("deck")
@@ -41,6 +42,7 @@ class K8sClusterFactory:
 
 kubernetes_cluster_factory = K8sClusterFactory()
 kubernetes_cluster_factory.register_builder(K8sProviderType.k3d, K3dBuilder())
+kubernetes_cluster_factory.register_builder(K8sProviderType.kind, KindBuilder())
 kubernetes_cluster_factory.register_builder(
     K8sProviderType.kubectlctx, KubectlCtxBuilder()
 )
