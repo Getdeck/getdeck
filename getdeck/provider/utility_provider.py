@@ -1,11 +1,10 @@
 import logging
 import os
 import re
-import sys
 import subprocess
 import tempfile
 import traceback
-from typing import List, Dict, Optional
+from typing import List, Optional
 
 from semantic_version import Version
 
@@ -84,12 +83,19 @@ class UtilityProvider(AbstractK8sProvider, CMDWrapper):
 
     def _create(self, arguments):
         import yaml
-        logger.info(f"Creating a {self.provider_type} cluster with name {self.k3d_cluster_name}")
-        logger.debug(f"{self.provider_type.capitalize()} config is:  {str(self.native_config)}")
+
+        logger.info(
+            f"Creating a {self.provider_type} cluster with name {self.k3d_cluster_name}"
+        )
+        logger.debug(
+            f"{self.provider_type.capitalize()} config is:  {str(self.native_config)}"
+        )
         if self.native_config:
             try:
                 temp = tempfile.NamedTemporaryFile(delete=False)
-                logger.debug(f"{self.provider_type.capitalize()} config to: {temp.name}")
+                logger.debug(
+                    f"{self.provider_type.capitalize()} config to: {temp.name}"
+                )
                 content = yaml.dump(self.native_config, default_flow_style=False)
                 temp.write(content.encode("utf-8"))
                 temp.flush()

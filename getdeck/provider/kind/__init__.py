@@ -24,7 +24,14 @@ class Kind(UtilityProvider):
         _debug_output=False,
     ):
 
-        self.initialize(config, name, native_config, self.provider_type, self.base_command, _debug_output)
+        self.initialize(
+            config,
+            name,
+            native_config,
+            self.provider_type,
+            self.base_command,
+            _debug_output,
+        )
 
     def _clusters(self) -> List[Dict[str, str]]:
         if len(self._cluster) == 0:
