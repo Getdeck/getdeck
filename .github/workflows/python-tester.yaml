@@ -18,10 +18,6 @@ jobs:
         python-version: '3.x'
     - name: Install Poetry
       uses: snok/install-poetry@v1
-    - name: Pytest
-      run: |
-        poetry install
-        poetry run coverage run -m pytest
     # Run the 'Try it yourself'
     - uses: Getdeck/getdeck-action@main
       name: Create Infrastructure from Deckfile
