@@ -25,16 +25,16 @@ jobs:
     - uses: Getdeck/getdeck-action@main
       name: Create Infrastructure from Deckfile
       with:
-        deck-file-path: https://github.com/Getdeck/getdeck/tree/integration-tests
+        deck-file-path: https://github.com/gefyrahq/gefyra-demos.git
     - name: Remove cluster using getdeck
       run: |
-        poetry run coverage run -a -m getdeck remove deck.example.yaml --name buzzword-counter
+        poetry run coverage run -a -m getdeck remove deck.gefyra.test.yaml --name oauth2-demo
     - name: Create a cluster using getdeck
       run: |
-        poetry run coverage run -a -m getdeck get deck.example.yaml --name buzzword-counter
+        poetry run coverage run -a -m getdeck get deck.gefyra.test.yaml --name oauth2-demo
     - name: Stop cluster
       run: |
-        poetry run coverage run -a -m getdeck stop deck.example.yaml --name buzzword-counter
+        poetry run coverage run -a -m getdeck stop deck.gefyra.test.yaml --name oauth2-demo
     - name: Show coverage report
       run: |
         poetry run coverage report
