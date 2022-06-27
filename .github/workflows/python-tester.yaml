@@ -34,7 +34,7 @@ jobs:
         poetry run coverage run -a -m getdeck get deck.gefyra.test.yaml --name oauth2-demo
     - name: Stop cluster
       run: |
-        poetry run coverage run -a -m getdeck stop deck.gefyra.test.yaml --name oauth2-demo
+        poetry run coverage run -a -m getdeck stop deck.gefyra.test.yaml
     - name: Show coverage report
       run: |
         poetry run coverage report
