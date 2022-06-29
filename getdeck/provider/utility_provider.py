@@ -47,7 +47,7 @@ class UtilityProvider(AbstractK8sProvider, CMDWrapper):
         cluster_name = cluster_name.replace(" ", "-")
         self.k3d_cluster_name = cluster_name
 
-    def _get_kubeconfig(self, arguments, wait=10) -> Optional[str]:
+    def _get_kubeconfig(self, arguments) -> Optional[str]:
         process = self._execute(arguments)
 
         if process.returncode != 0:
@@ -128,7 +128,8 @@ class UtilityProvider(AbstractK8sProvider, CMDWrapper):
         return Version(version_str)
 
     def ready(self) -> bool:
-        pass
+        # this functionality has to be implemented
+        raise NotImplementedError
 
     def update(self) -> bool:
         return self.install()

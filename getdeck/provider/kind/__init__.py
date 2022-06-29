@@ -6,6 +6,7 @@ from typing import List, Dict, Optional
 from getdeck.configuration import ClientConfiguration
 from getdeck.provider.types import K8sProviderType
 from getdeck.provider.utility_provider import UtilityProvider
+import platform
 
 logger = logging.getLogger("deck")
 
@@ -57,9 +58,9 @@ class Kind(UtilityProvider):
             self._cluster = clusters
         return self._cluster
 
-    def get_kubeconfig(self, wait=10) -> Optional[str]:
+    def get_kubeconfig(self) -> Optional[str]:
         arguments = ["get", "kubeconfig", "--name", self.k3d_cluster_name]
-        return self._get_kubeconfig(arguments, wait)
+        return self._get_kubeconfig(arguments)
 
     def create(self):
         arguments = ["create", "cluster", "--name", self.k3d_cluster_name]
@@ -97,10 +98,35 @@ class Kind(UtilityProvider):
 
     def install(self) -> bool:
         try:
-            if sys.platform != "win32":
+            current_platform = platform.uname()
+            if sys.platform == "darwin":
+                if current_platform.machine == "arm64":
+                    subprocess.run(
+                        "[ $(uname -m) = arm64 ] && "
+                        "curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.14.0/kind-darwin-arm64;"
+                        "chmod +x ./kind;"
+                        "sudo mv ./kind /usr/local/bin/kind",
+                        shell=True,
+                        check=True,
+                    )
+                elif current_platform.machine == "x86_64":
+                    subprocess.run(
+                        "[ $(uname -m) = x86_64 ] && "
+                        "curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.14.0/kind-darwin-amd64",
+                        shell=True,
+                        check=True,
+                    )
+            elif sys.platform == "linux":
                 subprocess.run(
                     "curl -Lo ./kind https://kind.sigs.k8s.io/dl/v0.14.0/kind-linux-amd64;chmod +x ./kind;"
                     "sudo mv ./kind /usr/local/bin/kind",
+                    shell=True,
+                    check=True,
+                )
+            elif sys.platform == "win32":
+                subprocess.run(
+                    "curl.exe -Lo kind-windows-amd64.exe https://kind.sigs.k8s.io/dl/v0.14.0/kind-windows-amd64;"
+                    "Move-Item .\\kind-windows-amd64.exe c:\\Desktop\\kind.exe",
                     shell=True,
                     check=True,
                 )

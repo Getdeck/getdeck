@@ -56,9 +56,9 @@ class K3d(UtilityProvider):
             self._cluster = clusters
         return self._cluster
 
-    def get_kubeconfig(self, wait=10) -> Optional[str]:
+    def get_kubeconfig(self) -> Optional[str]:
         arguments = ["kubeconfig", "get", self.k3d_cluster_name]
-        return self._get_kubeconfig(arguments, wait)
+        return self._get_kubeconfig(arguments)
 
     def create(self):
         arguments = ["cluster", "create", self.k3d_cluster_name]
