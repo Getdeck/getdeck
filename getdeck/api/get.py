@@ -103,6 +103,13 @@ def run_deck(
     if ingress:
         for path in ingress:
             logger.info(f"Ingress: {path[0]} -> {path[1]}")
+        logger.info(
+            f"If these ingress hosts do not resolve to localhost, you can configure them manually "
+            f"by executing\n"
+            f"'deck hosts write {deckfile_location}'.\n"
+            f"This command may require administrative rights, e.g. under linux"
+            f"'sudo -E deck hosts write {deckfile_location}'"
+        )
     logger.info(f"Published ports are: {k8s_provider.get_ports()}")
     if notes := deckfile.get_deck(deck_name).notes:
         logger.info(notes)
