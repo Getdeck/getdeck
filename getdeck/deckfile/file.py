@@ -113,5 +113,5 @@ class Deckfile(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def get_deck(self) -> DeckfileDeck:
+    def get_deck(self, name: str = None) -> DeckfileDeck:
         raise NotImplementedError

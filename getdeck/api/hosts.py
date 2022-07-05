@@ -1,4 +1,5 @@
 import logging
+import socket
 
 from python_hosts import Hosts, HostsEntry
 
@@ -44,3 +45,17 @@ def run_hosts(
 
     else:
         logger.error(f"Unknown host action '{host_action}'")
+
+    return True
+
+
+def verify_host(host) -> bool:
+    try:
+        ip = socket.gethostbyname(host)
+    except socket.gaierror:
+        return False
+    return ip == "127.0.0.1"
+
+
+def verify_all_hosts(*hosts):
+    return all(verify_host(host) for host in hosts)

@@ -197,6 +197,19 @@ def convert_camel_2_snake(_string) -> str:
     return _string
 
 
+def get_ingress_rules(
+    config: ClientConfiguration, namespace: str
+) -> List[Tuple[str, str]]:
+    result = []
+    ingresss = config.K8S_NETWORKING_API.list_namespaced_ingress(namespace)
+    for ingress in ingresss.items:
+        for rule in ingress.spec.rules:
+            _host = rule.host
+            for path in rule.http.paths:
+                result.append((_host, path.path))
+    return result
+
+
 def get_ingress_display(
     config: ClientConfiguration, namespace: str
 ) -> List[Tuple[str, str]]:
