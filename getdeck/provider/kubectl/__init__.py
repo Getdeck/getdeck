@@ -39,16 +39,16 @@ class KubectlCtx(AbstractK8sProvider):
         return True
 
     def create(self):
-        raise RuntimeError("Creating a KubectlCtx is not possible for Deck")
+        pass  # Creating a KubectlCtx is not possible for Deck
 
     def start(self):
-        raise RuntimeError("Starting a KubectlCtx is not possible for Deck")
+        pass  # Starting a KubectlCtx is not possible for Deck
 
     def stop(self):
-        raise RuntimeError("Stopping a KubectlCtx is not possible for Deck")
+        pass  # Stopping a KubectlCtx is not possible for Deck
 
     def delete(self):
-        raise RuntimeError("Deleting a KubectlCtx is not possible for Deck")
+        pass  # Deleting a KubectlCtx is not possible for Deck
 
     def version(self) -> Version:
         return None
