@@ -1,5 +1,7 @@
 import logging
 from operator import methodcaller
+import os
+import tempfile
 from typing import List, Union
 
 import requests
@@ -13,6 +15,7 @@ from getdeck.deckfile.file import (
 )
 from getdeck.sources.types import K8sSourceFile
 from getdeck.utils import sniff_protocol
+from git import Repo
 
 logger = logging.getLogger("deck")
 
@@ -109,4 +112,29 @@ class FileFetcher(Fetcher):
             raise e
 
     def fetch_git(self, **kwargs) -> List[K8sSourceFile]:
-        raise NotImplementedError
+        k8s_workload_files = []
+        try:
+            with tempfile.TemporaryDirectory() as tmp_source:
+                logger.debug(f"Cloning from {self.source.ref} to {tmp_source}")
+
+                if not self.source.path:
+                    raise Exception("Path to file required.")
+
+                repo = Repo.clone_from(self.source.ref, tmp_source)
+                if self.source.targetRevision:
+                    repo.git.checkout(self.source.targetRevision)
+
+                file_source = os.path.join(tmp_source, self.source.path)
+                with open(file_source, "r") as input_file:
+                    docs = yaml.load_all(input_file.read(), Loader=yaml.FullLoader)
+
+                for doc in docs:
+                    if doc:
+                        k8s_workload_files.append(
+                            K8sSourceFile(name=self.source.ref, content=doc)
+                        )
+
+            return k8s_workload_files
+        except Exception as e:
+            logger.error(f"Error loading files from git repository {e}")
+            raise e
