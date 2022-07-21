@@ -42,7 +42,7 @@ class UtilityProvider(AbstractProvider, CMDWrapper):
         self.base_command = base_command
 
         # cluster name
-        cluster_name = config.K3D_CLUSTER_PREFIX + self.name.lower()
+        cluster_name = config.CLUSTER_PREFIX + self.name.lower()
         cluster_name = cluster_name.replace(" ", "-")
         self.cluster_name = cluster_name
 

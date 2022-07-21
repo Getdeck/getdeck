@@ -61,7 +61,7 @@ class ClientConfiguration(object):
         self.CLI_KUBECONFIG_DIRECTORY = os.path.expanduser("~/.deck/")
         if not os.path.exists(self.CLI_KUBECONFIG_DIRECTORY):
             os.mkdir(self.CLI_KUBECONFIG_DIRECTORY)
-        self.K3D_CLUSTER_PREFIX = cluster_name_prefix
+        self.CLUSTER_PREFIX = cluster_name_prefix
         self.kubeconfig = None
         self.K8S_OBJECT_RETRY = 30
         self.K8S_OBJECT_RETRY_TIMEOUT = 2  # in s
