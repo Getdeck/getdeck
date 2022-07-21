@@ -4,7 +4,7 @@ from typing import List
 from semantic_version import Version
 
 
-class IK8sProvider(ABC):
+class IProvider(ABC):
     @abstractmethod
     def get_kubeconfig(self) -> bool:
         raise NotImplementedError
@@ -65,7 +65,7 @@ class IK8sProvider(ABC):
         raise NotImplementedError
 
 
-class AbstractK8sProvider(IK8sProvider):
+class AbstractProvider(IProvider):
     provider_type = None
 
     def __init__(
@@ -80,7 +80,3 @@ class AbstractK8sProvider(IK8sProvider):
         if name:
             return name
         return name
-
-    @property
-    def k8s_provider_type(self):
-        return self.provider_type

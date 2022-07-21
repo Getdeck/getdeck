@@ -4,21 +4,21 @@ from getdeck.configuration import ClientConfiguration
 from getdeck.provider.k3d import K3dBuilder
 from getdeck.provider.kubectl import KubectlCtxBuilder
 from getdeck.provider.kind import KindBuilder
-from getdeck.provider.types import K8sProviderType
+from getdeck.provider.types import ProviderType
 
 logger = logging.getLogger("deck")
 
 
-class K8sClusterFactory:
+class ClusterFactory:
     def __init__(self):
         self._builders = {}
 
-    def register_builder(self, provider_type: K8sProviderType, builder):
+    def register_builder(self, provider_type: ProviderType, builder):
         self._builders[provider_type.value] = builder
 
     def __create(
         self,
-        provider_type: K8sProviderType,
+        provider_type: ProviderType,
         config: ClientConfiguration,
         name: str,
         native_config: dict = None,
@@ -31,7 +31,7 @@ class K8sClusterFactory:
 
     def get(
         self,
-        provider_type: K8sProviderType,
+        provider_type: ProviderType,
         config: ClientConfiguration,
         name: str,
         native_config: dict = None,
@@ -40,9 +40,9 @@ class K8sClusterFactory:
         return self.__create(provider_type, config, name, native_config, **kwargs)
 
 
-kubernetes_cluster_factory = K8sClusterFactory()
-kubernetes_cluster_factory.register_builder(K8sProviderType.k3d, K3dBuilder())
-kubernetes_cluster_factory.register_builder(K8sProviderType.kind, KindBuilder())
+kubernetes_cluster_factory = ClusterFactory()
+kubernetes_cluster_factory.register_builder(ProviderType.K3D, K3dBuilder())
+kubernetes_cluster_factory.register_builder(ProviderType.KIND, KindBuilder())
 kubernetes_cluster_factory.register_builder(
-    K8sProviderType.kubectlctx, KubectlCtxBuilder()
+    ProviderType.KUBECTLCTX, KubectlCtxBuilder()
 )

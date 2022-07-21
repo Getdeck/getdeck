@@ -9,15 +9,14 @@ from typing import List, Optional
 from semantic_version import Version
 
 from getdeck.configuration import ClientConfiguration
-from getdeck.provider.abstract import AbstractK8sProvider
-from getdeck.provider.types import K8sProviderType
+from getdeck.provider.abstract import AbstractProvider
 from getdeck.utils import CMDWrapper
 
 logger = logging.getLogger("deck")
 
 
-class UtilityProvider(AbstractK8sProvider, CMDWrapper):
-    kubernetes_cluster_type = K8sProviderType.k3d
+class UtilityProvider(AbstractProvider, CMDWrapper):
+    kubernetes_cluster_type = None
     _cluster = []
 
     def initialize(
@@ -29,14 +28,14 @@ class UtilityProvider(AbstractK8sProvider, CMDWrapper):
         base_command: str,
         _debug_output=False,
     ):
-
         # abstract kubernetes cluster
-        AbstractK8sProvider.__init__(
+        AbstractProvider.__init__(
             self,
             name=name,
         )
         self.config = config
         self.native_config = native_config
+
         # CMDWrapper
         self._debug_output = _debug_output
         self.provider_type = provider_type
@@ -45,29 +44,27 @@ class UtilityProvider(AbstractK8sProvider, CMDWrapper):
         # cluster name
         cluster_name = config.K3D_CLUSTER_PREFIX + self.name.lower()
         cluster_name = cluster_name.replace(" ", "-")
-        self.k3d_cluster_name = cluster_name
+        self.cluster_name = cluster_name
 
     def _get_kubeconfig(self, arguments) -> Optional[str]:
         process = self._execute(arguments)
 
         if process.returncode != 0:
-            logger.error(f"Could not get kubeconfig for {self.k3d_cluster_name}")
+            logger.error(f"Could not get kubeconfig for {self.cluster_name}")
         else:
             # we now need to write the kubekonfig to a file
             config = process.stdout.read().strip()
             if not os.path.isdir(
-                os.path.join(
-                    self.config.CLI_KUBECONFIG_DIRECTORY, self.k3d_cluster_name
-                )
+                os.path.join(self.config.CLI_KUBECONFIG_DIRECTORY, self.cluster_name)
             ):
                 os.mkdir(
                     os.path.join(
-                        self.config.CLI_KUBECONFIG_DIRECTORY, self.k3d_cluster_name
+                        self.config.CLI_KUBECONFIG_DIRECTORY, self.cluster_name
                     )
                 )
             config_path = os.path.join(
                 self.config.CLI_KUBECONFIG_DIRECTORY,
-                self.k3d_cluster_name,
+                self.cluster_name,
                 "kubeconfig.yaml",
             )
             file = open(config_path, "w+")
@@ -77,7 +74,7 @@ class UtilityProvider(AbstractK8sProvider, CMDWrapper):
 
     def exists(self) -> bool:
         for cluster in self._clusters():
-            if cluster["name"] == self.k3d_cluster_name:
+            if cluster["name"] == self.cluster_name:
                 return True
         return False
 
@@ -85,7 +82,7 @@ class UtilityProvider(AbstractK8sProvider, CMDWrapper):
         import yaml
 
         logger.info(
-            f"Creating a {self.provider_type} cluster with name {self.k3d_cluster_name}"
+            f"Creating a {self.provider_type} cluster with name {self.cluster_name}"
         )
         logger.debug(
             f"{self.provider_type.capitalize()} config is:  {str(self.native_config)}"

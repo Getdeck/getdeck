@@ -6,7 +6,7 @@ from pydantic import BaseModel
 
 from getdeck.configuration import ClientConfiguration
 from getdeck.deckfile.errors import DeckfileError
-from getdeck.provider.abstract import AbstractK8sProvider
+from getdeck.provider.abstract import AbstractProvider
 
 logger = logging.getLogger("deck")
 
@@ -17,14 +17,14 @@ class DeckfileCluster(BaseModel):
     name: str
     nativeConfig: dict = None
 
-    def get_provider(self, config: ClientConfiguration) -> AbstractK8sProvider:
+    def get_provider(self, config: ClientConfiguration) -> AbstractProvider:
         from getdeck.provider.factory import kubernetes_cluster_factory
-        from getdeck.provider.types import K8sProviderType
+        from getdeck.provider.types import ProviderType
 
         # get selected kubernetes cluster from factory
         try:
             kubernetes_cluster = kubernetes_cluster_factory.get(
-                K8sProviderType(self.provider.lower()),
+                ProviderType(self.provider.lower()),
                 config,
                 name=self.name,
                 native_config=self.nativeConfig,

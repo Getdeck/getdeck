@@ -11,8 +11,8 @@ from semantic_version import Version
 from getdeck import configuration
 from getdeck.configuration import ClientConfiguration
 from getdeck.deckfile.file import Deckfile
-from getdeck.provider.abstract import AbstractK8sProvider
-from getdeck.provider.types import K8sProviderType
+from getdeck.provider.abstract import AbstractProvider
+from getdeck.provider.types import ProviderType
 
 logger = logging.getLogger("deck")
 
@@ -96,7 +96,7 @@ def ensure_cluster(
     config: ClientConfiguration,
     ignore_cluster: bool = False,
     do_install: bool = True,
-) -> AbstractK8sProvider:
+) -> AbstractProvider:
     from kubernetes.client.rest import ApiException
     from getdeck.provider.factory import kubernetes_cluster_factory
 
@@ -123,7 +123,7 @@ def ensure_cluster(
                 "There is no valid cluster connection available and no cluster is defined in the Deckfile"
             )
         return kubernetes_cluster_factory.get(
-            K8sProviderType("KubectlCtx"),
+            ProviderType("KubectlCtx"),
             config,
             name=active_context["name"],
             native_config=None,
