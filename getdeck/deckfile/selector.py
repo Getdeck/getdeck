@@ -6,7 +6,11 @@ import yaml
 from yaml import YAMLError
 
 from getdeck import configuration
-from getdeck.deckfile.errors import DeckfileNotFoundError, DeckfileVersionError, DeckfileError
+from getdeck.deckfile.errors import (
+    DeckfileNotFoundError,
+    DeckfileVersionError,
+    DeckfileError,
+)
 from getdeck.deckfile.file import Deckfile
 from getdeck.deckfile.deckfile_1 import Deckfile_1_0
 
