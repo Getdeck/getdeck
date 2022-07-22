@@ -4,7 +4,22 @@ from typing import List
 from semantic_version import Version
 
 
-class IProvider(ABC):
+class AbstractProvider(ABC):
+    provider_type = None
+
+    def __init__(
+        self,
+        name: str = None,
+    ) -> None:
+        self.name = name
+
+    @property
+    def display_name(self):
+        name = self.name
+        if name:
+            return name
+        return name
+
     @abstractmethod
     def get_kubeconfig(self) -> bool:
         raise NotImplementedError
@@ -63,20 +78,3 @@ class IProvider(ABC):
         Return the published ports
         """
         raise NotImplementedError
-
-
-class AbstractProvider(IProvider):
-    provider_type = None
-
-    def __init__(
-        self,
-        name: str = None,
-    ) -> None:
-        self.name = name
-
-    @property
-    def display_name(self):
-        name = self.name
-        if name:
-            return name
-        return name
