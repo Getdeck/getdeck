@@ -13,7 +13,7 @@ logger = logging.getLogger("deck")
 
 class KubectlCtx(AbstractProvider):
     kubernetes_cluster_type = ProviderType.KUBECTLCTX
-    provider_type = "KubectlCtx"
+    provider_type = "kubectlctx"
     base_command = "kubectl"
     _cluster = []
 

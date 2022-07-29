@@ -1,6 +1,7 @@
 import logging
 
 from getdeck.configuration import ClientConfiguration
+from getdeck.provider.beiboot import BeibootBuilder
 from getdeck.provider.k3d import K3dBuilder
 from getdeck.provider.kubectl import KubectlCtxBuilder
 from getdeck.provider.kind import KindBuilder
@@ -40,9 +41,8 @@ class ClusterFactory:
         return self.__create(provider_type, config, name, native_config, **kwargs)
 
 
-kubernetes_cluster_factory = ClusterFactory()
-kubernetes_cluster_factory.register_builder(ProviderType.K3D, K3dBuilder())
-kubernetes_cluster_factory.register_builder(ProviderType.KIND, KindBuilder())
-kubernetes_cluster_factory.register_builder(
-    ProviderType.KUBECTLCTX, KubectlCtxBuilder()
-)
+cluster_factory = ClusterFactory()
+cluster_factory.register_builder(ProviderType.K3D, K3dBuilder())
+cluster_factory.register_builder(ProviderType.KIND, KindBuilder())
+cluster_factory.register_builder(ProviderType.KUBECTLCTX, KubectlCtxBuilder())
+cluster_factory.register_builder(ProviderType.BEIBOOT, BeibootBuilder())

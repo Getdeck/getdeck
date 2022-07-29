@@ -3,12 +3,13 @@ from typing import Callable
 
 from getdeck.api import stopwatch, remove
 from getdeck.configuration import default_configuration
+from getdeck.provider.types import ProviderType
 
 logger = logging.getLogger("deck")
 
 
 @stopwatch
-def run_deck(
+def run_deck(  # noqa: C901
     deckfile_location: str,
     deck_name: str = None,
     ignore_cluster: bool = False,
@@ -45,6 +46,7 @@ def run_deck(
     else:
         logger.info("Cluster already exists, starting it")
         k8s_provider.start()
+
     if progress_callback:
         progress_callback(20)
     #
@@ -65,6 +67,11 @@ def run_deck(
     #
     logger.info("Installing the workload to the cluster")
     config.kubeconfig = k8s_provider.get_kubeconfig()
+
+    # change core api for beiboot
+    if k8s_provider.kubernetes_cluster_type == ProviderType.BEIBOOT:
+        config.K8S_CORE_API = k8s_provider.get_api_client()
+
     if generated_deck.namespace != "default":
         try:
             config.K8S_CORE_API.create_namespace(

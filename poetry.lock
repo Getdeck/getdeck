@@ -21,6 +21,18 @@ tests = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)"
 tests_no_zope = ["coverage[toml] (>=5.0.2)", "hypothesis", "pympler", "pytest (>=4.3.0)", "six", "mypy", "pytest-mypy-plugins", "cloudpickle"]
 
 [[package]]
+name = "beiboot"
+version = "0.3.0"
+description = "Getdeck Beiboot client project."
+category = "main"
+optional = false
+python-versions = ">=3.9,<4.0"
+
+[package.dependencies]
+docker = ">=5.0.3,<6.0.0"
+kubernetes = ">=23.3.0,<24.0.0"
+
+[[package]]
 name = "black"
 version = "22.6.0"
 description = "The uncompromising code formatter."
@@ -577,13 +589,17 @@ test = ["websockets"]
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.10.0"
-content-hash = "568939b26254543052710f1d55f57ba92045b4ae6a1e7ad79c70950de664668d"
+content-hash = "0e4954f7de73563584bab06e44f3402159328dd6cfbfb1c9f6304f55f2b767a8"
 
 [metadata.files]
 atomicwrites = []
 attrs = [
     {file = "attrs-21.4.0-py2.py3-none-any.whl", hash = "sha256:2d27e3784d7a565d36ab851fe94887c5eccd6a463168875832a1be79c82828b4"},
     {file = "attrs-21.4.0.tar.gz", hash = "sha256:626ba8234211db98e869df76230a137c4c40a12d72445c45d5f5b716f076e2fd"},
+]
+beiboot = [
+    {file = "beiboot-0.3.0-py3-none-any.whl", hash = "sha256:5dfc5e128e18eb3716f8041c1f6b81f4ddc29bd35c9a49bc352a7c90aaace3bb"},
+    {file = "beiboot-0.3.0.tar.gz", hash = "sha256:65e0cc2ade816c47376a20a91a56db71c7fb26d78d0723c3d7a074d22e6a67a1"},
 ]
 black = []
 cachetools = [
