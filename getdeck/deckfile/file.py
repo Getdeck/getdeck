@@ -75,6 +75,7 @@ class DeckfileDeck(BaseModel):
     name: str
     namespace: str = "default"
     notes: str = ""
+    hosts: List[str] = []
     sources: List[
         Union[
             DeckfileHelmSource,

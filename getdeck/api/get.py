@@ -1,6 +1,4 @@
 import logging
-import subprocess
-import sys
 from typing import Callable
 
 from getdeck.api import stopwatch, remove
@@ -102,12 +100,10 @@ def run_deck(
     logger.info(f"All workloads from Deck {generated_deck.name} applied")
 
     ingress_rules = get_ingress_rules(config, generated_deck.namespace)
-    hosts = set()
     if ingress_rules:
         for host, path in ingress_rules:
             logger.info(f"Ingress: {host} -> {path}")
-            hosts.add(host)
-        handle_hosts_resolution(deckfile_location, hosts)
+        handle_hosts_resolution(deckfile_location, deckfile, deck_name)
     logger.info(f"Published ports are: {k8s_provider.get_ports()}")
     if notes := deckfile.get_deck(deck_name).notes:
         logger.info(notes)
@@ -117,24 +113,20 @@ def run_deck(
     return True
 
 
-def handle_hosts_resolution(deckfile_location, hosts):
-    if not verify_all_hosts(*hosts):
-        logger.warning("Some of your ingress hosts do not resolve to localhost.")
-        if sys.platform in ("linux", "linux2", "darwin"):
-            confirm = input(
-                "Do you want to write them to your local hosts file? [y/N] "
-            )
-            if confirm.lower() in ("y", "yes"):
-                subprocess.call(
-                    ["sudo", "-E", "deck", "hosts", "write", deckfile_location]
-                )
-        else:
-            logger.info(
-                f"If these ingress hosts do not resolve to localhost, you can configure them manually "
-                f"by executing\n"
-                f"'deck hosts write {deckfile_location}'.\n"
-                f"with admin rights."
-            )
+def handle_hosts_resolution(deckfile_location, deckfile, deck_name):
+    deck = deckfile.get_deck(deck_name)
+    deck_hosts = deck.hosts
+    deck_flag = " "
+    if deck_name:
+        deck_flag = f" --name {deck_name} "
+    if not verify_all_hosts(*deck_hosts):
+        logger.warning("Some of your deck hosts do not resolve to localhost.")
+        logger.info(
+            f"If these ingress hosts do not resolve to localhost, you can configure them manually "
+            f"by executing\n"
+            f"'deck hosts write{deck_flag}{deckfile_location}'.\n"
+            f"with admin rights."
+        )
 
 
 def _wait_ready(config, generated_deck, timeout):

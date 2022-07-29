@@ -221,12 +221,3 @@ def get_ingress_display(
             for path in rule.http.paths:
                 result.append((_host, path.path))
     return result
-
-
-def get_ingress_hosts(config: ClientConfiguration, namespace: str):
-    ingresss = config.K8S_NETWORKING_API.list_namespaced_ingress(namespace)
-    result = set()
-    for ingress in ingresss.items:
-        for rule in ingress.spec.rules:
-            result.add(rule.host)
-    return result

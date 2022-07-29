@@ -5,7 +5,6 @@ from python_hosts import Hosts, HostsEntry
 
 from getdeck.api import stopwatch
 from getdeck.configuration import default_configuration
-from getdeck.k8s import get_ingress_hosts
 from getdeck.utils import read_deckfile_from_location
 
 logger = logging.getLogger("deck")
@@ -15,13 +14,14 @@ logger = logging.getLogger("deck")
 def run_hosts(
     deckfile_location: str,
     host_action: str,
+    deck_name: str = None,
     config=default_configuration,
 ) -> bool:
     deckfile = read_deckfile_from_location(deckfile_location, config)
-    namespace = deckfile.get_deck().namespace or "default"
-    deck_hosts = get_ingress_hosts(config, namespace)
-    hosts = Hosts()
+    deck = deckfile.get_deck(deck_name)
+    deck_hosts = deck.hosts
 
+    hosts = Hosts()
     if host_action == "list":
 
         logger.info("Ingress hosts:")

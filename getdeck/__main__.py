@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.10
+#!/usr/bin/env python3
 import argparse
 import logging
 import os
@@ -104,6 +104,9 @@ hosts_parser.add_argument("host_action", help="list/write/remove")
 hosts_parser.add_argument(
     "Deckfile", help="the deck.yaml location (as file, git or https)"
 )
+hosts_parser.add_argument(
+    "--name", help="the Deck whose hosts will be considered", required=False
+)
 
 
 def main():
@@ -146,6 +149,7 @@ def main():
             run_hosts(
                 args.Deckfile,
                 args.host_action,
+                deck_name=args.name,
             )
         else:
             parser.print_help()
