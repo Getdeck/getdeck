@@ -3,9 +3,14 @@ import os
 from typing import Union
 
 import yaml
+from yaml import YAMLError
 
 from getdeck import configuration
-from getdeck.deckfile.errors import DeckfileNotFoundError, DeckfileVersionError
+from getdeck.deckfile.errors import (
+    DeckfileNotFoundError,
+    DeckfileVersionError,
+    DeckfileError,
+)
 from getdeck.deckfile.file import Deckfile
 from getdeck.deckfile.deckfile_1 import Deckfile_1_0
 
@@ -30,6 +35,8 @@ class DeckfileSelector:
             raise DeckfileNotFoundError(
                 f"The Deckfile at the location {path_deckfile} does not exist."
             )
+        except YAMLError:
+            raise DeckfileError("This Deckfile is no valid YAML.")
 
         # version
         version = str(data.get("version", "latest"))

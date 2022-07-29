@@ -1,3 +1,5 @@
+FROM mozilla/sops:v3-alpine AS sops
+
 FROM alpine
 LABEL maintainer="Schille"
 
@@ -11,13 +13,16 @@ ARG KUBESEAL_VERSION=v0.15.0
 # ENV BASE_URL="https://storage.googleapis.com/kubernetes-helm"
 ENV BASE_URL="https://get.helm.sh"
 ENV TAR_FILE="helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz"
-RUN apk add --update --no-cache curl ca-certificates bash git gnupg && \
+RUN apk add --update --no-cache curl ca-certificates tar bash git gnupg && \
     curl -sL ${BASE_URL}/${TAR_FILE} | tar -xvz && \
     mv linux-${TARGETARCH}/helm /usr/bin/helm && \
     chmod +x /usr/bin/helm && \
     rm -rf linux-${TARGETARCH}
 
 ENV HELM_DATA_HOME=/usr/local/share/helm
+
+COPY --from=sops /usr/local/bin/sops /bin/sops
+
 
 
 RUN helm repo add stable https://charts.helm.sh/stable \

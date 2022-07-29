@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "getdeck"
-version = "0.8.2"
+version = "0.8.4"
 description = "Deck, a CLI that creates reproducible Kubernetes environments for development and testing"
 authors = ["Michael Schilonka <michael@unikube.io>"]
 readme = "README.md"
@@ -39,6 +39,9 @@ flake8-bugbear = "^22.1.11"
 black = "^22.1.0"
 flake8 = "^4.0.1"
 flake8-black = "^0.2.4"
+pytest = "^7.1.1"
+coverage = {extras = ["toml"], version = "^6.3.2"}
+coveralls = "^3.3.1"
 
 [build-system]
 requires = ["poetry-core>=1.0.0"]

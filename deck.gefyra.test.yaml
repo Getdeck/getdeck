@@ -1,0 +1,89 @@
+version: "1"
+
+# the cluster configuration across all decks
+cluster:
+  provider: k3d
+  minVersion: 4.0.0
+  name: gefyra-demos
+  nativeConfig: # content of the native config file (e.g. https://k3d.io/v5.0.0/usage/configfile/)
+    apiVersion: k3d.io/v1alpha2
+    kind: Simple
+    servers: 1 # same as `--servers 1`
+    agents: 1 # same as `--agents 2`
+    image: rancher/k3s:v1.22.9-k3s1
+    ports:
+      - port: 8080:80
+        nodeFilters:
+          - loadbalancer
+      - port: 31820:31820/UDP
+        nodeFilters:
+          - agent[0]
+
+decks:
+  - name: oauth2-demo
+    namespace: oauth2-demo
+    notes: |
+      Please find the app at: http://oauth2-demo.127.0.0.1.nip.io:8080/ with username 'john@gefyra.dev' and password 'john@gefyra.dev'.
+      The Kubernetes dashboard is running at: http://dashboard.127.0.0.1.nip.io:8080
+    sources:
+      - type: helm
+        ref: https://codecentric.github.io/helm-charts
+        chart: keycloak
+        releaseName: keycloak
+        parameters:
+          - name: ingress.enabled
+            value: true
+          - name: ingress.rules[0].host
+            value: keycloak.127.0.0.1.nip.io
+          - name: ingress.rules[0].paths[0].path
+            value: "/"
+          - name: ingress.rules[0].paths[0].pathType
+            value: Prefix
+          - name: ingress.console.enabled
+            value: true
+          - name: ingress.console.rules[0].host
+            value: keycloak.127.0.0.1.nip.io
+          - name: ingress.console.rules[0].paths[0].path
+            value: "/auth/admin"
+          - name: ingress.console.rules[0].paths[0].pathType
+            value: Prefix
+      - type: file
+        ref: https://raw.githubusercontent.com/gefyrahq/gefyra-demos/main/oauth2-demo/initialize-kc.yaml
+
+      - type: file
+        ref: https://raw.githubusercontent.com/gefyrahq/gefyra-demos/main/oauth2-demo/oauth2-demo.yaml
+
+      # Everything below: Kubernetes Dashboard
+      - type: helm
+        ref: https://kubernetes.github.io/dashboard/
+        chart: kubernetes-dashboard
+        releaseName: dashboard
+        parameters:
+          - name: ingress.enabled
+            value: true
+          - name: ingress.hosts
+            value: '{dashboard.127.0.0.1.nip.io}'
+          - name: protocolHttp
+            value: true
+          - name: service.externalPort
+            value: 61348
+          - name: serviceAccount.create
+            value: true
+          - name: serviceAccount.name
+            value: kubernetes-dashboard
+
+      - type: file
+        content:
+          apiVersion: rbac.authorization.k8s.io/v1
+          kind: ClusterRoleBinding
+          metadata:
+            name: kubernetes-dashboard
+            namespace: kubernetes-dashboard
+          roleRef:
+            apiGroup: rbac.authorization.k8s.io
+            kind: ClusterRole
+            name: cluster-admin
+          subjects:
+            - kind: ServiceAccount
+              name: kubernetes-dashboard
+              namespace: oauth2-demo

@@ -52,6 +52,8 @@ class DeckfileFileSource(BaseModel):
     type: str = "file"
     ref: str = None
     content: Dict = None
+    targetRevision: str = ""
+    path: str = ""
 
 
 class DeckfileKustomizeSource(BaseModel):
