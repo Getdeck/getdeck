@@ -4,16 +4,16 @@ from typing import List, Optional
 from semantic_version import Version
 
 from getdeck.configuration import ClientConfiguration
-from getdeck.provider.abstract import AbstractK8sProvider
-from getdeck.provider.types import K8sProviderType
+from getdeck.provider.abstract import AbstractProvider
+from getdeck.provider.types import ProviderType
 
 
 logger = logging.getLogger("deck")
 
 
-class KubectlCtx(AbstractK8sProvider):
-    kubernetes_cluster_type = K8sProviderType.kubectlctx
-    provider_type = "KubectlCtx"
+class KubectlCtx(AbstractProvider):
+    kubernetes_cluster_type = ProviderType.KUBECTLCTX
+    provider_type = "kubectlctx"
     base_command = "kubectl"
     _cluster = []
 
@@ -22,11 +22,10 @@ class KubectlCtx(AbstractK8sProvider):
         config: ClientConfiguration,
         name: str,
         native_config: dict,
-        _debug_output=False,
+        _debug_output: bool = False,
     ):
-
         # abstract kubernetes cluster
-        AbstractK8sProvider.__init__(
+        AbstractProvider.__init__(
             self,
             name=name,
         )
@@ -77,7 +76,5 @@ class KubectlCtxBuilder:
         native_config: dict = None,
         **_ignored,
     ):
-        # create instance
         instance = KubectlCtx(config=config, name=name, native_config=native_config)
-
         return instance

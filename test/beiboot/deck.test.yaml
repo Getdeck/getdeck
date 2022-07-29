@@ -1,0 +1,20 @@
+version: "1"
+
+cluster:
+  provider: beiboot
+  minVersion: 0.3.0
+  name: beiboot-cluster
+  nativeConfig:
+    context: <beiboot-culster-context>
+    ports:
+      - port: 8080:80
+
+decks:
+  - name: dashboard
+    namespace: default
+    sources:
+      - type: file
+        ref: ./nginx-ingress.yaml
+
+      - type: file
+        ref: ./hello.yaml

@@ -4,7 +4,7 @@ import subprocess
 from typing import List, Dict, Optional
 
 from getdeck.configuration import ClientConfiguration
-from getdeck.provider.types import K8sProviderType
+from getdeck.provider.types import ProviderType
 from getdeck.provider.utility_provider import UtilityProvider
 import platform
 
@@ -12,7 +12,7 @@ logger = logging.getLogger("deck")
 
 
 class Kind(UtilityProvider):
-    kubernetes_cluster_type = K8sProviderType.k3d
+    kubernetes_cluster_type = ProviderType.KIND
     provider_type = "kind"
     base_command = "kind"
     _cluster = []
@@ -22,9 +22,8 @@ class Kind(UtilityProvider):
         config: ClientConfiguration,
         name: str,
         native_config: dict,
-        _debug_output=False,
+        _debug_output: bool = False,
     ):
-
         self.initialize(
             config,
             name,
@@ -59,18 +58,18 @@ class Kind(UtilityProvider):
         return self._cluster
 
     def get_kubeconfig(self) -> Optional[str]:
-        arguments = ["get", "kubeconfig", "--name", self.k3d_cluster_name]
+        arguments = ["get", "kubeconfig", "--name", self.cluster_name]
         return self._get_kubeconfig(arguments)
 
     def create(self):
-        arguments = ["create", "cluster", "--name", self.k3d_cluster_name]
+        arguments = ["create", "cluster", "--name", self.cluster_name]
         return self._create(arguments)
 
     def start(self):
         base_command = "docker"
         clusters = self._clusters()
         for cluster in clusters:
-            if cluster["name"] == self.k3d_cluster_name:
+            if cluster["name"] == self.cluster_name:
                 arguments_servers = ["start", cluster["servers"]]
                 arguments_agents = ["start", cluster["agents"]]
                 p1 = self._execute(arguments_servers, base_command=base_command)
@@ -83,7 +82,7 @@ class Kind(UtilityProvider):
         base_command = "docker"
         clusters = self._clusters()
         for cluster in clusters:
-            if cluster["name"] == self.k3d_cluster_name:
+            if cluster["name"] == self.cluster_name:
                 arguments_servers = ["stop", cluster["servers"]]
                 arguments_agents = ["stop", cluster["agents"]]
                 self._execute(arguments_servers, base_command=base_command)
@@ -91,8 +90,8 @@ class Kind(UtilityProvider):
         return True
 
     def delete(self):
-        logger.info(f"Deleting the kind cluster with name {self.k3d_cluster_name}")
-        arguments = ["delete", "cluster", "--name", self.k3d_cluster_name]
+        logger.info(f"Deleting the kind cluster with name {self.cluster_name}")
+        arguments = ["delete", "cluster", "--name", self.cluster_name]
         self._execute(arguments)
         return True
 
@@ -154,7 +153,5 @@ class KindBuilder:
         native_config: dict = None,
         **_ignored,
     ):
-        # create instance
         instance = Kind(config=config, name=name, native_config=native_config)
-
         return instance
