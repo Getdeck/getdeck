@@ -1,4 +1,4 @@
-#!/usr/bin/env python3.10
+#!/usr/bin/env python3
 import argparse
 import logging
 import os
@@ -99,9 +99,20 @@ stop_parser.add_argument(
 version_parser = action.add_parser("version")
 
 
+hosts_parser = action.add_parser("hosts")
+hosts_parser.add_argument("host_action", help="list/write/remove")
+hosts_parser.add_argument(
+    "Deckfile", help="the deck.yaml location (as file, git or https)"
+)
+hosts_parser.add_argument(
+    "--name", help="the Deck whose hosts will be considered", required=False
+)
+
+
 def main():
     from getdeck import configuration
     from getdeck.api import get_available_decks, run_deck, remove_cluster, remove_deck
+    from getdeck.api.hosts import run_hosts
 
     try:
         args = parser.parse_args()
@@ -134,6 +145,12 @@ def main():
             stop_cluster(args.Deckfile, ignore_cluster=args.no_cluster)
         elif args.action == "version":
             logger.info(f"Deck version: {configuration.__VERSION__}")
+        elif args.action == "hosts":
+            run_hosts(
+                args.Deckfile,
+                args.host_action,
+                deck_name=args.name,
+            )
         else:
             parser.print_help()
         exit(0)

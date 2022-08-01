@@ -2,6 +2,7 @@ import logging
 from typing import Callable
 
 from getdeck.api import stopwatch, remove
+from getdeck.api.hosts import verify_all_hosts
 from getdeck.configuration import default_configuration
 
 logger = logging.getLogger("deck")
@@ -21,8 +22,7 @@ def run_deck(
     from getdeck.utils import read_deckfile_from_location, ensure_cluster
     from kubernetes.client import V1Namespace, V1ObjectMeta
     from kubernetes.client.rest import ApiException
-    from getdeck.k8s import k8s_create_or_patch
-    from getdeck.k8s import get_ingress_display
+    from getdeck.k8s import k8s_create_or_patch, get_ingress_rules
 
     cluster_created = False
     if progress_callback:
@@ -99,10 +99,11 @@ def run_deck(
         progress_callback(100)
     logger.info(f"All workloads from Deck {generated_deck.name} applied")
 
-    ingress = get_ingress_display(config, generated_deck.namespace)
-    if ingress:
-        for path in ingress:
-            logger.info(f"Ingress: {path[0]} -> {path[1]}")
+    ingress_rules = get_ingress_rules(config, generated_deck.namespace)
+    if ingress_rules:
+        for host, path in ingress_rules:
+            logger.info(f"Ingress: {host} -> {path}")
+        handle_hosts_resolution(deckfile_location, deckfile, deck_name)
     logger.info(f"Published ports are: {k8s_provider.get_ports()}")
     if notes := deckfile.get_deck(deck_name).notes:
         logger.info(notes)
@@ -110,6 +111,22 @@ def run_deck(
     if wait:
         _wait_ready(config, generated_deck, timeout)
     return True
+
+
+def handle_hosts_resolution(deckfile_location, deckfile, deck_name):
+    deck = deckfile.get_deck(deck_name)
+    deck_hosts = deck.hosts
+    deck_flag = " "
+    if deck_name:
+        deck_flag = f" --name {deck_name} "
+    if not verify_all_hosts(*deck_hosts):
+        logger.warning("Some of your deck hosts do not resolve to localhost.")
+        logger.info(
+            f"If these ingress hosts do not resolve to localhost, you can configure them manually "
+            f"by executing\n"
+            f"'deck hosts write{deck_flag}{deckfile_location}'.\n"
+            f"with admin rights."
+        )
 
 
 def _wait_ready(config, generated_deck, timeout):
