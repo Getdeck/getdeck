@@ -77,7 +77,7 @@ class ClientConfiguration(object):
                 "Docker init error. Docker host not running?"
             )
 
-    def _init_kubeapi(self):
+    def _init_kubeapi(self, context=None):
         from kubernetes.client import (
             CoreV1Api,
             RbacAuthorizationV1Api,
@@ -90,9 +90,9 @@ class ClientConfiguration(object):
         from kubernetes.config import load_kube_config
 
         if self.kubeconfig:
-            load_kube_config(self.kubeconfig)
+            load_kube_config(self.kubeconfig, context=context)
         else:
-            load_kube_config()
+            load_kube_config(context=context)
         self.K8S_CORE_API = CoreV1Api()
         self.K8S_RBAC_API = RbacAuthorizationV1Api()
         self.K8S_APP_API = AppsV1Api()

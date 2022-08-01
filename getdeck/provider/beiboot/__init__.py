@@ -1,13 +1,15 @@
 import logging
 from typing import List, Optional
 
+import kubernetes.config
+
 from getdeck.configuration import ClientConfiguration
+from beiboot.configuration import ClientConfiguration as BeibootConfiguration
 from getdeck.docker import Docker
 from getdeck.provider.abstract import AbstractProvider
 from getdeck.provider.errors import NotSupportedError
 from getdeck.provider.types import ProviderType
 
-from kubernetes.config import kube_config
 from beiboot import api
 from semantic_version import Version
 from pydantic import BaseModel
@@ -48,6 +50,7 @@ class Beiboot(AbstractProvider):
         )
         self.config = config
         self.native_config = NativeConfigBeiboot(**native_config)
+        self._bbt_conf = BeibootConfiguration()
 
         # cluster name
         cluster_name = config.CLUSTER_PREFIX + self.name.lower()
@@ -56,21 +59,13 @@ class Beiboot(AbstractProvider):
 
         # beiboot context
         context_name = self.native_config.context
-        _, active_context = kube_config.list_kube_config_contexts()
-        if active_context.get("name") != context_name:
-            raise RuntimeError("Incorrect kubeconfig context.")
-
-    def get_api_client(self):
-        from kubernetes.client import CoreV1Api
-        from kubernetes.config import new_client_from_config
-
-        kubeconfig_file = self.get_kubeconfig()
-        client = CoreV1Api(
-            api_client=new_client_from_config(
-                config_file=kubeconfig_file, context="default"
+        try:
+            config._init_kubeapi(context=context_name)  # noqa
+        except kubernetes.config.ConfigException:
+            raise RuntimeError(
+                f"You don't have the required kubeconf context. Please get {context_name} to use "
+                f"this Deckfile."
             )
-        )
-        return client
 
     def get_kubeconfig(self) -> str:
         kubeconfig_file = api.get_connection(cluster_name=self.cluster_name)
@@ -138,7 +133,9 @@ class Beiboot(AbstractProvider):
         raise NotSupportedError(NOT_SUPPORTED_ERROR)
 
     def version(self) -> Version:
-        raise NotSupportedError("Not implemented in beiboot client.")
+        import beiboot.configuration
+
+        return Version(beiboot.configuration.__VERSION__)
 
     def get_ports(self) -> List[str]:
         try:

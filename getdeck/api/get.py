@@ -3,6 +3,7 @@ from typing import Callable
 
 from getdeck.api import stopwatch, remove
 from getdeck.configuration import default_configuration
+from getdeck.k8s import create_namespace
 from getdeck.provider.types import ProviderType
 
 logger = logging.getLogger("deck")
@@ -20,8 +21,6 @@ def run_deck(  # noqa: C901
 ) -> bool:
     from getdeck.sources.utils import prepare_k8s_workload_for_deck
     from getdeck.utils import read_deckfile_from_location, ensure_cluster
-    from kubernetes.client import V1Namespace, V1ObjectMeta
-    from kubernetes.client.rest import ApiException
     from getdeck.k8s import k8s_create_or_patch
     from getdeck.k8s import get_ingress_display
 
@@ -68,30 +67,29 @@ def run_deck(  # noqa: C901
     logger.info("Installing the workload to the cluster")
     config.kubeconfig = k8s_provider.get_kubeconfig()
 
-    # change core api for beiboot
+    # change api for beiboot
     if k8s_provider.kubernetes_cluster_type == ProviderType.BEIBOOT:
-        config.K8S_CORE_API = k8s_provider.get_api_client()
+        config._init_kubeapi()
 
     if generated_deck.namespace != "default":
-        try:
-            config.K8S_CORE_API.create_namespace(
-                body=V1Namespace(metadata=V1ObjectMeta(name=generated_deck.namespace))
-            )
-        except ApiException as e:
-            if e.status == 409:
-                # namespace does already exist
-                pass
-            else:
-                raise e
+        create_namespace(config, generated_deck.namespace)
+
     if progress_callback:
         progress_callback(50)
     total = len(generated_deck.files)
     logger.info(f"Installing {total} files(s)")
+    _available_namespace = [generated_deck, "default"]
     for i, file in enumerate(generated_deck.files):
         try:
             logger.debug(file.name)
             logger.debug(file.content)
-            k8s_create_or_patch(config, file.content, generated_deck.namespace)
+            logger.debug(file.namespace)
+            if file.namespace and file.namespace not in _available_namespace:
+                create_namespace(config, file.namespace)
+                _available_namespace.append(file.namespace)
+            k8s_create_or_patch(
+                config, file.content, file.namespace or generated_deck.namespace
+            )
             if progress_callback:
                 progress_callback(max(50, int(i / total * 50) - 1))
         except Exception as e:

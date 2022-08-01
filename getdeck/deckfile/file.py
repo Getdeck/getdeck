@@ -39,6 +39,7 @@ class DeckfileHelmSource(BaseModel):
     type: str = "helm"
     ref: str
     targetRevision: str = ""
+    namespace: str = ""
     path: str = None
     chart: str = None  # this is set when pulling directly from a Helm repo
     parameters: List[Dict] = None  # Helm value overrides (take precedence)

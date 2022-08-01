@@ -5,6 +5,7 @@ from pydantic import BaseModel
 
 class K8sSourceFile(BaseModel):
     name: str
+    namespace: str
     content: dict
 
 

@@ -6,6 +6,7 @@ from semantic_version import Version
 
 class AbstractProvider(ABC):
     provider_type = None
+    kubernetes_cluster_type = None
 
     def __init__(
         self,
