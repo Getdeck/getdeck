@@ -65,10 +65,11 @@ def run_deck(  # noqa: C901
     # 3. send the manifests to this cluster
     #
     logger.info("Installing the workload to the cluster")
-    config.kubeconfig = k8s_provider.get_kubeconfig()
 
     # change api for beiboot
     if k8s_provider.kubernetes_cluster_type == ProviderType.BEIBOOT:
+        _old_kubeconfig = config.kubeconfig
+        config.kubeconfig = k8s_provider.get_kubeconfig()
         config._init_kubeapi()
 
     if generated_deck.namespace != "default":
@@ -97,6 +98,9 @@ def run_deck(  # noqa: C901
                 "There was an error installing the workload. Now removing the cluster."
             )
             if cluster_created:
+                if k8s_provider.kubernetes_cluster_type == ProviderType.BEIBOOT:
+                    config.kubeconfig = _old_kubeconfig
+                    config._init_kubeapi()
                 # remove this just created cluster as it probably is in an inconsistent state from the beginning
                 remove.remove_cluster(deckfile_location, config)
             raise e

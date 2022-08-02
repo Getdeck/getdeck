@@ -1,4 +1,5 @@
 import logging
+from pathlib import Path
 from typing import List, Optional
 
 import kubernetes.config
@@ -48,27 +49,41 @@ class Beiboot(AbstractProvider):
             self,
             name=name,
         )
+        import socket
+        import getpass
+
         self.config = config
         self.native_config = NativeConfigBeiboot(**native_config)
-        self._bbt_conf = BeibootConfiguration()
 
         # cluster name
         cluster_name = config.CLUSTER_PREFIX + self.name.lower()
         cluster_name = cluster_name.replace(" ", "-")
-        self.cluster_name = cluster_name
+        # make this cluster name unique
+        self.cluster_name = f"{cluster_name}-{socket.gethostname()}-{getpass.getuser()}"
 
         # beiboot context
         context_name = self.native_config.context
         try:
-            config._init_kubeapi(context=context_name)  # noqa
-        except kubernetes.config.ConfigException:
+            self.config._init_kubeapi(context=context_name)  # noqa
+            _kubeconf = str(
+                Path(kubernetes.config.KUBE_CONFIG_DEFAULT_LOCATION).expanduser()
+            )
+            self._bbt_conf = BeibootConfiguration(
+                kube_config_file=self.config.kubeconfig or _kubeconf,
+                docker_client=self.config.DOCKER,
+                kube_context=context_name,
+            )
+        except kubernetes.config.ConfigException as e:
+            print(e)
             raise RuntimeError(
-                f"You don't have the required kubeconf context. Please get {context_name} to use "
-                f"this Deckfile."
+                f"You don't have the required kubeconf context. Please add '{context_name}' to your available contexts "
+                f"to use this Deckfile."
             )
 
     def get_kubeconfig(self) -> str:
-        kubeconfig_file = api.get_connection(cluster_name=self.cluster_name)
+        kubeconfig_file = api.get_connection(
+            cluster_name=self.cluster_name, configuration=self._bbt_conf
+        )
         return str(kubeconfig_file)
 
     def create(self) -> bool:
@@ -77,11 +92,14 @@ class Beiboot(AbstractProvider):
             ports = [item.port for item in self.native_config.ports]
         else:
             ports = []
-
+        logger.info(
+            f"Now creating Beiboot '{self.cluster_name}'. This is going to take a while..."
+        )
         api.create_cluster(
             cluster_name=self.cluster_name,
             ports=ports,
             connect=True,
+            configuration=self._bbt_conf,
         )
 
         while not Docker().check_running(DOCKER_IMAGE):
@@ -96,7 +114,9 @@ class Beiboot(AbstractProvider):
 
     def start(self) -> bool:
         if not Docker().check_running(DOCKER_IMAGE):
-            api.establish_connection(cluster_name=self.cluster_name)
+            api.establish_connection(
+                cluster_name=self.cluster_name, configuration=self._bbt_conf
+            )
 
             while not Docker().check_running(DOCKER_IMAGE):
                 continue
@@ -112,12 +132,15 @@ class Beiboot(AbstractProvider):
         raise NotSupportedError(NOT_SUPPORTED_ERROR)
 
     def delete(self) -> bool:
-        api.remove_cluster(cluster_name=self.cluster_name)
+        logger.info(f"Now deleting Beiboot '{self.cluster_name}'.")
+        api.remove_cluster(cluster_name=self.cluster_name, configuration=self._bbt_conf)
         return True
 
     def exists(self) -> bool:
         try:
-            _ = api.get_connection(cluster_name=self.cluster_name)
+            _ = api.get_connection(
+                cluster_name=self.cluster_name, configuration=self._bbt_conf
+            )
             return True
         except Exception as e:
             logger.debug(e)

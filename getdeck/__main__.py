@@ -8,6 +8,7 @@ from getdeck.api import stop_cluster
 os.environ["PYOXIDIZER"] = "1"
 
 logger = logging.getLogger("deck")
+beiboot_logger = logging.getLogger("getdeck.beiboot")
 parser = argparse.ArgumentParser(
     prog="deck",
     description="The Deck CLI. For more help please visit: https://getdeck.dev",
@@ -107,8 +108,10 @@ def main():
         args = parser.parse_args()
         if args.debug:
             logger.setLevel(logging.DEBUG)
+            beiboot_logger.setLevel(logging.DEBUG)
         else:
             logger.setLevel(logging.INFO)
+            # beiboot_logger.setLevel(logging.INFO)
         logger.addHandler(configuration.console)
         if args.action == "list":
             decks = get_available_decks(args.Deckfile)

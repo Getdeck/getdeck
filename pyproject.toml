@@ -31,7 +31,7 @@ pydantic = "^1.9.0"
 semantic-version = "^2.9.0"
 GitPython = "^3.1.27"
 PyYAML = "^6.0"
-beiboot = "^0.4.0"
+beiboot = "^0.6.0"
 
 
 [tool.poetry.dev-dependencies]
@@ -52,4 +52,4 @@ deck = "getdeck.__main__:main"
 setversion = "version:set_version"
 
 [tool.poetry.urls]
-issues = "https://github.com/Schille/deck/issues"
+issues = "https://github.com/Getdeck/getdeck/issues"
