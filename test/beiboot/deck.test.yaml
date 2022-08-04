@@ -13,8 +13,18 @@ decks:
   - name: dashboard
     namespace: default
     sources:
-      - type: file
-        ref: ./nginx-ingress.yaml
+      - type: helm
+        ref: https://kubernetes.github.io/ingress-nginx
+        chart: ingress-nginx
+        releaseName: ingress-nginx
+        namespace: ingress-nginx
+        helmArgs:
+          - --create-namespace
+        parameters:
+          - name: controller.admissionWebhooks.enabled
+            value: false
+          - name: controller.ingressClassResource.default
+            value: true
 
       - type: file
         ref: ./hello.yaml

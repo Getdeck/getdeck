@@ -58,8 +58,8 @@ class Beiboot(AbstractProvider):
         # cluster name
         cluster_name = config.CLUSTER_PREFIX + self.name.lower()
         cluster_name = cluster_name.replace(" ", "-")
-        # make this cluster name unique
-        self.cluster_name = f"{cluster_name}-{socket.gethostname()}-{getpass.getuser()}"
+        cluster_name_unique = f"{cluster_name}-{socket.gethostname()}-{getpass.getuser()}"  # unique cluster name
+        self.cluster_name = cluster_name_unique.lower()
 
         # beiboot context
         context_name = self.native_config.context
@@ -74,7 +74,7 @@ class Beiboot(AbstractProvider):
                 kube_context=context_name,
             )
         except kubernetes.config.ConfigException as e:
-            print(e)
+            logger.debug(e)
             raise RuntimeError(
                 f"You don't have the required kubeconf context. Please add '{context_name}' to your available contexts "
                 f"to use this Deckfile."

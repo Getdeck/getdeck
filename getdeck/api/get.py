@@ -58,6 +58,7 @@ def run_deck(  # noqa: C901
             # remove this just created cluster as it probably is in an inconsistent state from the beginning
             remove.remove_cluster(deckfile_location, config)
         raise e
+
     logger.info(f"Applying Deck {generated_deck.name}")
     if progress_callback:
         progress_callback(30)
@@ -77,6 +78,7 @@ def run_deck(  # noqa: C901
 
     if progress_callback:
         progress_callback(50)
+
     total = len(generated_deck.files)
     logger.info(f"Installing {total} files(s)")
     _available_namespace = [generated_deck, "default"]
@@ -104,6 +106,7 @@ def run_deck(  # noqa: C901
                 # remove this just created cluster as it probably is in an inconsistent state from the beginning
                 remove.remove_cluster(deckfile_location, config)
             raise e
+
     if progress_callback:
         progress_callback(100)
     logger.info(f"All workloads from Deck {generated_deck.name} applied")
