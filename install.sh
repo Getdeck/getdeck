@@ -25,3 +25,11 @@ sudo install -m 0755 /tmp/deck/deck /usr/local/bin/deck
 # cleanup 
 rm -rf /tmp/$file_name
 rm -rf /tmp/deck
+
+# additional information
+echo $'\n---\n'
+echo $'🎉 Getdeck has been successfully installed\n'
+echo $'🚀 Here\'s our getting started guide: https://getdeck.dev/docs/deck/getting-started'
+echo $'🔧 Intro for Ops: https://getdeck.dev/docs/deck/for-devops/intro'
+echo $'💻 Intro for Devs: https://getdeck.dev/docs/deck/for-devs/intro\n'
+echo $'❓ Any problems? Feel free to give us feedback: https://github.com/Getdeck/getdeck/issues\n'
