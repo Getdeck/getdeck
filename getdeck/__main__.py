@@ -120,6 +120,7 @@ def main():
             logger.setLevel(logging.DEBUG)
         else:
             logger.setLevel(logging.INFO)
+
         logger.addHandler(configuration.console)
         if args.action == "list":
             decks = get_available_decks(args.Deckfile)

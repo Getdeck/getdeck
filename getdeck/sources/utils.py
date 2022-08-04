@@ -56,5 +56,11 @@ def prepare_k8s_workload_for_deck(
     generated_deck = GeneratedDeck(name=deck.name, namespace=namespace, files=[])
     logger.info(f"Processing {len(deck.sources)} source(s)")
     for source in deck.sources:
+        # if a source, such as Helm, specifies another namespace
+        logger.debug(source)
+        if hasattr(source, "namespace"):
+            namespace = source.namespace or deck.namespace or "default"
+        else:
+            namespace = deck.namespace or "default"
         generated_deck.files.extend(fetch_deck_source(config, source, namespace))
     return generated_deck
