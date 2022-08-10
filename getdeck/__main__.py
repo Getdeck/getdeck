@@ -3,7 +3,6 @@ import argparse
 import logging
 import os
 
-from getdeck.api import stop_cluster
 
 os.environ["PYOXIDIZER"] = "1"
 
@@ -111,7 +110,13 @@ hosts_parser.add_argument(
 
 def main():
     from getdeck import configuration
-    from getdeck.api import get_available_decks, run_deck, remove_cluster, remove_deck
+    from getdeck.api import (
+        get_available_decks,
+        run_deck,
+        remove_cluster,
+        remove_deck,
+        stop_cluster,
+    )
     from getdeck.api.hosts import run_hosts
 
     try:
