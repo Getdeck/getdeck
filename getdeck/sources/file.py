@@ -1,73 +1,17 @@
 import logging
-from operator import methodcaller
 import os
+from pathlib import PurePath
 import tempfile
-from typing import List, Union
+from typing import List
 
 import requests
 import yaml
 
-from getdeck.configuration import ClientConfiguration
-from getdeck.deckfile.file import (
-    DeckfileFileSource,
-    DeckfileKustomizeSource,
-    DeckfileHelmSource,
-)
+from getdeck.sources.fetcher import Fetcher, FetcherError
 from getdeck.sources.types import K8sSourceFile
-from getdeck.utils import sniff_protocol
 from git import Repo
 
 logger = logging.getLogger("deck")
-
-
-class FetcherError(Exception):
-    pass
-
-
-class Fetcher:
-    def __init__(
-        self,
-        source: Union[DeckfileFileSource, DeckfileKustomizeSource, DeckfileHelmSource],
-        config: ClientConfiguration,
-        namespace: str,
-    ):
-        self.source = source
-        self.config = config
-        self.namespace = namespace
-
-    @property
-    def not_supported_message(self):
-        return "Could not fetch source"
-
-    def fetch(self, **kwargs) -> List[K8sSourceFile]:
-        handler = methodcaller(f"fetch_{self.type}", **kwargs)
-        try:
-            return handler(self)
-        except NotImplementedError:
-            logger.warning(self.not_supported_message)
-            return []
-
-    @property
-    def type(self) -> str:
-        if getattr(self.source, "content", None) is not None:
-            return "content"
-        protocol = sniff_protocol(self.source.ref)
-        return protocol
-
-    def fetch_git(self, **kwargs):
-        raise NotImplementedError
-
-    def fetch_http(self, **kwargs):
-        raise NotImplementedError
-
-    def fetch_https(self, **kwargs):
-        raise NotImplementedError
-
-    def fetch_local(self, **kwargs):
-        raise NotImplementedError
-
-    def fetch_content(self, **kwargs):
-        raise NotImplementedError
 
 
 class FileFetcher(Fetcher):
@@ -147,7 +91,9 @@ class FileFetcher(Fetcher):
     def fetch_local(self, **kwargs):
         try:
             logger.debug(f"Reading file {self.source.ref}")
-            k8s_workload_files = self._parse_source(ref=self.source.ref)
+            ref = str(PurePath(os.path.join(self.path, self.source.ref)))
+
+            k8s_workload_files = self._parse_source(ref=ref)
             return k8s_workload_files
         except Exception as e:
             logger.error(f"Error loading file from http {e}")

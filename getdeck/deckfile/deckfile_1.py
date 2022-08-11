@@ -9,6 +9,11 @@ logger = logging.getLogger("deck")
 
 
 class Deckfile_1_0(Deckfile, BaseModel):
+    # meta
+    file_path: str
+    file_name: str
+
+    # content
     version: Optional[str]
     cluster: DeckfileCluster = None
     decks: List[DeckfileDeck]
