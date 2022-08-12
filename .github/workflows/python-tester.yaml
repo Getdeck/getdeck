@@ -2,49 +2,50 @@ name: pytest and try it yourself example
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
   pull_request:
-    branches: [ main ]
+    branches: [main]
 
 jobs:
   test:
     runs-on: ubuntu-latest
     timeout-minutes: 5
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.x'
-    - name: Install Poetry
-      uses: snok/install-poetry@v1
-    - name: Poetry installation
-      run: |
-        poetry install
-    # Run the 'Try it yourself'
-    - uses: Getdeck/getdeck-action@main
-      name: Create Infrastructure from Deckfile
-      with:
-        deck-file-path: https://github.com/gefyrahq/gefyra-demos.git
-    - name: Remove cluster using getdeck
-      run: |
-        poetry run coverage run -a -m getdeck remove deck.gefyra.test.yaml --name oauth2-demo
-    - name: Create a cluster using getdeck
-      run: |
-        poetry run coverage run -a -m getdeck get deck.gefyra.test.yaml --name oauth2-demo
-    - name: Stop cluster
-      run: |
-        poetry run coverage run -a -m getdeck stop deck.gefyra.test.yaml
-    - name: Show coverage report
-      run: |
-        poetry run coverage report
-    - name: Upload coverage data to coveralls.io
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        COVERALLS_FLAG_NAME: ${{ matrix.python-version }}
-        COVERALLS_PARALLEL: true
-      run: |
-        poetry run coveralls --service=github
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.x"
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+      - name: Poetry installation
+        run: |
+          poetry install
+      # Run the 'Try it yourself'
+      - uses: Getdeck/getdeck-action@main
+        name: Create Infrastructure from Deckfile
+        with:
+          deck-file-path: https://github.com/gefyrahq/gefyra-demos.git
+          timeout: "180"
+      - name: Remove cluster using getdeck
+        run: |
+          poetry run coverage run -a -m getdeck remove deck.gefyra.test.yaml --name oauth2-demo
+      - name: Create a cluster using getdeck
+        run: |
+          poetry run coverage run -a -m getdeck get deck.gefyra.test.yaml --name oauth2-demo
+      - name: Stop cluster
+        run: |
+          poetry run coverage run -a -m getdeck stop deck.gefyra.test.yaml
+      - name: Show coverage report
+        run: |
+          poetry run coverage report
+      - name: Upload coverage data to coveralls.io
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          COVERALLS_FLAG_NAME: ${{ matrix.python-version }}
+          COVERALLS_PARALLEL: true
+        run: |
+          poetry run coveralls --service=github
   coveralls:
     name: Indicate completion to coveralls.io
     # need secrets.GITHUB_TOKEN
