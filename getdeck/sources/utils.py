@@ -38,16 +38,16 @@ def prepare_k8s_workload_for_deck(
             )
             continue
 
-        fetcher_context.strategy = strategy(
-            deckfile.file_path, source, config, namespace
-        )
-
         # if a source, such as Helm, specifies another namespace
         logger.debug(source)
         if hasattr(source, "namespace"):
             namespace = source.namespace or deck.namespace or "default"
         else:
             namespace = deck.namespace or "default"
+
+        fetcher_context.strategy = strategy(
+            deckfile.file_path, source, config, namespace
+        )
 
         # fetch source files
         source_files = fetcher_context.fetch_source_files()
