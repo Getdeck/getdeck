@@ -1,4 +1,4 @@
-from typing import Union
+from typing import Union, Optional
 from getdeck.deckfile.file import (
     DeckfileFileSource,
     DeckfileHelmSource,
@@ -12,7 +12,7 @@ from getdeck.sources.kustomize import KustomizeFetcher
 
 def select_fetcher_strategy(
     source: Union[DeckfileFileSource, DeckfileHelmSource, DeckfileKustomizeSource]
-) -> Fetcher | None:
+) -> Optional[Fetcher]:
     fetcher_strategy = {
         DeckfileFileSource: FileFetcher,
         DeckfileHelmSource: HelmFetcher,
