@@ -52,7 +52,11 @@ class DeckfileSelector:
             else:
                 raise DeckfileVersionError("Version in Deckfile is missing")
         logger.debug("The raw Deckfile data: " + str(data))
-        return deckfile_class(**data)
+
+        file_path = os.path.dirname(path_deckfile)
+        file_name = os.path.basename(path_deckfile)
+        deckfile = deckfile_class(file_path=file_path, file_name=file_name, **data)
+        return deckfile
 
 
 deckfile_selector = DeckfileSelector(

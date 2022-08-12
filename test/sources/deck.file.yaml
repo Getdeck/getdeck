@@ -1,0 +1,71 @@
+version: "1"
+
+cluster:
+  provider: k3d
+  minVersion: 4.0.0
+  name: test-sources-file
+  nativeConfig:
+    apiVersion: k3d.io/v1alpha4
+    kind: Simple
+    servers: 1
+    agents: 1
+    image: rancher/k3s:v1.22.9-k3s1
+    options:
+      k3s:
+        extraArgs:
+          - arg: --disable=traefik
+            nodeFilters:
+              - server:*
+    ports:
+      - port: 61346:80
+        nodeFilters:
+          - loadbalancer
+      - port: 8443:443
+        nodeFilters:
+          - loadbalancer
+      - port: 31820:31820/UDP
+        nodeFilters:
+          - agent:0
+
+decks:
+  - name: hello
+    namespace: default
+    sources:
+      - type: helm
+        ref: https://kubernetes.github.io/ingress-nginx
+        chart: ingress-nginx
+        releaseName: ingress-nginx
+        namespace: ingress-nginx
+        helmArgs:
+          - --create-namespace
+        parameters:
+          - name: controller.admissionWebhooks.enabled
+            value: false
+          - name: controller.ingressClassResource.default
+            value: true
+
+      - type: file
+        ref: ./hello.yaml
+
+      - type: file
+        ref: ./resources/hello.yaml
+
+      - type: file
+        ref: ../resources/file/hello.yaml
+
+      - type: file
+        ref: https://raw.githubusercontent.com/Getdeck/getdeck/main/test/beiboot/hello.yaml
+
+      - type: file
+        ref: git@github.com:Getdeck/getdeck.git
+        targetRevision: main
+        path: test/beiboot/hello.yaml
+
+      - type: file
+        ref: content
+        content:
+          {
+            "kind": "Namespace",
+            "apiVersion": "v1",
+            "metadata": { "name": "content", "labels": { "name": "content" } },
+          }
