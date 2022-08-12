@@ -22,21 +22,21 @@ jobs:
       - name: Poetry installation
         run: |
           poetry install
-      # Run the 'Try it yourself'
-      - uses: Getdeck/getdeck-action@main
-        name: Create Infrastructure from Deckfile
-        with:
-          deck-file-path: https://github.com/gefyrahq/gefyra-demos.git
-          timeout: "180"
-      - name: Remove cluster using getdeck
-        run: |
-          poetry run coverage run -a -m getdeck remove deck.gefyra.test.yaml --name oauth2-demo
+      - id: Install k3d
+        shell: bash
+        run: "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash"
       - name: Create a cluster using getdeck
         run: |
-          poetry run coverage run -a -m getdeck get deck.gefyra.test.yaml --name oauth2-demo
-      - name: Stop cluster
+          poetry run coverage run -a -m getdeck get --name oauth2-demo https://github.com/gefyrahq/gefyra-demos.git
+      - name: Stop the cluster
         run: |
-          poetry run coverage run -a -m getdeck stop deck.gefyra.test.yaml
+          poetry run coverage run -a -m getdeck stop https://github.com/gefyrahq/gefyra-demos.git
+      - name: Start the cluster again
+        run: |
+          poetry run coverage run -a -m getdeck get --name oauth2-demo https://github.com/gefyrahq/gefyra-demos.git
+      - name: Remove the cluster
+        run: |
+          poetry run coverage run -a -m getdeck remove --cluster https://github.com/gefyrahq/gefyra-demos.git
       - name: Show coverage report
         run: |
           poetry run coverage report
