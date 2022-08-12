@@ -22,7 +22,7 @@ jobs:
       - name: Poetry installation
         run: |
           poetry install
-      - id: Install k3d
+      - name: Install k3d
         shell: bash
         run: "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash"
       - name: Create a cluster using getdeck
