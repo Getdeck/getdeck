@@ -19,27 +19,26 @@ class FileFetcher(Fetcher):
     def not_supported_message(self):
         return f"Protocol {self.type} not supported for {type(self.source).__name__}"
 
-    @staticmethod
-    def _parse_source_file(ref: str) -> List[K8sSourceFile]:
+    def _parse_source_file(self, ref: str) -> List[K8sSourceFile]:
         with open(ref, "r") as input_file:
             docs = yaml.load_all(input_file.read(), Loader=yaml.FullLoader)
 
         k8s_workload_files = []
         for doc in docs:
             if doc:
-                k8s_workload_files.append(K8sSourceFile(name=ref, content=doc))
+                k8s_workload_files.append(
+                    K8sSourceFile(name=ref, content=doc, namespace=self.namespace)
+                )
         return k8s_workload_files
 
-    @staticmethod
-    def _parse_source_files(refs: List[str]) -> List[K8sSourceFile]:
+    def _parse_source_files(self, refs: List[str]) -> List[K8sSourceFile]:
         k8s_workload_files = []
         for ref in refs:
-            workloads = FileFetcher._parse_source_file(ref=ref)
+            workloads = self._parse_source_file(ref=ref)
             k8s_workload_files += workloads
         return k8s_workload_files
 
-    @staticmethod
-    def _parse_source_directory(ref: str) -> List[K8sSourceFile]:
+    def _parse_source_directory(self, ref: str) -> List[K8sSourceFile]:
         refs = []
 
         if not os.path.isdir(ref):
@@ -53,19 +52,23 @@ class FileFetcher(Fetcher):
                 refs.append(os.path.join(ref, file))
 
         # parse workloads
-        k8s_workload_files = FileFetcher._parse_source_files(refs=refs)
+        k8s_workload_files = self._parse_source_files(refs=refs)
         return k8s_workload_files
 
-    @staticmethod
-    def _parse_source(ref: str) -> List[K8sSourceFile]:
+    def _parse_source(self, ref: str) -> List[K8sSourceFile]:
         if os.path.isdir(ref):
-            k8s_workload_files = FileFetcher._parse_source_directory(ref=ref)
+            k8s_workload_files = self._parse_source_directory(
+                ref=ref,
+            )
         else:
-            k8s_workload_files = FileFetcher._parse_source_file(ref=ref)
+            k8s_workload_files = self._parse_source_file(ref=ref)
         return k8s_workload_files
 
     def fetch_content(self, **kwargs) -> List[K8sSourceFile]:
-        return [K8sSourceFile(name="Deckfile", content=self.source.content)]
+        source_file = K8sSourceFile(
+            name="Deckfile", content=self.source.content, namespace=self.namespace
+        )
+        return [source_file]
 
     def fetch_http(self, **kwargs) -> List[K8sSourceFile]:
         k8s_workload_files = []
@@ -78,7 +81,9 @@ class FileFetcher(Fetcher):
             for doc in docs:
                 if doc:
                     k8s_workload_files.append(
-                        K8sSourceFile(name=self.source.ref, content=doc)
+                        K8sSourceFile(
+                            name=self.source.ref, content=doc, namespace=self.namespace
+                        )
                     )
             return k8s_workload_files
         except Exception as e:
