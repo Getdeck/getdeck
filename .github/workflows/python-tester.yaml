@@ -27,7 +27,7 @@ jobs:
         run: "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash"
       - name: Create a cluster using getdeck
         run: |
-          poetry run coverage run -a -m getdeck get --name oauth2-demo https://github.com/gefyrahq/gefyra-demos.git
+          poetry run coverage run -a -m getdeck get --name oauth2-demo --wait --timeout 180 https://github.com/gefyrahq/gefyra-demos.git
       - name: Stop the cluster
         run: |
           poetry run coverage run -a -m getdeck stop https://github.com/gefyrahq/gefyra-demos.git
