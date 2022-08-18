@@ -1,6 +1,7 @@
 import io
 import logging
 import os
+import shutil
 import subprocess
 import sys
 import tempfile
@@ -121,7 +122,15 @@ class ToolerFetcher(FileFetcher):
         raise NotImplementedError
 
     def fetch_local(self, **kwargs):
-        raise NotImplementedError
+        cmd = self.build_command()
+        try:
+            self._parse_source(ref=self.source.ref)
+            dst = os.path.join(self.tmp_source.name, self.source.ref)
+            shutil.copytree(self.source.ref, dst, dirs_exist_ok=True)
+            self.run_tooler(cmd)
+            return self.collect_workload_files()
+        finally:
+            self.cleanup()
 
     def fetch_remote(self, git=False):
         cmd = self.build_command()

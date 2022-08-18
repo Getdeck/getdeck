@@ -56,7 +56,7 @@ class HelmFetcher(ToolerFetcher):
         return f"{data['major']}.{data['minor']}"
 
     def _helm_prep(self) -> List[str]:
-        if self.type == "git":
+        if self.type in ["git", "local"]:
             return self._helm_dep_up()
         else:  # http(s)
             return self._helm_repo_add()
@@ -65,6 +65,8 @@ class HelmFetcher(ToolerFetcher):
         return ["helm", "repo", "add", "this", self.source.ref]
 
     def _helm_dep_up(self) -> List[str]:
+        if self.type == "local":
+            return ["helm", "dep", "up", self.source.ref]
         return ["helm", "dep", "up", self.source.path]
 
     def _helm_with_plugins(self) -> List[str]:
@@ -84,6 +86,29 @@ class HelmFetcher(ToolerFetcher):
                 for _valuefile in self.source.valueFiles:
                     temp.extend(
                         ["--values", os.path.join(self.source.path, _valuefile)]
+                    )
+            return temp
+        if self.type == "local":
+            temp = [
+                "template",
+                f"{self.source.releaseName}",
+                f"/sources/{self.source.ref}",
+                "--include-crds",
+                "--namespace",
+                self.namespace,
+            ]
+            if self.source.valueFiles:
+                for _valuefile in self.source.valueFiles:
+                    temp.extend(
+                        [
+                            "--values",
+                            os.path.join(
+                                "/sources",
+                                self.source.ref,
+                                self.source.path,
+                                _valuefile,
+                            ),
+                        ]
                     )
             return temp
         else:  # http(s)
