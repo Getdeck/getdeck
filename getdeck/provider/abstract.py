@@ -4,7 +4,23 @@ from typing import List
 from semantic_version import Version
 
 
-class IK8sProvider(ABC):
+class AbstractProvider(ABC):
+    provider_type = None
+    kubernetes_cluster_type = None
+
+    def __init__(
+        self,
+        name: str = None,
+    ) -> None:
+        self.name = name
+
+    @property
+    def display_name(self):
+        name = self.name
+        if name:
+            return name
+        return name
+
     @abstractmethod
     def get_kubeconfig(self) -> bool:
         raise NotImplementedError
@@ -63,24 +79,3 @@ class IK8sProvider(ABC):
         Return the published ports
         """
         raise NotImplementedError
-
-
-class AbstractK8sProvider(IK8sProvider):
-    provider_type = None
-
-    def __init__(
-        self,
-        name: str = None,
-    ) -> None:
-        self.name = name
-
-    @property
-    def display_name(self):
-        name = self.name
-        if name:
-            return name
-        return name
-
-    @property
-    def k8s_provider_type(self):
-        return self.provider_type

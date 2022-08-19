@@ -6,11 +6,12 @@ env:
   PYOXIDIZER_DOWNLOAD: https://github.com/indygreg/PyOxidizer/releases/download/pyoxidizer%2F0.20.0/PyOxidizer-0.20.0-exe-x86-64-linux.zip
 
 on:
+  workflow_dispatch: {}
   push:
     tags:
-      - '*'
+      - "*"
     branches:
-      - 'windows-port'
+      - "windows-port"
   release:
     types: [published]
 
@@ -18,34 +19,34 @@ jobs:
   build:
     runs-on: ubuntu-18.04
     steps:
-    - uses: actions/checkout@v2
-    - name: Set up Python
-      uses: actions/setup-python@v2
-      with:
-        python-version: '3.9'
-    - name: Setup PyOxidizer and build
-      run: |
-        wget ${PYOXIDIZER_DOWNLOAD}
-        unzip PyOxidizer-0.20.0-exe-x86-64-linux.zip
-        sudo chmod +x ./pyoxidizer
-        ./pyoxidizer build exe --release
-        cp `find build/ -name "deck"` ./deck
-        strip -s ./deck
-        cat pyproject.toml | grep version -m 1 | awk '{ print "APP_VERSION="substr($3, 2, length($3) -2)}' >> $GITHUB_ENV
-    - name: Upload Artifact
-      uses: actions/upload-artifact@v2
-      with:
-        name: deck-${{ env.APP_VERSION }}-linux-amd64
-        path: |
-          deck
-          LICENSE
-          README.md
-        retention-days: 5
-    - name: Create release zip
-      if: ${{ github.event.release && github.event.action == 'published' }}
-      run: zip deck-${{ env.APP_VERSION }}-linux-amd64.zip "deck" "LICENSE" "README.md"
-    - name: Attach files to release
-      uses: softprops/action-gh-release@v1
-      if: ${{ github.event.release && github.event.action == 'published' }}
-      with:
-        files: deck-${{ env.APP_VERSION }}-linux-amd64.zip
+      - uses: actions/checkout@v2
+      - name: Set up Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+      - name: Setup PyOxidizer and build
+        run: |
+          wget ${PYOXIDIZER_DOWNLOAD}
+          unzip PyOxidizer-0.20.0-exe-x86-64-linux.zip
+          sudo chmod +x ./pyoxidizer
+          ./pyoxidizer build exe --release
+          cp `find build/ -name "deck"` ./deck
+          strip -s ./deck
+          cat pyproject.toml | grep version -m 1 | awk '{ print "APP_VERSION="substr($3, 2, length($3) -2)}' >> $GITHUB_ENV
+      - name: Upload Artifact
+        uses: actions/upload-artifact@v2
+        with:
+          name: deck-${{ env.APP_VERSION }}-linux-amd64
+          path: |
+            deck
+            LICENSE
+            README.md
+          retention-days: 5
+      - name: Create release zip
+        if: ${{ github.event.release && github.event.action == 'published' }}
+        run: zip deck-${{ env.APP_VERSION }}-linux-amd64.zip "deck" "LICENSE" "README.md"
+      - name: Attach files to release
+        uses: softprops/action-gh-release@v1
+        if: ${{ github.event.release && github.event.action == 'published' }}
+        with:
+          files: deck-${{ env.APP_VERSION }}-linux-amd64.zip

@@ -1,0 +1,30 @@
+version: "1"
+
+cluster:
+  provider: beiboot
+  minVersion: 0.6.0
+  name: beiboot-cluster
+  nativeConfig:
+    context: <beiboot-cluster-context>
+    ports:
+      - port: 8080:80
+
+decks:
+  - name: hello
+    namespace: default
+    sources:
+      - type: helm
+        ref: https://kubernetes.github.io/ingress-nginx
+        chart: ingress-nginx
+        releaseName: ingress-nginx
+        namespace: ingress-nginx
+        helmArgs:
+          - --create-namespace
+        parameters:
+          - name: controller.admissionWebhooks.enabled
+            value: false
+          - name: controller.ingressClassResource.default
+            value: true
+
+      - type: file
+        ref: ./hello.yaml

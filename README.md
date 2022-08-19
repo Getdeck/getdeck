@@ -13,7 +13,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Getdeck/getdeck">
-    <img src="https://github.com/Schille/getdeck/raw/main/docs/static/img/logo.png" alt="Getdeck Logo"/>
+    <img src="https://github.com/Getdeck/getdeck/raw/main/docs/static/img/logo.png" alt="Getdeck Logo"/>
   </a>
 
   <h3 align="center">Getdeck</h3>
@@ -21,10 +21,10 @@
   <p align="center">
     A CLI that creates reproducible Kubernetes environments for development and testing!
     <br />
-    <a href="https://getdeck.dev/docs/deck/intro"><strong>Explore the docs »</strong></a>
+    <a href="https://getdeck.dev/docs/"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://getdeck.dev/docs/deck/getting-started">Getting started</a>
+    <a href="https://getdeck.dev/docs/getting-started/">Getting started</a>
     ·
     <a href="https://github.com/Getdeck/getdeck/issues">Report Bug</a>
     ·
@@ -61,7 +61,7 @@ Getdeck is like docker-compose for Kubernetes: Find a Deckfile that is describin
 run `deck get ...` and you are ready to work. No Kubernetes knowledge required.
 
 **Simple to use**  
-Just install the binary executable deck and you are good to go.
+Just install the binary executable `deck` and you are good to go.
 
 **All dependencies managed**  
 Helm, kustomize, k3d, kubectl? Getdeck manages all dependencies for your setup so you don't have to.
@@ -88,7 +88,7 @@ don't have to install _everything_ yourself.
 You can easily try Getdeck yourself following this small example.
 
 ### Prerequisites
-1) Follow the [installation](https://getdeck.dev/docs/deck/installation) for your preferred platform.
+1) Follow the [installation](https://getdeck.dev/docs/installation/) for your preferred platform.
 
 ### Running Getdeck
 We provide a sophisticated demo project you can deploy locally using `Getdeck`:
@@ -108,18 +108,18 @@ To clean it up (i.e. remove the cluster), just run the following command:
 deck remove --cluster https://github.com/gefyrahq/gefyra-demos.git
 ```
 
-Now go and write your own [Deckfile](https://getdeck.dev/docs/deckfile/specs)!  
+Now go and write your own [Deckfile](https://getdeck.dev/docs/deckfile-specs/)!  
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
 ## Usage
 The following actions are available in Getdeck's CLI:
-- `get`: setup local development infrastructure, install a [deck](https://getdeck.dev/docs/deck/)
+- `get`: setup local development infrastructure, install a [deck](https://getdeck.dev/docs/overview/what-is-a-deck/)
 - `remove`: remove Getdeck's development infrastructure and/or just the deck
-- `list`: list the available decks of a [Deckfile](https://getdeck.dev/docs/deckfile/specs)
+- `list`: list the available decks of a [Deckfile](https://getdeck.dev/docs/deckfile-specs/)
 - `version`: print the current version and exit
 
-_For more examples, please refer to the [CLI documentation](https://getdeck.dev/docs/deck/for-devs/cli-reference)_
+_For more examples, please refer to the [CLI documentation](https://getdeck.dev/docs/cli-reference/)_
 
 <p align="right">(<a href="#top">back to top</a>)</p>
 
@@ -140,7 +140,7 @@ steps to reproduce the issue, expected behavior.
 If you're reporting a security vulnerability, please follow the process for reporting security issues.
 
 ## Acknowledgments
-Getdeck is sponsored by the [Blueshoe GmbH](https://blueshoe.de).
+Getdeck is sponsored by the [Blueshoe GmbH](https://blueshoe.io).
 
 <!-- MARKDOWN LINKS & IMAGES -->
 <!-- https://www.markdownguide.org/basic-syntax/#reference-style-links -->

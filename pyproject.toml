@@ -1,11 +1,11 @@
 [tool.poetry]
 name = "getdeck"
-version = "0.8.4"
+version = "0.9.3"
 description = "Deck, a CLI that creates reproducible Kubernetes environments for development and testing"
 authors = ["Michael Schilonka <michael@unikube.io>"]
 readme = "README.md"
 homepage = "https://getdeck.dev"
-repository = "https://github.com/Schille/deck"
+repository = "https://github.com/Getdeck/getdeck"
 documentation = "https://getdeck.dev"
 packages = [
     { include = "getdeck" }
@@ -24,7 +24,7 @@ classifiers = [
 ]
 
 [tool.poetry.dependencies]
-python = "^3.8.0"
+python = "^3.10.0"
 kubernetes = "^23.3.0"
 docker = "^5.0.3"
 pydantic = "^1.9.0"
@@ -32,6 +32,7 @@ semantic-version = "^2.9.0"
 GitPython = "^3.1.27"
 PyYAML = "^6.0"
 python-hosts = "^1.0.3"
+beiboot = "^0.7.3"
 
 
 [tool.poetry.dev-dependencies]
@@ -52,4 +53,4 @@ deck = "getdeck.__main__:main"
 setversion = "version:set_version"
 
 [tool.poetry.urls]
-issues = "https://github.com/Schille/deck/issues"
+issues = "https://github.com/Getdeck/getdeck/issues"

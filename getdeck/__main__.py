@@ -4,7 +4,6 @@ import logging
 import os
 import traceback
 
-from getdeck.api import stop_cluster
 
 os.environ["PYOXIDIZER"] = "1"
 
@@ -112,7 +111,13 @@ hosts_parser.add_argument(
 
 def main():
     from getdeck import configuration
-    from getdeck.api import get_available_decks, run_deck, remove_cluster, remove_deck
+    from getdeck.api import (
+        get_available_decks,
+        run_deck,
+        remove_cluster,
+        remove_deck,
+        stop_cluster,
+    )
     from getdeck.api.hosts import run_hosts
 
     try:
@@ -121,6 +126,7 @@ def main():
             logger.setLevel(logging.DEBUG)
         else:
             logger.setLevel(logging.INFO)
+
         logger.addHandler(configuration.console)
         if args.action == "list":
             decks = get_available_decks(args.Deckfile)

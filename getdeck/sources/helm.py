@@ -41,7 +41,9 @@ class HelmFetcher(ToolerFetcher):
                             if doc:
                                 k8s_workload_files.append(
                                     K8sSourceFile(
-                                        name=os.path.join(root, _file), content=doc
+                                        name=os.path.join(root, _file),
+                                        content=doc,
+                                        namespace=self.namespace,
                                     )
                                 )
         self.tmp_output.cleanup()
