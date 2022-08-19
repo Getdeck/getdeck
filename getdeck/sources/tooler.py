@@ -132,9 +132,6 @@ class ToolerFetcher(FileFetcher):
                 dst = os.path.join(
                     self.tmp_source.name, self.source.ref.removeprefix("./")
                 )
-                logger.debug("COPYING FROM: - TO:")
-                logger.debug(path)
-                logger.debug(dst)
                 shutil.copytree(path, dst, dirs_exist_ok=True)
             else:
                 self._parse_source(ref=self.source.ref)

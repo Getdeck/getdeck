@@ -79,7 +79,6 @@ class FileFetcher(Fetcher):
 
     @staticmethod
     def _parse_source_file(ref: str) -> List[K8sSourceFile]:
-        logger.debug(ref)
         with open(ref, "r") as input_file:
             docs = yaml.load_all(input_file.read(), Loader=yaml.FullLoader)
 
