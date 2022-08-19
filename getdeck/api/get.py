@@ -29,7 +29,9 @@ def run_deck(
     if progress_callback:
         progress_callback(0)
 
-    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(deckfile_location, config)
+    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(
+        deckfile_location, config
+    )
     if progress_callback:
         progress_callback(5)
     #

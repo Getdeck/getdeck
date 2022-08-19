@@ -17,7 +17,9 @@ def remove_cluster(
 ) -> bool:
     from getdeck.utils import read_deckfile_from_location, ensure_cluster
 
-    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(deckfile_location, config)
+    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(
+        deckfile_location, config
+    )
     k8s_provider = ensure_cluster(deckfile, config, ignore_cluster, do_install=False)
     if k8s_provider.exists():
         k8s_provider.delete()
@@ -43,7 +45,9 @@ def remove_deck(
     from getdeck.k8s import k8s_delete_object
     from getdeck.sources.utils import prepare_k8s_workload_for_deck
 
-    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(deckfile_location, config)
+    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(
+        deckfile_location, config
+    )
     if progress_callback:
         progress_callback(10)
     k8s_provider = ensure_cluster(deckfile, config, ignore_cluster, do_install=False)
@@ -52,7 +56,9 @@ def remove_deck(
 
     config.kubeconfig = k8s_provider.get_kubeconfig()
     if k8s_provider.exists():
-        generated_deck = prepare_k8s_workload_for_deck(config, deckfile, deck_name, working_dir_path)
+        generated_deck = prepare_k8s_workload_for_deck(
+            config, deckfile, deck_name, working_dir_path
+        )
         logger.info(f"Removing Deck {generated_deck.name}")
         if progress_callback:
             progress_callback(30)

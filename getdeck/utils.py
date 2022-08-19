@@ -88,7 +88,11 @@ def read_deckfile_from_location(
         # this is probably a file system location
         if os.path.isfile(location):
             logger.debug("Is file location")
-            return config.deckfile_selector.get(location), os.path.dirname(location), False
+            return (
+                config.deckfile_selector.get(location),
+                os.path.dirname(location),
+                False,
+            )
         else:
             raise RuntimeError(f"Cannot identify {location} as Deckfile")
     else:
