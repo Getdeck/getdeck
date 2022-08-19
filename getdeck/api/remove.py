@@ -49,7 +49,7 @@ def remove_deck(
 
     config.kubeconfig = k8s_provider.get_kubeconfig()
     if k8s_provider.exists():
-        generated_deck = prepare_k8s_workload_for_deck(config, deckfile, deck_name)
+        generated_deck = prepare_k8s_workload_for_deck(config, deckfile, deck_name, working_dir_path)
         logger.info(f"Removing Deck {generated_deck.name}")
         if progress_callback:
             progress_callback(30)
