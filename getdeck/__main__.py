@@ -164,7 +164,7 @@ def main():
     except Exception as e:
         if args.debug:
             traceback.print_exc()
-        logger.fatal(f"There was an error running Deck: {e}")
+        logger.fatal(f"There was an error running deck: {e}")
         exit(1)
 
 

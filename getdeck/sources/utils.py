@@ -49,7 +49,7 @@ def prepare_k8s_workload_for_deck(
             namespace = deck.namespace or "default"
 
         fetcher_context.strategy = strategy(
-            deckfile.file_path, source, config, namespace
+            deckfile.file_path, source, config, namespace, working_dir
         )
 
         # fetch source files
