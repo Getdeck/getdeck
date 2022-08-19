@@ -104,9 +104,9 @@ class HelmFetcher(ToolerFetcher):
                             "--values",
                             os.path.join(
                                 "/sources",
-                                self.source.ref.removeprefix('./'),
+                                self.source.ref.removeprefix("./"),
                                 self.source.path or "",
-                                _valuefile.removeprefix('./'),
+                                _valuefile.removeprefix("./"),
                             ),
                         ]
                     )

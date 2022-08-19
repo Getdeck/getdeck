@@ -50,7 +50,9 @@ def run_deck(
     # 2. generate the Deck's workload
     #
     try:
-        generated_deck = prepare_k8s_workload_for_deck(config, deckfile, deck_name, working_dir_path)
+        generated_deck = prepare_k8s_workload_for_deck(
+            config, deckfile, deck_name, working_dir_path
+        )
     except Exception as e:
         if cluster_created:
             # remove this just created cluster as it probably is in an inconsistent state from the beginning

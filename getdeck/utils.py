@@ -34,7 +34,9 @@ def sniff_protocol(ref: str):
     return None
 
 
-def read_deckfile_from_location(location: str, config: ClientConfiguration) -> Tuple[Deckfile, Optional[str]]:
+def read_deckfile_from_location(
+    location: str, config: ClientConfiguration
+) -> Tuple[Deckfile, Optional[str]]:
     protocol = sniff_protocol(location)
     if location == ".":
         # load default file from this location

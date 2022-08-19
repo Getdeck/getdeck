@@ -125,9 +125,13 @@ class ToolerFetcher(FileFetcher):
         cmd = self.build_command()
         try:
             if not os.path.isabs(self.source.ref):
-                path = os.path.join(self.working_dir, self.source.ref.removeprefix("./"))
+                path = os.path.join(
+                    self.working_dir, self.source.ref.removeprefix("./")
+                )
                 self._parse_source(ref=path, working_dir=self.working_dir)
-                dst = os.path.join(self.tmp_source.name, self.source.ref.removeprefix("./"))
+                dst = os.path.join(
+                    self.tmp_source.name, self.source.ref.removeprefix("./")
+                )
                 logger.debug("COPYING FROM: - TO:")
                 logger.debug(path)
                 logger.debug(dst)

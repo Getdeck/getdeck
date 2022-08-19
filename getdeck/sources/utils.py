@@ -48,7 +48,10 @@ def fetch_deck_source(
 
 
 def prepare_k8s_workload_for_deck(
-    config: ClientConfiguration, deckfile: Deckfile, deck_name: str, working_dir: str = None
+    config: ClientConfiguration,
+    deckfile: Deckfile,
+    deck_name: str,
+    working_dir: str = None,
 ) -> GeneratedDeck:
     deck = deckfile.get_deck(deck_name)
     logger.debug(deck)
@@ -57,5 +60,7 @@ def prepare_k8s_workload_for_deck(
     generated_deck = GeneratedDeck(name=deck.name, namespace=namespace, files=[])
     logger.info(f"Processing {len(deck.sources)} source(s)")
     for source in deck.sources:
-        generated_deck.files.extend(fetch_deck_source(config, source, namespace, working_dir))
+        generated_deck.files.extend(
+            fetch_deck_source(config, source, namespace, working_dir)
+        )
     return generated_deck

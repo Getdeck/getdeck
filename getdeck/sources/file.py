@@ -30,7 +30,7 @@ class Fetcher:
         source: Union[DeckfileFileSource, DeckfileKustomizeSource, DeckfileHelmSource],
         config: ClientConfiguration,
         namespace: str,
-        working_dir: str
+        working_dir: str,
     ):
         self.source = source
         self.config = config
@@ -153,7 +153,9 @@ class FileFetcher(Fetcher):
         try:
             logger.debug(f"Reading file {self.source.ref}")
             if not os.path.isabs(self.source.ref):
-                fpath = os.path.join(self.working_dir, self.source.ref.removeprefix("./"))
+                fpath = os.path.join(
+                    self.working_dir, self.source.ref.removeprefix("./")
+                )
                 k8s_workload_files = self._parse_source(ref=fpath)
             else:
                 k8s_workload_files = self._parse_source(ref=self.source.ref)
