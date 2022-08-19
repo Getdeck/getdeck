@@ -88,11 +88,11 @@ class HelmFetcher(ToolerFetcher):
                         ["--values", os.path.join(self.source.path, _valuefile)]
                     )
             return temp
-        if self.type == "local":
+        elif self.type == "local":
             temp = [
                 "template",
                 f"{self.source.releaseName}",
-                f"/sources/{self.source.ref}",
+                f"/sources/{self.source.ref.removeprefix('./')}",
                 "--include-crds",
                 "--namespace",
                 self.namespace,
@@ -104,9 +104,9 @@ class HelmFetcher(ToolerFetcher):
                             "--values",
                             os.path.join(
                                 "/sources",
-                                self.source.ref,
-                                self.source.path,
-                                _valuefile,
+                                self.source.ref.removeprefix('./'),
+                                self.source.path or "",
+                                _valuefile.removeprefix('./'),
                             ),
                         ]
                     )

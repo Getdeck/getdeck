@@ -16,7 +16,7 @@ def stop_cluster(
 ) -> bool:
     from getdeck.utils import read_deckfile_from_location, ensure_cluster
 
-    deckfile = read_deckfile_from_location(deckfile_location, config)
+    deckfile, _ = read_deckfile_from_location(deckfile_location, config)
     k8s_provider = ensure_cluster(deckfile, config, ignore_cluster, do_install=False)
     logger.info("Stopping cluster")
     k8s_provider.stop()

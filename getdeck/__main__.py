@@ -2,6 +2,7 @@
 import argparse
 import logging
 import os
+import traceback
 
 from getdeck.api import stop_cluster
 
@@ -155,6 +156,8 @@ def main():
             parser.print_help()
         exit(0)
     except Exception as e:
+        if args.debug:
+            traceback.print_exc()
         logger.fatal(f"There was an error running Deck: {e}")
         exit(1)
 

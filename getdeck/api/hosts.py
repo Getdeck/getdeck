@@ -17,7 +17,7 @@ def run_hosts(
     deck_name: str = None,
     config=default_configuration,
 ) -> bool:
-    deckfile = read_deckfile_from_location(deckfile_location, config)
+    deckfile, _ = read_deckfile_from_location(deckfile_location, config)
     deck = deckfile.get_deck(deck_name)
     deck_hosts = deck.hosts
 

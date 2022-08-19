@@ -28,8 +28,7 @@ def run_deck(
     if progress_callback:
         progress_callback(0)
 
-    deckfile = read_deckfile_from_location(deckfile_location, config)
-
+    deckfile, working_dir_path = read_deckfile_from_location(deckfile_location, config)
     if progress_callback:
         progress_callback(5)
     #
@@ -51,7 +50,7 @@ def run_deck(
     # 2. generate the Deck's workload
     #
     try:
-        generated_deck = prepare_k8s_workload_for_deck(config, deckfile, deck_name)
+        generated_deck = prepare_k8s_workload_for_deck(config, deckfile, deck_name, working_dir_path)
     except Exception as e:
         if cluster_created:
             # remove this just created cluster as it probably is in an inconsistent state from the beginning

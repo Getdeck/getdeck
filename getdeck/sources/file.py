@@ -30,10 +30,12 @@ class Fetcher:
         source: Union[DeckfileFileSource, DeckfileKustomizeSource, DeckfileHelmSource],
         config: ClientConfiguration,
         namespace: str,
+        working_dir: str
     ):
         self.source = source
         self.config = config
         self.namespace = namespace
+        self.working_dir = working_dir
 
     @property
     def not_supported_message(self):
@@ -77,6 +79,7 @@ class FileFetcher(Fetcher):
 
     @staticmethod
     def _parse_source_file(ref: str) -> List[K8sSourceFile]:
+        logger.debug(ref)
         with open(ref, "r") as input_file:
             docs = yaml.load_all(input_file.read(), Loader=yaml.FullLoader)
 
@@ -113,7 +116,9 @@ class FileFetcher(Fetcher):
         return k8s_workload_files
 
     @staticmethod
-    def _parse_source(ref: str) -> List[K8sSourceFile]:
+    def _parse_source(ref: str, working_dir: str = None) -> List[K8sSourceFile]:
+        if working_dir:
+            ref = os.path.join(working_dir, ref.removeprefix("./"))
         if os.path.isdir(ref):
             k8s_workload_files = FileFetcher._parse_source_directory(ref=ref)
         else:
@@ -147,7 +152,11 @@ class FileFetcher(Fetcher):
     def fetch_local(self, **kwargs):
         try:
             logger.debug(f"Reading file {self.source.ref}")
-            k8s_workload_files = self._parse_source(ref=self.source.ref)
+            if not os.path.isabs(self.source.ref):
+                fpath = os.path.join(self.working_dir, self.source.ref.removeprefix("./"))
+                k8s_workload_files = self._parse_source(ref=fpath)
+            else:
+                k8s_workload_files = self._parse_source(ref=self.source.ref)
             return k8s_workload_files
         except Exception as e:
             logger.error(f"Error loading file from http {e}")
