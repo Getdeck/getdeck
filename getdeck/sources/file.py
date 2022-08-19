@@ -1,6 +1,5 @@
 import logging
 import os
-from pathlib import PurePath
 import tempfile
 from typing import List
 
@@ -55,7 +54,9 @@ class FileFetcher(Fetcher):
         k8s_workload_files = self._parse_source_files(refs=refs)
         return k8s_workload_files
 
-    def _parse_source(self, ref: str) -> List[K8sSourceFile]:
+    def _parse_source(self, ref: str, working_dir: str = None) -> List[K8sSourceFile]:
+        if working_dir:
+            ref = os.path.join(working_dir, ref.removeprefix("./"))
         if os.path.isdir(ref):
             k8s_workload_files = self._parse_source_directory(
                 ref=ref,
@@ -96,9 +97,13 @@ class FileFetcher(Fetcher):
     def fetch_local(self, **kwargs):
         try:
             logger.debug(f"Reading file {self.source.ref}")
-            ref = str(PurePath(os.path.join(self.path, self.source.ref)))
-
-            k8s_workload_files = self._parse_source(ref=ref)
+            if not os.path.isabs(self.source.ref):
+                fpath = os.path.join(
+                    self.working_dir, self.source.ref.removeprefix("./")
+                )
+                k8s_workload_files = self._parse_source(ref=fpath)
+            else:
+                k8s_workload_files = self._parse_source(ref=self.source.ref)
             return k8s_workload_files
         except Exception as e:
             logger.error(f"Error loading file from http {e}")

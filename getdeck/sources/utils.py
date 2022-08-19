@@ -11,7 +11,10 @@ logger = logging.getLogger("deck")
 
 
 def prepare_k8s_workload_for_deck(
-    config: ClientConfiguration, deckfile: Deckfile, deck_name: str
+    config: ClientConfiguration,
+    deckfile: Deckfile,
+    deck_name: str,
+    working_dir: str = None,
 ) -> GeneratedDeck:
     deck = deckfile.get_deck(deck_name)
     logger.debug(deck)
@@ -46,7 +49,7 @@ def prepare_k8s_workload_for_deck(
             namespace = deck.namespace or "default"
 
         fetcher_context.strategy = strategy(
-            deckfile.file_path, source, config, namespace
+            deckfile.file_path, source, config, namespace, working_dir
         )
 
         # fetch source files

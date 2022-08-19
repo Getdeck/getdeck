@@ -1,4 +1,5 @@
 import logging
+import shutil
 from typing import Callable
 
 from getdeck.api import stopwatch, remove
@@ -28,8 +29,9 @@ def run_deck(  # noqa: C901
     if progress_callback:
         progress_callback(0)
 
-    deckfile = read_deckfile_from_location(deckfile_location, config)
-
+    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(
+        deckfile_location, config
+    )
     if progress_callback:
         progress_callback(5)
     #
@@ -52,7 +54,9 @@ def run_deck(  # noqa: C901
     # 2. generate the Deck's workload
     #
     try:
-        generated_deck = prepare_k8s_workload_for_deck(config, deckfile, deck_name)
+        generated_deck = prepare_k8s_workload_for_deck(
+            config, deckfile, deck_name, working_dir_path
+        )
     except Exception as e:
         if cluster_created:
             # remove this just created cluster as it probably is in an inconsistent state from the beginning
@@ -120,6 +124,8 @@ def run_deck(  # noqa: C901
     if notes := deckfile.get_deck(deck_name).notes:
         logger.info(notes)
 
+    if is_temp_dir:
+        shutil.rmtree(working_dir_path)
     if wait:
         _wait_ready(config, generated_deck, timeout)
     return True

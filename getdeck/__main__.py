@@ -2,6 +2,7 @@
 import argparse
 import logging
 import os
+import traceback
 
 
 os.environ["PYOXIDIZER"] = "1"
@@ -161,7 +162,9 @@ def main():
             parser.print_help()
         exit(0)
     except Exception as e:
-        logger.fatal(f"There was an error running Deck: {e}")
+        if args.debug:
+            traceback.print_exc()
+        logger.fatal(f"There was an error running deck: {e}")
         exit(1)
 
 

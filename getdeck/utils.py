@@ -1,8 +1,10 @@
 import logging
 import os
+import shutil
 import subprocess
 import tempfile
 from time import sleep
+from typing import Optional, Tuple
 
 import requests
 from git import Repo, GitError
@@ -33,8 +35,11 @@ def sniff_protocol(ref: str):
     return None
 
 
-def read_deckfile_from_location(location: str, config: ClientConfiguration) -> Deckfile:
+def read_deckfile_from_location(
+    location: str, config: ClientConfiguration
+) -> Tuple[Deckfile, Optional[str], bool]:
     protocol = sniff_protocol(location)
+    logger.info(f"Reading Deckfile from: {location}")
     if location == ".":
         # load default file from this location
         return config.deckfile_selector.get(
@@ -46,20 +51,19 @@ def read_deckfile_from_location(location: str, config: ClientConfiguration) -> D
         else:
             ref = location
             rev = "HEAD"
-        tmp_dir = tempfile.TemporaryDirectory()
+        tmp_dir = tempfile.mkdtemp()
         try:
-            repo = Repo.clone_from(ref, tmp_dir.name)
+            repo = Repo.clone_from(ref, tmp_dir)
             repo.git.checkout(rev)
             deckfile = config.deckfile_selector.get(
-                os.path.join(tmp_dir.name, configuration.DECKFILE_FILE)
+                os.path.join(tmp_dir, configuration.DECKFILE_FILE)
             )
-            tmp_dir.cleanup()
-            return deckfile
+            return deckfile, tmp_dir, True
         except GitError as e:
-            tmp_dir.cleanup()
+            shutil.rmtree(tmp_dir)
             raise RuntimeError(f"Cannot checkout {rev} from {ref}: {e}")
         except Exception as e:
-            tmp_dir.cleanup()
+            shutil.rmtree(tmp_dir)
             raise e
     elif protocol in ["http", "https"]:
         download = tempfile.NamedTemporaryFile(delete=False)
@@ -74,7 +78,7 @@ def read_deckfile_from_location(location: str, config: ClientConfiguration) -> D
             download.close()
             deckfile = config.deckfile_selector.get(download.name)
             os.remove(download.name)
-            return deckfile
+            return deckfile, None, False
         except Exception as e:
             download.close()
             os.remove(download.name)
@@ -85,7 +89,11 @@ def read_deckfile_from_location(location: str, config: ClientConfiguration) -> D
         # this is probably a file system location
         if os.path.isfile(location):
             logger.debug("Is file location")
-            return config.deckfile_selector.get(location)
+            return (
+                config.deckfile_selector.get(location),
+                os.path.dirname(location),
+                False,
+            )
         else:
             raise RuntimeError(f"Cannot identify {location} as Deckfile")
     else:
