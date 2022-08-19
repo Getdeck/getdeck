@@ -25,7 +25,7 @@ class Fetcher:
         source: Union[DeckfileFileSource, DeckfileKustomizeSource, DeckfileHelmSource],
         config: ClientConfiguration,
         namespace: str,
-        working_dir: str = None
+        working_dir: str = None,
     ):
         self.path = path
         self.source = source

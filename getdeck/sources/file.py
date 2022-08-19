@@ -1,6 +1,5 @@
 import logging
 import os
-from pathlib import PurePath
 import tempfile
 from typing import List
 
