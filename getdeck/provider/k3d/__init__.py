@@ -78,7 +78,7 @@ class K3d(UtilityProvider):
         return True
 
     def delete(self):
-        logger.info(f"Deleting the k3d cluster with name {self.k3d_cluster_name}")
+        logger.info(f"Deleting the k3d cluster with name '{self.k3d_cluster_name}'")
         arguments = ["cluster", "delete", self.k3d_cluster_name]
         self._execute(arguments)
         return True

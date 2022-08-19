@@ -36,8 +36,9 @@ def sniff_protocol(ref: str):
 
 def read_deckfile_from_location(
     location: str, config: ClientConfiguration
-) -> Tuple[Deckfile, Optional[str]]:
+) -> Tuple[Deckfile, Optional[str], bool]:
     protocol = sniff_protocol(location)
+    logger.info(f"Reading Deckfile from: {location}")
     if location == ".":
         # load default file from this location
         return config.deckfile_selector.get(
@@ -56,7 +57,7 @@ def read_deckfile_from_location(
             deckfile = config.deckfile_selector.get(
                 os.path.join(tmp_dir, configuration.DECKFILE_FILE)
             )
-            return deckfile, tmp_dir
+            return deckfile, tmp_dir, True
         except GitError as e:
             shutil.rmtree(tmp_dir)
             raise RuntimeError(f"Cannot checkout {rev} from {ref}: {e}")
@@ -76,7 +77,7 @@ def read_deckfile_from_location(
             download.close()
             deckfile = config.deckfile_selector.get(download.name)
             os.remove(download.name)
-            return deckfile, None
+            return deckfile, None, False
         except Exception as e:
             download.close()
             os.remove(download.name)
@@ -87,7 +88,7 @@ def read_deckfile_from_location(
         # this is probably a file system location
         if os.path.isfile(location):
             logger.debug("Is file location")
-            return config.deckfile_selector.get(location), os.path.dirname(location)
+            return config.deckfile_selector.get(location), os.path.dirname(location), False
         else:
             raise RuntimeError(f"Cannot identify {location} as Deckfile")
     else:

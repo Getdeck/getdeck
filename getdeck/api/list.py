@@ -1,4 +1,5 @@
 import logging
+import shutil
 from typing import List
 
 from getdeck.api.utils import stopwatch
@@ -11,7 +12,9 @@ logger = logging.getLogger("deck")
 def get_available_decks(deckfile_location: str, config=default_configuration) -> List:
     from getdeck.utils import read_deckfile_from_location
 
-    deckfile, _ = read_deckfile_from_location(deckfile_location, config)
+    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(deckfile_location, config)
     available_decks = deckfile.get_decks()
     logger.debug(available_decks)
+    if is_temp_dir:
+        shutil.rmtree(working_dir_path)
     return available_decks

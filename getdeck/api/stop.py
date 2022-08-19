@@ -1,4 +1,5 @@
 import logging
+import shutil
 from typing import Callable
 
 from getdeck.api import stopwatch
@@ -16,7 +17,9 @@ def stop_cluster(
 ) -> bool:
     from getdeck.utils import read_deckfile_from_location, ensure_cluster
 
-    deckfile, _ = read_deckfile_from_location(deckfile_location, config)
+    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(deckfile_location, config)
     k8s_provider = ensure_cluster(deckfile, config, ignore_cluster, do_install=False)
     logger.info("Stopping cluster")
+    if is_temp_dir:
+        shutil.rmtree(working_dir_path)
     k8s_provider.stop()
