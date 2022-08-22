@@ -13,7 +13,7 @@
 <br />
 <div align="center">
   <a href="https://github.com/Getdeck/getdeck">
-    <img src="https://github.com/Getdeck/getdeck/raw/main/docs/static/img/logo.png" alt="Getdeck Logo"/>
+    <img src="https://github.com/Getdeck/getdeck/raw/main/docs/static/img/getdeck-components.png" alt="Getdeck components"/>
   </a>
 
   <h3 align="center">Getdeck</h3>
