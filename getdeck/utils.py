@@ -42,9 +42,17 @@ def read_deckfile_from_location(
     logger.info(f"Reading Deckfile from: {location}")
     if location == ".":
         # load default file from this location
-        return config.deckfile_selector.get(
-            os.path.join(os.getcwd(), configuration.DECKFILE_FILE)
-        )
+        deckfile_location = os.path.join(os.getcwd(), configuration.DECKFILE_FILE)
+        if os.path.isfile(deckfile_location):
+            logger.debug("Is file location")
+            return (
+                config.deckfile_selector.get(deckfile_location),
+                os.path.dirname(deckfile_location),
+                False,
+            )
+        else:
+            raise RuntimeError(f"Cannot identify {location} as Deckfile")
+
     elif protocol == "git":
         if "#" in location:
             ref, rev = location.split("#")
