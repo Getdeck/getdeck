@@ -57,7 +57,9 @@ def k8s_create_or_patch(
             _call_and_log(config, api, "create", obj, namespace, **kwargs)
             break
         except ApiException as e:
-            if e.reason in ["Not Found", "Internal Server Error"]:
+            if e.reason == "Internal Server Error":
+                continue
+            if e.reason == "Not Found":
                 logger.debug(e)
                 try:
                     # try to create this object as non-namespaced object
@@ -84,8 +86,6 @@ def k8s_create_or_patch(
                         )
                         raise RuntimeError(e)
                     try:
-                        # try to delete this object and recreate it
-                        _delete_and_create(config, api, obj, namespace)
                         break
                     except Exception as ex:
                         logger.error(
