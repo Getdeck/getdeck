@@ -26,13 +26,13 @@ classifiers = [
 [tool.poetry.dependencies]
 python = "^3.10.0"
 kubernetes = "^23.3.0"
-docker = "^5.0.3"
+docker = "^6.0.0"
 pydantic = "^1.9.0"
 semantic-version = "^2.9.0"
 GitPython = "^3.1.27"
 PyYAML = "^6.0"
 python-hosts = "^1.0.3"
-beiboot = "^0.7.3"
+beiboot = "^0.8.0"
 
 
 [tool.poetry.dev-dependencies]
