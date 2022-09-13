@@ -66,6 +66,8 @@ def k8s_create_or_patch(
                     k8s_call_api(config, api, "create", obj, None, **kwargs)
                     break
                 except ApiException as ie:
+                    if ie.reason == "Conflict":
+                        break
                     logger.debug(ie)
                 if i < config.K8S_OBJECT_RETRY - 1:
                     logger.debug(
@@ -85,13 +87,13 @@ def k8s_create_or_patch(
                             f"Error installing object {obj['metadata']['name']}: {e.reason}"
                         )
                         raise RuntimeError(e)
-                    try:
-                        break
-                    except Exception as ex:
-                        logger.error(
-                            f"Kubernetes: failure updating {k8s_describe_object(obj)}: {ex}"
-                        )
-                        raise RuntimeError(ex)
+                    # try:
+                    #     break
+                    # except Exception as ex:
+                    #     logger.error(
+                    #         f"Kubernetes: failure updating {k8s_describe_object(obj)}: {ex}"
+                    #     )
+                    #     raise RuntimeError(ex)
                 except ValueError as e:
                     logger.debug(
                         f"Error installing object {obj['metadata']['name']}: {e}. "
