@@ -33,3 +33,7 @@ jobs:
       - name: Testing
         run: |
           poetry run coverage run -m pytest .
+
+      - name: Coverage
+        run: |
+          poetry run coverage report -m
