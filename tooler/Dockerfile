@@ -13,7 +13,7 @@ ARG KUBESEAL_VERSION=v0.15.0
 # ENV BASE_URL="https://storage.googleapis.com/kubernetes-helm"
 ENV BASE_URL="https://get.helm.sh"
 ENV TAR_FILE="helm-v${HELM_VERSION}-linux-${TARGETARCH}.tar.gz"
-RUN apk add --update --no-cache curl ca-certificates tar bash git gnupg && \
+RUN apk add --update --no-cache curl ca-certificates tar bash git gnupg aws-cli && \
     curl -sL ${BASE_URL}/${TAR_FILE} | tar -xvz && \
     mv linux-${TARGETARCH}/helm /usr/bin/helm && \
     chmod +x /usr/bin/helm && \
