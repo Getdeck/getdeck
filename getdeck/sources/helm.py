@@ -51,11 +51,15 @@ class HelmFetcher(ToolerFetcher):
 
     @cached_property
     def k8s_api_version(self) -> str:
+        import re
+
         req = self.config.K8S_CORE_API.api_client.request(
             "GET", f"{self.config.K8S_CORE_API.api_client.configuration.host}/version"
         )
+        logger.debug(self.config.K8S_CORE_API.api_client.configuration.host)
         data = json.loads(req.data)
-        return f"{data['major']}.{data['minor']}"
+        logger.debug("Kube API version: " + str(data))
+        return f"{re.sub(r'[^0-9]+', '', data['major'])}.{re.sub(r'[^0-9]+', '', data['minor'])}"
 
     def _helm_prep(self) -> List[str]:
         if self.type in ["git", "local"]:
