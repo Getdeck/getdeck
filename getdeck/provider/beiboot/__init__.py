@@ -73,7 +73,7 @@ class Beiboot(AbstractProvider):
                 docker_client=self.config.DOCKER,
                 cluster_timeout=self.config.BEIBOOT_CLUSTER_CREATION_TIMEOUT,
                 kube_context=context_name,
-                tooler_image=self.config.TOOLER_BASE_IMAGE
+                tooler_image=self.config.TOOLER_BASE_IMAGE,
             )
         except kubernetes.config.ConfigException as e:
             logger.debug(e)
