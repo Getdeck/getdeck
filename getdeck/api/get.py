@@ -67,6 +67,9 @@ def run_deck(  # noqa: C901
     except Exception as e:
         if cluster_created:
             # remove this just created cluster as it probably is in an inconsistent state from the beginning
+            if k8s_provider.kubernetes_cluster_type == ProviderType.BEIBOOT:
+                config.kubeconfig = _old_kubeconfig
+                config._init_kubeapi()
             remove.remove_cluster(deckfile_location, config)
         raise e
 

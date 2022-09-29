@@ -102,15 +102,10 @@ class Beiboot(AbstractProvider):
             connect=True,
             configuration=self._bbt_conf,
         )
-        _api_proxy_running = False
         _i = 0
-        while not _api_proxy_running and _i < self.config.BEIBOOT_API_READY_TIMEOUT:
-            for container in self.config.DOCKER.containers.list():
-                if container.name == f"{self.cluster_name}-6443":
-                    # this is the api proxy; check it is running
-                    if container.status == "running":
-                        _api_proxy_running = True
-                        break
+        while _i < self.config.BEIBOOT_API_READY_TIMEOUT:
+            if self._check_api_proxy_running():
+                break
             else:
                 _i = _i + 1
                 sleep(1)
@@ -188,7 +183,10 @@ class Beiboot(AbstractProvider):
             if container.name == f"getdeck-proxy-{self.cluster_name}-6443":
                 # this is the api proxy; check it is running
                 if container.status == "running":
-                    return True
+                    if "Forwarding" in container.logs().decode():
+                        return True
+                    else:
+                        return False
         else:
             return False
 
