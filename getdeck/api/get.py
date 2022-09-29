@@ -50,6 +50,13 @@ def run_deck(  # noqa: C901
 
     if progress_callback:
         progress_callback(20)
+
+    # change api for beiboot
+    if k8s_provider.kubernetes_cluster_type == ProviderType.BEIBOOT:
+        _old_kubeconfig = config.kubeconfig
+        config.kubeconfig = k8s_provider.get_kubeconfig()
+        config._init_kubeapi(context="default")
+
     #
     # 2. generate the Deck's workload
     #
@@ -70,12 +77,6 @@ def run_deck(  # noqa: C901
     # 3. send the manifests to this cluster
     #
     logger.info("Installing the workload to the cluster")
-
-    # change api for beiboot
-    if k8s_provider.kubernetes_cluster_type == ProviderType.BEIBOOT:
-        _old_kubeconfig = config.kubeconfig
-        config.kubeconfig = k8s_provider.get_kubeconfig()
-        config._init_kubeapi()
 
     if generated_deck.namespace != "default":
         create_namespace(config, generated_deck.namespace)

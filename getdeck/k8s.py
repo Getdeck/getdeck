@@ -57,7 +57,7 @@ def k8s_create_or_patch(
             _call_and_log(config, api, "create", obj, namespace, **kwargs)
             break
         except ApiException as e:
-            if e.reason == "Internal Server Error":
+            if e.reason in ["Internal Server Error", "Unprocessable Entity"]:
                 continue
             if e.reason == "Not Found":
                 logger.debug(e)

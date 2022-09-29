@@ -1,12 +1,12 @@
 import logging
 from pathlib import Path
+from time import sleep
 from typing import List, Optional
 
 import kubernetes.config
 
 from getdeck.configuration import ClientConfiguration
 from beiboot.configuration import ClientConfiguration as BeibootConfiguration
-from getdeck.docker import Docker
 from getdeck.provider.abstract import AbstractProvider
 from getdeck.provider.errors import NotSupportedError
 from getdeck.provider.types import ProviderType
@@ -71,6 +71,7 @@ class Beiboot(AbstractProvider):
             self._bbt_conf = BeibootConfiguration(
                 kube_config_file=self.config.kubeconfig or _kubeconf,
                 docker_client=self.config.DOCKER,
+                cluster_timeout=self.config.BEIBOOT_CLUSTER_CREATION_TIMEOUT,
                 kube_context=context_name,
             )
         except kubernetes.config.ConfigException as e:
@@ -101,9 +102,18 @@ class Beiboot(AbstractProvider):
             connect=True,
             configuration=self._bbt_conf,
         )
-
-        while not Docker().check_running(DOCKER_IMAGE):
-            continue
+        _api_proxy_running = False
+        _i = 0
+        while not _api_proxy_running and _i < self.config.BEIBOOT_API_READY_TIMEOUT:
+            for container in self.config.DOCKER.containers.list():
+                if container.name == f"{self.cluster_name}-6443":
+                    # this is the api proxy; check it is running
+                    if container.status == "running":
+                        _api_proxy_running = True
+                        break
+            else:
+                _i = _i + 1
+                sleep(1)
 
         kubeconfig_location = self.get_kubeconfig()
         logger.info(
@@ -113,13 +123,19 @@ class Beiboot(AbstractProvider):
         return True
 
     def start(self) -> bool:
-        if not Docker().check_running(DOCKER_IMAGE):
+
+        if not self._check_api_proxy_running():
             api.establish_connection(
                 cluster_name=self.cluster_name, configuration=self._bbt_conf
             )
 
-            while not Docker().check_running(DOCKER_IMAGE):
-                continue
+            _i = 0
+            while _i < self.config.BEIBOOT_API_READY_TIMEOUT:
+                if self._check_api_proxy_running():
+                    break
+                else:
+                    _i = _i + 1
+                    sleep(1)
 
         kubeconfig_location = self.get_kubeconfig()
         logger.info(
@@ -166,6 +182,15 @@ class Beiboot(AbstractProvider):
             return ports
         except KeyError:
             return []
+
+    def _check_api_proxy_running(self) -> bool:
+        for container in self.config.DOCKER.containers.list():
+            if container.name == f"getdeck-proxy-{self.cluster_name}-6443":
+                # this is the api proxy; check it is running
+                if container.status == "running":
+                    return True
+        else:
+            return False
 
 
 class BeibootBuilder:
