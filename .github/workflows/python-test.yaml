@@ -1,0 +1,39 @@
+name: Code Style + Testing
+
+on: [push, pull_request]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Setup Python
+        uses: actions/setup-python@v2
+        with:
+          python-version: "3.10"
+
+      - name: Upgrade Pip
+        run: |
+          pip install --upgrade pip
+
+      - name: Install Poetry
+        uses: snok/install-poetry@v1
+
+      - name: Install dependencies
+        run: |
+          poetry install --no-interaction --no-ansi
+
+      - name: Code Style
+        run: |
+          poetry run flake8 . --exit-zero
+          poetry run black --check .
+
+      - name: Testing
+        run: |
+          poetry run coverage run -m pytest .
+
+      - name: Coverage
+        run: |
+          poetry run coverage report -m
