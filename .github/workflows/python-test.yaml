@@ -9,6 +9,12 @@ jobs:
     steps:
       - uses: actions/checkout@v2
 
+      - name: ssh agent
+        uses: webfactory/ssh-agent@v0.5.4
+        with:
+          ssh-private-key: |
+            ${{ secrets.SSH_KEY_OF_GETDECK }}
+
       - name: Setup Python
         uses: actions/setup-python@v2
         with:
