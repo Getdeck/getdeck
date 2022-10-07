@@ -1,4 +1,5 @@
 import logging
+import os
 import shutil
 from typing import Callable
 
@@ -128,8 +129,10 @@ def run_deck(  # noqa: C901
     if notes := deckfile.get_deck(deck_name).notes:
         logger.info(notes)
 
-    if is_temp_dir:
+    # TODO: refactor/remove?
+    if is_temp_dir and os.path.isdir(working_dir_path):
         shutil.rmtree(working_dir_path)
+
     if wait:
         _wait_ready(config, generated_deck, timeout)
     return True
