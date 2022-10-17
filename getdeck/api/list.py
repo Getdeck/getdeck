@@ -1,4 +1,5 @@
 import logging
+import os
 import shutil
 from typing import List
 
@@ -17,6 +18,9 @@ def get_available_decks(deckfile_location: str, config=default_configuration) ->
     )
     available_decks = deckfile.get_decks()
     logger.debug(available_decks)
-    if is_temp_dir:
+
+    # TODO: refactor/remove?
+    if is_temp_dir and os.path.isdir(working_dir_path):
         shutil.rmtree(working_dir_path)
+
     return available_decks

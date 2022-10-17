@@ -1,4 +1,5 @@
 import logging
+import os
 import shutil
 from typing import Callable
 
@@ -22,6 +23,9 @@ def stop_cluster(
     )
     k8s_provider = ensure_cluster(deckfile, config, ignore_cluster, do_install=False)
     logger.info("Stopping cluster")
-    if is_temp_dir:
+
+    # TODO: refactor/remove?
+    if is_temp_dir and os.path.isdir(working_dir_path):
         shutil.rmtree(working_dir_path)
+
     k8s_provider.stop()

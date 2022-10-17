@@ -1,4 +1,5 @@
 import logging
+import os
 import shutil
 import socket
 
@@ -53,8 +54,11 @@ def run_hosts(
             logger.error(f"Unknown host action '{host_action}'")
     else:
         logger.info("No hosts specified in Deckfile")
-    if is_temp_dir:
+
+    # TODO: refactor/remove?
+    if is_temp_dir and os.path.isdir(working_dir_path):
         shutil.rmtree(working_dir_path)
+
     return True
 
 

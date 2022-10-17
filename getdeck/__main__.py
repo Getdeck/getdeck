@@ -134,15 +134,19 @@ def main():
             logger.info(names)
         elif args.action == "get":
             if args.wait:
-                run_deck(
-                    args.Deckfile,
-                    args.name,
-                    ignore_cluster=args.no_cluster,
-                    wait=True,
-                    timeout=int(args.timeout),
-                )
+                wait = True
+                timeout = int(args.timeout)
             else:
-                run_deck(args.Deckfile, args.name, ignore_cluster=args.no_cluster)
+                wait = False
+                timeout = None
+
+            run_deck(
+                args.Deckfile,
+                args.name,
+                ignore_cluster=args.no_cluster,
+                wait=wait,
+                timeout=timeout,
+            )
         elif args.action == "remove":
             if args.cluster:
                 remove_cluster(args.Deckfile, ignore_cluster=args.no_cluster)

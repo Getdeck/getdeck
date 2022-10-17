@@ -1,21 +1,24 @@
 import logging
 import os
-import shutil
 import subprocess
-import tempfile
 from time import sleep
 from typing import Optional, Tuple
 
-import requests
-from git import Repo, GitError
 from semantic_version import Version
 
-from getdeck import configuration
 from getdeck.configuration import ClientConfiguration
+from getdeck.deckfile.fetch.deck_fetcher import (
+    DeckFetcher,
+    DeckFileData,
+    select_fetch_behavior,
+)
+from getdeck.deckfile.fetch.utils import get_path_and_name
 from getdeck.deckfile.file import Deckfile
 from getdeck.provider.abstract import AbstractProvider
 from getdeck.provider.errors import NotSupportedError
 from getdeck.provider.types import ProviderType
+from getdeck.deckfile.selector import deckfile_selector
+
 
 logger = logging.getLogger("deck")
 
@@ -36,76 +39,42 @@ def sniff_protocol(ref: str):
 
 
 def read_deckfile_from_location(
-    location: str, config: ClientConfiguration
+    location: str, *args, **kwargs
 ) -> Tuple[Deckfile, Optional[str], bool]:
-    protocol = sniff_protocol(location)
     logger.info(f"Reading Deckfile from: {location}")
-    if location == ".":
-        # load default file from this location
-        deckfile_location = os.path.join(os.getcwd(), configuration.DECKFILE_FILE)
-        if os.path.isfile(deckfile_location):
-            logger.debug("Is file location")
-            return (
-                config.deckfile_selector.get(deckfile_location),
-                os.path.dirname(deckfile_location),
-                False,
-            )
-        else:
-            raise RuntimeError(f"Cannot identify {location} as Deckfile")
 
-    elif protocol == "git":
-        if "#" in location:
-            ref, rev = location.split("#")
-        else:
-            ref = location
-            rev = "HEAD"
-        tmp_dir = tempfile.mkdtemp()
-        try:
-            repo = Repo.clone_from(ref, tmp_dir)
-            repo.git.checkout(rev)
-            deckfile = config.deckfile_selector.get(
-                os.path.join(tmp_dir, configuration.DECKFILE_FILE)
-            )
-            return deckfile, tmp_dir, True
-        except GitError as e:
-            shutil.rmtree(tmp_dir)
-            raise RuntimeError(f"Cannot checkout {rev} from {ref}: {e}")
-        except Exception as e:
-            shutil.rmtree(tmp_dir)
-            raise e
-    elif protocol in ["http", "https"]:
-        download = tempfile.NamedTemporaryFile(delete=False)
-        try:
-            logger.debug(f"Requesting {location}")
-            with requests.get(location, stream=True, timeout=10.0) as res:
-                res.raise_for_status()
-                for chunk in res.iter_content(chunk_size=4096):
-                    if chunk:
-                        download.write(chunk)
-                download.flush()
-            download.close()
-            deckfile = config.deckfile_selector.get(download.name)
-            os.remove(download.name)
-            return deckfile, None, False
-        except Exception as e:
-            download.close()
-            os.remove(download.name)
-            raise RuntimeError(
-                f"Cannot read Deckfile from http(s) location {location}: {e}"
-            )
-    elif protocol in (None, "local"):
-        # this is probably a file system location
-        if os.path.isfile(location):
-            logger.debug("Is file location")
-            return (
-                config.deckfile_selector.get(location),
-                os.path.dirname(location),
-                False,
-            )
-        else:
-            raise RuntimeError(f"Cannot identify {location} as Deckfile")
+    # fetch
+    data = DeckFileData(argument_location=location)
+    fetch_behavior = select_fetch_behavior(location=location)
+    if fetch_behavior:
+        deck_fetcher = DeckFetcher(fetch_behavior=fetch_behavior)
+        data = deck_fetcher.fetch(data=data)
     else:
-        raise RuntimeError("Cannot read Deckfile")
+        # local path and name
+        path, name = get_path_and_name(location=location)
+        data.path = path
+        data.name = name
+        data.working_dir_path = os.path.dirname(location)
+
+    # validate (error flag used to raise exception after clean up)
+    error = False
+    file = os.path.join(data.path, data.name)
+    if not os.path.isfile(file):
+        error = True
+
+    # parse
+    if not error:
+        deckfile = deckfile_selector.get(file)
+
+    # clean up
+    if fetch_behavior:
+        fetch_behavior.clean_up(data=data)
+
+    # error
+    if error:
+        raise RuntimeError(f"Cannot identify {location} as Deckfile")
+
+    return deckfile, data.working_dir_path, data.is_temp_dir
 
 
 def ensure_cluster(
