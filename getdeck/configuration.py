@@ -65,8 +65,6 @@ class ClientConfiguration(object):
         self.kubeconfig = None
         self.K8S_OBJECT_RETRY = 30
         self.K8S_OBJECT_RETRY_TIMEOUT = 2  # in s
-        self.BEIBOOT_CLUSTER_CREATION_TIMEOUT = 180  # in s
-        self.BEIBOOT_API_READY_TIMEOUT = 20  # in s
 
     def _init_docker(self):
         import docker
