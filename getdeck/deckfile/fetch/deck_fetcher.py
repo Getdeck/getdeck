@@ -1,5 +1,7 @@
 from abc import ABC, abstractmethod
 import os
+from typing import Optional
+
 from pydantic import BaseModel
 import logging
 import shutil
@@ -114,7 +116,7 @@ class DeckFetcher:
         return data
 
 
-def select_fetch_behavior(location: str) -> DeckFetchBehavior | None:
+def select_fetch_behavior(location: str) -> Optional[DeckFetchBehavior]:
     if "#" in location:
         location, _ = location.split("#")
 
