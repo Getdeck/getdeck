@@ -1,0 +1,61 @@
+name: Bug Report
+description: Report a bug of malfunction in Getdeck
+labels: bug
+body:
+  - type: textarea
+    id: problem
+    attributes:
+      label: What happened?
+      description: |
+        Please provide as much info as possible. What have you been trying to do when finding the bug.
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: How can we reproduce it (as minimally and precisely as possible)?
+    validations:
+      required: true
+
+  - type: textarea
+    id: Deckfile
+    attributes:
+      label: What is the content of the Deckfile you are using?
+      description: |
+        Please remove all secrets from the file.
+    validations:
+      required: true
+
+  - type: textarea
+    id: osVersion
+    attributes:
+      label: OS version
+      value: |
+        <details>
+
+        ```console
+        # On Linux:
+        $ cat /etc/os-release
+        # paste output here
+        $ uname -a
+        # paste output here
+
+        # On Windows:
+        C:\> wmic os get Caption, Version, BuildNumber, OSArchitecture
+        # paste output here
+        ```
+
+        </details>
+
+  - type: textarea
+    id: additional
+    attributes:
+      label: Anything else we need to know?
