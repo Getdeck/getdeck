@@ -54,3 +54,4 @@ jobs:
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.tooler_meta.outputs.tags }}
           cache-from: type=registry,ref=quay.io/getdeck/tooler:latest
+          cache-to: type=registry,ref=quay.io/getdeck/tooler:latest,mode=max
