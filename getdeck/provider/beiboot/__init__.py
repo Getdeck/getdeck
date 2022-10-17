@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from time import sleep
 from typing import List, Optional
 
 import kubernetes.config
@@ -83,7 +82,16 @@ class Beiboot(AbstractProvider):
                 kube_context=context_name,
                 tooler_image=self.config.TOOLER_BASE_IMAGE,
             )
-            logger.debug("Beiboot config:" + str([f"{k}={getattr(self._bbt_conf, k)}" for k in vars(self._bbt_conf) if not k.startswith("_")]))
+            logger.debug(
+                "Beiboot config:"
+                + str(
+                    [
+                        f"{k}={getattr(self._bbt_conf, k)}"
+                        for k in vars(self._bbt_conf)
+                        if not k.startswith("_")
+                    ]
+                )
+            )
         except kubernetes.config.ConfigException as e:
             logger.debug(e)
             raise RuntimeError(
