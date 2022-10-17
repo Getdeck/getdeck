@@ -53,4 +53,4 @@ jobs:
           platforms: linux/amd64, linux/arm64
           push: ${{ github.event_name != 'pull_request' }}
           tags: ${{ steps.tooler_meta.outputs.tags }}
-          cache-from: type=registry,ref=quay.io/getdeck/tooler
+          cache-from: type=registry,ref=quay.io/getdeck/tooler:latest
