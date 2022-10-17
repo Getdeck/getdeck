@@ -1,6 +1,5 @@
 import logging
 from pathlib import Path
-from time import sleep
 from typing import List, Optional
 
 import kubernetes.config
@@ -22,6 +21,11 @@ NOT_SUPPORTED_ERROR = f"Not supported by {ProviderType.BEIBOOT.value}."
 DOCKER_IMAGE = "quay.io/getdeck/tooler:latest"
 
 
+class TimeoutNativeConfig(BaseModel):
+    api: int = 30  # in s
+    cluster: int = 180  # in s
+
+
 class PortNativeConfig(BaseModel):
     port: str
 
@@ -29,6 +33,7 @@ class PortNativeConfig(BaseModel):
 class NativeConfigBeiboot(BaseModel):
     context: str
     ports: Optional[List[PortNativeConfig]] = None
+    timeouts: Optional[TimeoutNativeConfig] = TimeoutNativeConfig()
 
 
 class Beiboot(AbstractProvider):
@@ -68,12 +73,24 @@ class Beiboot(AbstractProvider):
             _kubeconf = str(
                 Path(kubernetes.config.KUBE_CONFIG_DEFAULT_LOCATION).expanduser()
             )
+
             self._bbt_conf = BeibootConfiguration(
                 kube_config_file=self.config.kubeconfig or _kubeconf,
                 docker_client=self.config.DOCKER,
-                cluster_timeout=self.config.BEIBOOT_CLUSTER_CREATION_TIMEOUT,
+                cluster_timeout=self.native_config.timeouts.cluster,
+                api_connection_timeout=self.native_config.timeouts.api,
                 kube_context=context_name,
                 tooler_image=self.config.TOOLER_BASE_IMAGE,
+            )
+            logger.debug(
+                "Beiboot config:"
+                + str(
+                    [
+                        f"{k}={getattr(self._bbt_conf, k)}"
+                        for k in vars(self._bbt_conf)
+                        if not k.startswith("_")
+                    ]
+                )
             )
         except kubernetes.config.ConfigException as e:
             logger.debug(e)
@@ -97,19 +114,17 @@ class Beiboot(AbstractProvider):
         logger.info(
             f"Now creating Beiboot '{self.cluster_name}'. This is going to take a while..."
         )
-        api.create_cluster(
-            cluster_name=self.cluster_name,
-            ports=ports,
-            connect=True,
-            configuration=self._bbt_conf,
-        )
-        _i = 0
-        while _i < self.config.BEIBOOT_API_READY_TIMEOUT:
-            if self._check_api_proxy_running():
-                break
-            else:
-                _i = _i + 1
-                sleep(1)
+        try:
+            api.create_cluster(
+                cluster_name=self.cluster_name,
+                ports=ports,
+                connect=True,
+                configuration=self._bbt_conf,
+            )
+        except TimeoutError as timeout:
+            # this happens when either the cluster was not ready in time, or the api connection
+            self.delete()
+            raise timeout
 
         kubeconfig_location = self.get_kubeconfig()
         logger.info(
@@ -124,14 +139,6 @@ class Beiboot(AbstractProvider):
             api.establish_connection(
                 cluster_name=self.cluster_name, configuration=self._bbt_conf
             )
-
-            _i = 0
-            while _i < self.config.BEIBOOT_API_READY_TIMEOUT:
-                if self._check_api_proxy_running():
-                    break
-                else:
-                    _i = _i + 1
-                    sleep(1)
 
         kubeconfig_location = self.get_kubeconfig()
         logger.info(
