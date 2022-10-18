@@ -19,7 +19,7 @@ class FetchError(Exception):
     pass
 
 
-class DeckFileData(BaseModel):
+class DeckfileAux(BaseModel):
     argument_location: str
     cwd: str = os.getcwd()
     path: str = None
@@ -30,16 +30,16 @@ class DeckFileData(BaseModel):
 
 class DeckFetchBehavior(ABC):
     @abstractmethod
-    def fetch(self, data: DeckFileData) -> DeckFileData:
+    def fetch(self, data: DeckfileAux) -> DeckfileAux:
         pass
 
     @abstractmethod
-    def clean_up(self, data: DeckFileData):
+    def clean_up(self, data: DeckfileAux):
         pass
 
 
 class Git(DeckFetchBehavior):
-    def fetch(self, data: DeckFileData) -> DeckFileData:
+    def fetch(self, data: DeckfileAux) -> DeckfileAux:
         location = data.argument_location
 
         if "#" in location:
@@ -65,12 +65,12 @@ class Git(DeckFetchBehavior):
 
         return data
 
-    def clean_up(self, data: DeckFileData):
+    def clean_up(self, data: DeckfileAux):
         shutil.rmtree(data.working_dir_path)
 
 
 class Http(DeckFetchBehavior):
-    def fetch(self, data: DeckFileData) -> DeckFileData:
+    def fetch(self, data: DeckfileAux) -> DeckfileAux:
         location = data.argument_location
 
         download = tempfile.NamedTemporaryFile(delete=False)
@@ -95,7 +95,7 @@ class Http(DeckFetchBehavior):
 
         return data
 
-    def clean_up(self, data: DeckFileData):
+    def clean_up(self, data: DeckfileAux):
         os.remove(os.path.join(data.path, data.name))
 
 
@@ -111,7 +111,7 @@ class DeckFetcher:
     def fetch_behavior(self, fetch_behavior: DeckFetchBehavior) -> None:
         self._fetch_behavior = fetch_behavior
 
-    def fetch(self, data: DeckFileData) -> DeckFileData:
+    def fetch(self, data: DeckfileAux) -> DeckfileAux:
         data = self._fetch_behavior.fetch(data=data)
         return data
 

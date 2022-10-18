@@ -9,7 +9,7 @@ from semantic_version import Version
 from getdeck.configuration import ClientConfiguration
 from getdeck.deckfile.fetch.deck_fetcher import (
     DeckFetcher,
-    DeckFileData,
+    DeckfileAux,
     select_fetch_behavior,
 )
 from getdeck.deckfile.fetch.utils import get_path_and_name
@@ -44,7 +44,7 @@ def read_deckfile_from_location(
     logger.info(f"Reading Deckfile from: {location}")
 
     # fetch
-    data = DeckFileData(argument_location=location)
+    data = DeckfileAux(argument_location=location)
     fetch_behavior = select_fetch_behavior(location=location)
     if fetch_behavior:
         deck_fetcher = DeckFetcher(fetch_behavior=fetch_behavior)

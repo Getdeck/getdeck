@@ -1,7 +1,7 @@
 from unittest import TestCase
 from getdeck.deckfile.fetch.deck_fetcher import (
     DeckFetcher,
-    DeckFileData,
+    DeckfileAux,
     Git,
     Http,
     select_fetch_behavior,
@@ -40,7 +40,7 @@ class DeckFetcherTest(TestCase):
     def test_default(self):
         location = "git@github.com:Getdeck/getdeck.git"
 
-        data = DeckFileData(argument_location=location)
+        data = DeckfileAux(argument_location=location)
         fetch_behavior = select_fetch_behavior(location=location)
         deck_fetcher = DeckFetcher(fetch_behavior=fetch_behavior)
         data = deck_fetcher.fetch(data=data)

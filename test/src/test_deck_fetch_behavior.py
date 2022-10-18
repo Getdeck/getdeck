@@ -1,12 +1,12 @@
 import os
 from unittest import TestCase
 from getdeck import configuration
-from getdeck.deckfile.fetch.deck_fetcher import DeckFileData, FetchError, Git, Http
+from getdeck.deckfile.fetch.deck_fetcher import DeckfileAux, FetchError, Git, Http
 
 
 class GitTest(TestCase):
     def test_git(self):
-        data = DeckFileData(argument_location="git@github.com:Getdeck/getdeck.git")
+        data = DeckfileAux(argument_location="git@github.com:Getdeck/getdeck.git")
 
         fetch_behavior = Git()
         data = fetch_behavior.fetch(data=data)
@@ -19,7 +19,7 @@ class GitTest(TestCase):
         self.assertFalse(os.path.isdir(data.working_dir_path))
 
     def test_branch(self):
-        data = DeckFileData(argument_location="git@github.com:Getdeck/getdeck.git#main")
+        data = DeckfileAux(argument_location="git@github.com:Getdeck/getdeck.git#main")
 
         fetch_behavior = Git()
         data = fetch_behavior.fetch(data=data)
@@ -32,7 +32,7 @@ class GitTest(TestCase):
         self.assertFalse(os.path.isdir(data.working_dir_path))
 
     def test_branch_invalid(self):
-        data = DeckFileData(
+        data = DeckfileAux(
             argument_location="git@github.com:Getdeck/getdeck.git#invalid"
         )
 
@@ -41,7 +41,7 @@ class GitTest(TestCase):
             data = fetch_behavior.fetch(data=data)
 
     def test_https(self):
-        data = DeckFileData(argument_location="https://github.com/Getdeck/getdeck.git")
+        data = DeckfileAux(argument_location="https://github.com/Getdeck/getdeck.git")
 
         fetch_behavior = Git()
         data = fetch_behavior.fetch(data=data)
@@ -56,7 +56,7 @@ class GitTest(TestCase):
 
 class HttpTest(TestCase):
     def test_default(self):
-        data = DeckFileData(
+        data = DeckfileAux(
             argument_location="https://raw.githubusercontent.com/Getdeck/getdeck/main/test/deckfile/deck.empty.yaml"
         )
 
@@ -71,7 +71,7 @@ class HttpTest(TestCase):
         self.assertFalse(os.path.isfile(os.path.join(data.path, data.name)))
 
     def test_url_invalid(self):
-        data = DeckFileData(
+        data = DeckfileAux(
             argument_location="https://raw.githubusercontent.com/Getdeck/getdeck/invalid/deck.yaml"
         )
 
