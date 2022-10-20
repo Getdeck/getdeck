@@ -7,7 +7,7 @@ from python_hosts import Hosts, HostsEntry
 
 from getdeck.api import stopwatch
 from getdeck.configuration import default_configuration
-from getdeck.utils import read_deckfile_from_location
+from getdeck.fetch.fetch import fetch_data
 
 logger = logging.getLogger("deck")
 
@@ -19,8 +19,8 @@ def run_hosts(
     deck_name: str = None,
     config=default_configuration,
 ) -> bool:
-    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(
-        deckfile_location, config
+    deckfile, working_dir_path, is_temp_dir = fetch_data(
+        deckfile_location, deck_name=deck_name
     )
     deck = deckfile.get_deck(deck_name)
     deck_hosts = deck.hosts

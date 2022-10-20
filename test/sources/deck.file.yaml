@@ -61,8 +61,7 @@ decks:
         targetRevision: main
         path: test/beiboot/hello.yaml
 
-      - type: file
-        ref: content
+      - type: inline
         content:
           {
             "kind": "Namespace",

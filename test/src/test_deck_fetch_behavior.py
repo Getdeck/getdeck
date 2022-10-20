@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 from getdeck import configuration
-from getdeck.deckfile.fetch.deck_fetcher import DeckfileAux, FetchError, Git, Http
+from getdeck.fetch.deck_fetcher import DeckfileAux, FetchError, Git, Http
 
 
 class GitTest(TestCase):

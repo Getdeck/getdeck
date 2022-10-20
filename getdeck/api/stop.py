@@ -16,11 +16,9 @@ def stop_cluster(
     config=default_configuration,
     progress_callback: Callable = None,
 ) -> bool:
-    from getdeck.utils import read_deckfile_from_location, ensure_cluster
+    from getdeck.utils import fetch_data, ensure_cluster
 
-    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(
-        deckfile_location, config
-    )
+    deckfile, working_dir_path, is_temp_dir = fetch_data(deckfile_location)
     k8s_provider = ensure_cluster(deckfile, config, ignore_cluster, do_install=False)
     logger.info("Stopping cluster")
 

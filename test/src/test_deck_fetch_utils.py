@@ -1,7 +1,7 @@
 import os
 from unittest import TestCase
 from getdeck import configuration
-from getdeck.deckfile.fetch.utils import get_path_and_name
+from getdeck.fetch.utils import get_path_and_name
 
 
 class GetPathAndNameTest(TestCase):

@@ -2,79 +2,17 @@ import logging
 import os
 import subprocess
 from time import sleep
-from typing import Optional, Tuple
 
 from semantic_version import Version
 
 from getdeck.configuration import ClientConfiguration
-from getdeck.deckfile.fetch.deck_fetcher import (
-    DeckFetcher,
-    DeckfileAux,
-    select_fetch_behavior,
-)
-from getdeck.deckfile.fetch.utils import get_path_and_name
 from getdeck.deckfile.file import Deckfile
 from getdeck.provider.abstract import AbstractProvider
 from getdeck.provider.errors import NotSupportedError
 from getdeck.provider.types import ProviderType
-from getdeck.deckfile.selector import deckfile_selector
 
 
 logger = logging.getLogger("deck")
-
-
-def sniff_protocol(ref: str):
-    if "#" in ref:
-        ref, rev = ref.split("#")
-    ref_lo = ref.lower()
-    if ref_lo.startswith("git") or ref_lo.endswith(".git"):
-        return "git"
-    if ref_lo.startswith("https"):
-        return "https"
-    if ref_lo.startswith("http"):
-        return "http"
-    if ref_lo[0] in "./~":
-        return "local"
-    return None
-
-
-def read_deckfile_from_location(
-    location: str, *args, **kwargs
-) -> Tuple[Deckfile, Optional[str], bool]:
-    logger.info(f"Reading Deckfile from: {location}")
-
-    # fetch
-    data = DeckfileAux(argument_location=location)
-    fetch_behavior = select_fetch_behavior(location=location)
-    if fetch_behavior:
-        deck_fetcher = DeckFetcher(fetch_behavior=fetch_behavior)
-        data = deck_fetcher.fetch(data=data)
-    else:
-        # local path and name
-        path, name = get_path_and_name(location=location)
-        data.path = path
-        data.name = name
-        data.working_dir_path = os.path.dirname(location)
-
-    # validate (error flag used to raise exception after clean up)
-    error = False
-    file = os.path.join(data.path, data.name)
-    if not os.path.isfile(file):
-        error = True
-
-    # parse
-    if not error:
-        deckfile = deckfile_selector.get(file)
-
-    # clean up
-    if fetch_behavior:
-        fetch_behavior.clean_up(data=data)
-
-    # error
-    if error:
-        raise RuntimeError(f"Cannot identify {location} as Deckfile")
-
-    return deckfile, data.working_dir_path, data.is_temp_dir
 
 
 def ensure_cluster(

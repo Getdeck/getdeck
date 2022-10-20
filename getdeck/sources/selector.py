@@ -1,21 +1,32 @@
 from typing import Union, Optional
 from getdeck.deckfile.file import (
+    DeckfileDirectorySource,
     DeckfileFileSource,
     DeckfileHelmSource,
+    DeckfileInlineSource,
     DeckfileKustomizeSource,
 )
-from getdeck.sources.fetcher import Fetcher
-from getdeck.sources.file import FileFetcher
-from getdeck.sources.helm import HelmFetcher
-from getdeck.sources.kustomize import KustomizeFetcher
+from getdeck.sources.generator import RenderBehavior
+from getdeck.sources.file import File
+from getdeck.sources.helm import Helm
+from getdeck.sources.inline import Inline
+from getdeck.sources.kustomize import Kustomize
 
 
-def select_fetcher_strategy(
-    source: Union[DeckfileFileSource, DeckfileHelmSource, DeckfileKustomizeSource]
-) -> Optional[Fetcher]:
-    fetcher_strategy = {
-        DeckfileFileSource: FileFetcher,
-        DeckfileHelmSource: HelmFetcher,
-        DeckfileKustomizeSource: KustomizeFetcher,
+def select_render_behavior(
+    source: Union[
+        DeckfileInlineSource,
+        DeckfileFileSource,
+        DeckfileDirectorySource,
+        DeckfileHelmSource,
+        DeckfileKustomizeSource,
+    ],
+) -> Optional[RenderBehavior]:
+    render_behavior = {
+        DeckfileInlineSource: Inline,
+        DeckfileFileSource: File,
+        DeckfileDirectorySource: File,
+        DeckfileHelmSource: Helm,
+        DeckfileKustomizeSource: Kustomize,
     }.get(type(source), None)
-    return fetcher_strategy
+    return render_behavior

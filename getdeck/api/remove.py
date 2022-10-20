@@ -16,11 +16,9 @@ def remove_cluster(
     config=default_configuration,
     ignore_cluster: bool = False,
 ) -> bool:
-    from getdeck.utils import read_deckfile_from_location, ensure_cluster
+    from getdeck.utils import fetch_data, ensure_cluster
 
-    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(
-        deckfile_location, config
-    )
+    deckfile, working_dir_path, is_temp_dir = fetch_data(deckfile_location)
     k8s_provider = ensure_cluster(deckfile, config, ignore_cluster, do_install=False)
     if k8s_provider.exists():
         k8s_provider.delete()
@@ -45,12 +43,12 @@ def remove_deck(
     if progress_callback:
         progress_callback(0)
 
-    from getdeck.utils import read_deckfile_from_location, ensure_cluster
+    from getdeck.utils import fetch_data, ensure_cluster
     from getdeck.k8s import k8s_delete_object
     from getdeck.sources.utils import prepare_k8s_workload_for_deck
 
-    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(
-        deckfile_location, config
+    deckfile, working_dir_path, is_temp_dir = fetch_data(
+        deckfile_location, deck_name=deck_name
     )
     if progress_callback:
         progress_callback(10)
