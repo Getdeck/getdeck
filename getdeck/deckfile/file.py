@@ -97,13 +97,22 @@ class DeckfileDeck(BaseModel):
         if tsources:
             try:
                 for source in tsources:
+                    # inline deprecated warning
+                    type = source["type"].lower()
+                    if type == "file" and source.get("content", None):
+                        logger.warning(
+                            "'type: file' is deprecated for inline sources, "
+                            "use 'type: inline' instead",
+                        )
+                        type = "inline"
+
                     source_class = {
                         "inline": DeckfileInlineSource,
                         "file": DeckfileFileSource,
                         "directory": DeckfileDirectorySource,
                         "kustomize": DeckfileKustomizeSource,
                         "helm": DeckfileHelmSource,
-                    }.get(source["type"].lower())
+                    }.get(type)
                     self.sources.append(source_class(**source))
             except KeyError:
                 raise DeckfileError(

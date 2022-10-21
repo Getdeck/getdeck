@@ -1,0 +1,40 @@
+version: "1"
+
+cluster:
+  provider: k3d
+  minVersion: 4.0.0
+  name: test-sources-file
+  nativeConfig:
+    apiVersion: k3d.io/v1alpha4
+    kind: Simple
+    servers: 1
+    agents: 1
+    image: rancher/k3s:v1.22.9-k3s1
+    options:
+      k3s:
+        extraArgs:
+          - arg: --disable=traefik
+            nodeFilters:
+              - server:*
+    ports:
+      - port: 61346:80
+        nodeFilters:
+          - loadbalancer
+      - port: 8443:443
+        nodeFilters:
+          - loadbalancer
+      - port: 31820:31820/UDP
+        nodeFilters:
+          - agent:0
+
+decks:
+  - name: hello
+    namespace: default
+    sources:
+      - type: file
+        content:
+          {
+            "kind": "Namespace",
+            "apiVersion": "v1",
+            "metadata": { "name": "content", "labels": { "name": "content" } },
+          }
