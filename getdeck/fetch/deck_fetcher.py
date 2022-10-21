@@ -25,7 +25,7 @@ class DeckFetchBehavior(ABC):
 
 class Git(DeckFetchBehavior):
     def fetch(self, data: DeckfileAux) -> DeckfileAux:
-        location = data.argument_location
+        location = data.location
 
         if "#" in location:
             ref, rev = location.split("#")
@@ -35,7 +35,6 @@ class Git(DeckFetchBehavior):
 
         temporary_folder = tempfile.mkdtemp()
         data.path = temporary_folder
-        data.working_dir_path = temporary_folder
         data.temporary_data = TemporaryData(data=temporary_folder, is_folder=True)
 
         try:
@@ -53,7 +52,7 @@ class Git(DeckFetchBehavior):
 
 class Http(DeckFetchBehavior):
     def fetch(self, data: DeckfileAux) -> DeckfileAux:
-        location = data.argument_location
+        location = data.location
 
         temporary_file = tempfile.NamedTemporaryFile(delete=False)
         data.path = os.path.dirname(temporary_file.name)

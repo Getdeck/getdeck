@@ -4,7 +4,6 @@ from typing import List, Dict, Union
 
 from pydantic import BaseModel
 
-from getdeck.configuration import ClientConfiguration
 from getdeck.deckfile.errors import DeckfileError
 from getdeck.provider.abstract import AbstractProvider
 
@@ -17,7 +16,7 @@ class DeckfileCluster(BaseModel):
     name: str
     nativeConfig: dict = None
 
-    def get_provider(self, config: ClientConfiguration) -> AbstractProvider:
+    def get_provider(self, config) -> AbstractProvider:
         from getdeck.provider.factory import cluster_factory
         from getdeck.provider.types import ProviderType
 

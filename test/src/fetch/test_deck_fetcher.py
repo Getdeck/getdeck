@@ -8,7 +8,7 @@ from getdeck.fetch.deck_fetcher import (
 )
 
 
-class SelectFetchBehaviorTest(TestCase):
+class SelectDeckFetchBehaviorTest(TestCase):
     def test_git(self):
         fetch_behavior = select_deck_fetch_behavior(
             location="git@github.com:Getdeck/getdeck.git"
@@ -40,8 +40,8 @@ class DeckFetcherTest(TestCase):
     def test_default(self):
         location = "git@github.com:Getdeck/getdeck.git"
 
-        data = DeckfileAux(argument_location=location)
+        deckfile_aux = DeckfileAux(location=location)
         fetch_behavior = select_deck_fetch_behavior(location=location)
         deck_fetcher = DeckFetcher(fetch_behavior=fetch_behavior)
-        data = deck_fetcher.fetch(data=data)
-        fetch_behavior.clean_up(data=data)
+        deckfile_aux = deck_fetcher.fetch(data=deckfile_aux)
+        del deckfile_aux

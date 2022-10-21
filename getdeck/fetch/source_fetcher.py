@@ -7,7 +7,6 @@ import tempfile
 
 import requests
 from git import Repo, GitError
-
 from getdeck.fetch.types import SourceAux, TemporaryData
 
 
@@ -86,11 +85,6 @@ class Local(SourceFetchBehavior):
         return data
 
 
-class Content(SourceFetchBehavior):
-    def fetch(self, data: SourceAux, *args, **kwargs) -> SourceAux:
-        return data  # TODO: remove Content class?
-
-
 class SourceFetcher:
     def __init__(self, fetch_behavior: SourceFetchBehavior) -> None:
         self._fetch_behavior = fetch_behavior
@@ -109,16 +103,8 @@ class SourceFetcher:
 
 
 def select_source_fetch_behavior(source) -> Optional[SourceFetchBehavior]:
-    try:
-        _ = source.content
-        has_content = True
-    except Exception:
-        has_content = False
-
     ref = getattr(source, "ref", None)
     if not ref:
-        if has_content:
-            return Content()
         return None
 
     if "#" in ref:

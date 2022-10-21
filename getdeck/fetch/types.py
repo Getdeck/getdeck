@@ -50,11 +50,10 @@ class SourceAux(BaseModel):
 
 
 class DeckfileAux(BaseModel):
-    argument_location: str  # TODO: rename
+    location: str
     cwd: str = os.getcwd()
     path: str = None
     name: str = configuration.DECKFILE_FILE
-    working_dir_path: str = None
     temporary_data: Optional[TemporaryData] = None
 
     def __del__(self):

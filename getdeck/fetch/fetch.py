@@ -33,21 +33,25 @@ def fetch_sources(deck: DeckfileDeck) -> List[SourceAux]:
             "Fetching source " f"{source.__class__.__name__}: {ref or 'no ref'}"
         )
 
-        data = SourceAux(location=ref, source=source)
+        source_aux = SourceAux(location=ref)
+        # assigning source during SourceAux initialization changes DeckfileHelmSource to DeckfileInlineSource.. ???
+        source_aux.source = source
+
         fetch_behavior = select_source_fetch_behavior(source=source)
         source_fetcher.fetch_behavior = fetch_behavior
         if not fetch_behavior:
+            source_auxs.append(source_aux)
             continue
 
         try:
             source_dict = source.dict()
-            data = source_fetcher.fetch(data=data, **source_dict)
+            source_aux = source_fetcher.fetch(data=source_aux, **source_dict)
         except Exception as e:
             logger.debug(str(e))
-            del data, source_auxs[:]
+            del source_aux, source_auxs[:]
             raise e
 
-        source_auxs.append(data)  # noqa: F821
+        source_auxs.append(source_aux)  # noqa: F821
 
     return source_auxs
 
@@ -61,7 +65,7 @@ def fetch_data(location: str, deck_name: str = None, *args, **kwargs) -> DataAux
     data_aux = DataAux()
 
     # fetch
-    deckfile_aux = DeckfileAux(argument_location=location)
+    deckfile_aux = DeckfileAux(location=location)
     fetch_behavior = select_deck_fetch_behavior(location=location)
     if fetch_behavior:
         deck_fetcher = DeckFetcher(fetch_behavior=fetch_behavior)
@@ -71,7 +75,6 @@ def fetch_data(location: str, deck_name: str = None, *args, **kwargs) -> DataAux
         path, name = get_path_and_name(location=location)
         deckfile_aux.path = path
         deckfile_aux.name = name
-        deckfile_aux.working_dir_path = os.path.dirname(location)
 
     data_aux.deckfile_aux = deckfile_aux
 

@@ -1,12 +1,9 @@
 import logging
-import os
-import shutil
 import socket
 
 from python_hosts import Hosts, HostsEntry
 
 from getdeck.api import stopwatch
-from getdeck.configuration import default_configuration
 from getdeck.fetch.fetch import fetch_data
 
 logger = logging.getLogger("deck")
@@ -17,12 +14,9 @@ def run_hosts(
     deckfile_location: str,
     host_action: str,
     deck_name: str = None,
-    config=default_configuration,
 ) -> bool:
-    deckfile, working_dir_path, is_temp_dir = fetch_data(
-        deckfile_location, deck_name=deck_name
-    )
-    deck = deckfile.get_deck(deck_name)
+    data_aux = fetch_data(deckfile_location, deck_name=deck_name)
+    deck = data_aux.deckfile.get_deck(deck_name)
     deck_hosts = deck.hosts
 
     hosts = Hosts()
@@ -55,10 +49,7 @@ def run_hosts(
     else:
         logger.info("No hosts specified in Deckfile")
 
-    # TODO: refactor/remove?
-    if is_temp_dir and os.path.isdir(working_dir_path):
-        shutil.rmtree(working_dir_path)
-
+    del data_aux
     return True
 
 
