@@ -54,6 +54,15 @@ class SelectSourceFetchBehaviorTest(TestCase):
         fetch_behavior = select_source_fetch_behavior(source=source)
         self.assertIsNone(fetch_behavior)
 
+    def test_none_helm_source(self):
+        source = DeckfileHelmSource(
+            ref="https://kubernetes.github.io/dashboard/",
+            chart="kubernetes-dashboard",
+            releaseName="dashboard",
+        )
+        fetch_behavior = select_source_fetch_behavior(source=source)
+        self.assertIsNone(fetch_behavior)
+
 
 class SourceFetcherTest(TestCase):
     def test_inline(self):

@@ -115,7 +115,9 @@ def select_source_fetch_behavior(source) -> Optional[SourceFetchBehavior]:
     if ref_lo.startswith("git") or ref_lo.endswith(".git"):
         return Git()
 
-    if ref_lo.startswith("https") or ref_lo.startswith("http"):
+    if (
+        ref_lo.startswith("https") or ref_lo.startswith("http")
+    ) and source.type != "helm":
         return Http()
 
     if ref_lo[0] in "./~":
