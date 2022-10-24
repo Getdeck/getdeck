@@ -66,9 +66,9 @@ class HttpTest(TestCase):
         self.assertTrue(os.path.isdir(deckfile_aux.path))
         self.assertIsNotNone(deckfile_aux.name)
 
-        file = os.path.join(deckfile_aux.path, deckfile_aux.name)
+        location = os.path.join(deckfile_aux.path, deckfile_aux.name)
         del deckfile_aux
-        self.assertFalse(os.path.isfile(file))
+        self.assertFalse(os.path.isfile(location))
 
     def test_url_invalid(self):
         deckfile_aux = DeckfileAux(

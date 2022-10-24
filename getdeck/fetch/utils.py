@@ -1,10 +1,10 @@
 import os
-from typing import Tuple
+from typing import Optional, Tuple
 
 from getdeck import configuration
 
 
-def get_path_and_name(location: str) -> Tuple[str, str]:
+def get_path_and_name(location: Optional[str]) -> Tuple[str, str]:
     # None
     if location is None:
         location = ""

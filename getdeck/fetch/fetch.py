@@ -23,7 +23,27 @@ from getdeck.fetch.source_fetcher import (
 logger = logging.getLogger("deck")
 
 
-def fetch_sources(deck: DeckfileDeck) -> List[SourceAux]:
+class FetchError(Exception):
+    pass
+
+
+def _fetch_deck(data_aux: DataAux, location: str) -> DataAux:
+    deckfile_aux = DeckfileAux(location=location)
+    fetch_behavior = select_deck_fetch_behavior(location=location)
+    if fetch_behavior:
+        deck_fetcher = DeckFetcher(fetch_behavior=fetch_behavior)
+        deckfile_aux = deck_fetcher.fetch(data=deckfile_aux)
+    else:
+        # local path and name
+        path, name = get_path_and_name(location=location)
+        deckfile_aux.path = path
+        deckfile_aux.name = name
+
+    data_aux.deckfile_aux = deckfile_aux
+    return data_aux
+
+
+def _fetch_sources(deck: DeckfileDeck) -> List[SourceAux]:
     source_fetcher = SourceFetcher(fetch_behavior=None)
 
     source_auxs = []
@@ -49,46 +69,37 @@ def fetch_sources(deck: DeckfileDeck) -> List[SourceAux]:
         except Exception as e:
             logger.debug(str(e))
             del source_aux, source_auxs[:]
-            raise e
+            raise FetchError(f"Source fetching error: {str(e)}")
 
         source_auxs.append(source_aux)  # noqa: F821
 
     return source_auxs
 
 
-def fetch_data(location: str, deck_name: str = None, *args, **kwargs) -> DataAux:
+def fetch_data(
+    location: str, deck_name: str = None, fetch_sources: bool = True
+) -> DataAux:
     """
     delete returned DataAux to clean up temporary resources
     """
 
     logger.info(f"Reading Deckfile from: {location}")
     data_aux = DataAux()
-
-    # fetch
-    deckfile_aux = DeckfileAux(location=location)
-    fetch_behavior = select_deck_fetch_behavior(location=location)
-    if fetch_behavior:
-        deck_fetcher = DeckFetcher(fetch_behavior=fetch_behavior)
-        deckfile_aux = deck_fetcher.fetch(data=deckfile_aux)
-    else:
-        # local path and name
-        path, name = get_path_and_name(location=location)
-        deckfile_aux.path = path
-        deckfile_aux.name = name
-
-    data_aux.deckfile_aux = deckfile_aux
+    data_aux = _fetch_deck(data_aux=data_aux, location=location)
 
     # validate
-    file = os.path.join(deckfile_aux.path, deckfile_aux.name)
+    file = os.path.join(data_aux.deckfile_aux.path, data_aux.deckfile_aux.name)
     if not os.path.isfile(file):
         del data_aux
         raise RuntimeError(f"Cannot identify {location} as Deckfile")
 
-    # parse + fetch sources
     deckfile = deckfile_selector.get(file)
     data_aux.deckfile = deckfile
-    deck = deckfile.get_deck(deck_name)
-    source_auxs = fetch_sources(deck=deck)
-    data_aux.source_auxs = source_auxs
+
+    # parse + fetch sources
+    if fetch_sources:
+        deck = deckfile.get_deck(deck_name)
+        source_auxs = _fetch_sources(deck=deck)
+        data_aux.source_auxs = source_auxs
 
     return data_aux

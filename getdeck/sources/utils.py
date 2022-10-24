@@ -48,7 +48,7 @@ def prepare_k8s_workload_for_deck(
 
         # update current render behavior
         render_behavior = select_render_behavior(source=source_aux.source)
-        if not render_behavior:  # TODO: check earlier after/during parsing?
+        if not render_behavior:
             logger.info(
                 "Skipping source "
                 f"{source_aux.source.__class__.__name__}: {ref or 'no ref'}"

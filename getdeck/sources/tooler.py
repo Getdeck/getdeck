@@ -122,9 +122,7 @@ class Tooler(RenderBehavior):
         cmd = self.build_command()
         try:
             if source_aux.path:
-                source_path = os.path.join(
-                    source_aux.path, source_aux.name or ""
-                )  # TODO: check if required
+                source_path = os.path.join(source_aux.path, source_aux.name or "")
                 logger.debug(f"Render {source_path}")
                 if not os.path.isabs(source_path):
                     source_path = os.path.join(

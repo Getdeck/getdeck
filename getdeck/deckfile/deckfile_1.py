@@ -19,11 +19,10 @@ class Deckfile_1_0(Deckfile, BaseModel):
     decks: List[DeckfileDeck]
 
     def get_deck(self, name: str = None) -> DeckfileDeck:
-        if name is None and len(self.decks) > 1:
-            raise ValueError(
-                "Name of Deck is missing and there are multiple Decks available"
-            )
-        elif name is None and len(self.decks) == 1:
+        if name is None and len(self.decks) >= 1:
+            for deck in self.decks:
+                if deck.name.lower() == "default":
+                    return deck
             return self.decks[0]
         else:
             for deck in self.decks:

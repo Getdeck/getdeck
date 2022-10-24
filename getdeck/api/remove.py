@@ -17,7 +17,7 @@ def remove_cluster(
 ) -> bool:
     from getdeck.utils import ensure_cluster
 
-    data_aux = fetch_data(deckfile_location)
+    data_aux = fetch_data(deckfile_location, fetch_sources=False)
     k8s_provider = ensure_cluster(
         data_aux.deckfile, config, ignore_cluster, do_install=False
     )
@@ -57,9 +57,7 @@ def remove_deck(
 
     config.kubeconfig = k8s_provider.get_kubeconfig()
     if k8s_provider.exists():
-        generated_deck = prepare_k8s_workload_for_deck(
-            config, data_aux.deckfile, deck_name
-        )
+        generated_deck = prepare_k8s_workload_for_deck(config, data_aux, deck_name)
         logger.info(f"Removing Deck {generated_deck.name}")
         if progress_callback:
             progress_callback(30)

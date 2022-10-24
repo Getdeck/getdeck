@@ -23,17 +23,19 @@ class TemporaryData(BaseModel):
 
 
 class SourceAux(BaseModel):
-    location: str = None
-    path: str = None
-    name: str = None
+    location: Optional[str] = None
+    path: Optional[str] = None
+    name: Optional[str] = None
     temporary_data: Optional[TemporaryData] = None
 
-    source: Union[
-        DeckfileInlineSource,
-        DeckfileFileSource,
-        DeckfileDirectorySource,
-        DeckfileHelmSource,
-        DeckfileKustomizeSource,
+    source: Optional[
+        Union[
+            DeckfileInlineSource,
+            DeckfileFileSource,
+            DeckfileDirectorySource,
+            DeckfileHelmSource,
+            DeckfileKustomizeSource,
+        ]
     ] = None
 
     def __del__(self):
@@ -46,13 +48,12 @@ class SourceAux(BaseModel):
 
         if self.temporary_data.is_folder:
             shutil.rmtree(self.temporary_data.data)
-            return
 
 
 class DeckfileAux(BaseModel):
     location: str
     cwd: str = os.getcwd()
-    path: str = None
+    path: Optional[str] = None
     name: str = configuration.DECKFILE_FILE
     temporary_data: Optional[TemporaryData] = None
 
@@ -66,14 +67,16 @@ class DeckfileAux(BaseModel):
 
         if self.temporary_data.is_folder:
             shutil.rmtree(self.temporary_data.data)
-            return
 
 
 class DataAux(BaseModel):
-    deckfile: Any = None  # TODO: typing?
-    deckfile_aux: DeckfileAux = None
-    source_auxs: List[SourceAux] = []
+    deckfile: Any = None
+    deckfile_aux: Optional[DeckfileAux] = None
+    source_auxs: List[SourceAux] = None
 
     def __del__(self):
-        del self.deckfile_aux
-        del self.source_auxs[:]
+        if self.deckfile_aux:
+            del self.deckfile_aux
+
+        if self.source_auxs:
+            del self.source_auxs[:]
