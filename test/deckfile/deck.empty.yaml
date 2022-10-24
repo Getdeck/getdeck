@@ -31,8 +31,7 @@ decks:
   - name: empty
     namespace: default
     sources:
-      - type: file
-        ref: content
+      - type: inline
         content:
           {
             "kind": "Namespace",

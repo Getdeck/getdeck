@@ -4,7 +4,6 @@ from typing import List, Dict, Union
 
 from pydantic import BaseModel
 
-from getdeck.configuration import ClientConfiguration
 from getdeck.deckfile.errors import DeckfileError
 from getdeck.provider.abstract import AbstractProvider
 
@@ -17,7 +16,7 @@ class DeckfileCluster(BaseModel):
     name: str
     nativeConfig: dict = None
 
-    def get_provider(self, config: ClientConfiguration) -> AbstractProvider:
+    def get_provider(self, config) -> AbstractProvider:
         from getdeck.provider.factory import cluster_factory
         from getdeck.provider.types import ProviderType
 
@@ -49,10 +48,14 @@ class DeckfileHelmSource(BaseModel):
     helmPlugins: List[str] = None
 
 
+class DeckfileInlineSource(BaseModel):
+    type: str = "inline"
+    content: Dict = None
+
+
 class DeckfileFileSource(BaseModel):
     type: str = "file"
     ref: str = None
-    content: Dict = None
     targetRevision: str = ""
     path: str = ""
 
@@ -79,9 +82,10 @@ class DeckfileDeck(BaseModel):
     hosts: List[str] = []
     sources: List[
         Union[
-            DeckfileHelmSource,
-            DeckfileDirectorySource,
+            DeckfileInlineSource,
             DeckfileFileSource,
+            DeckfileDirectorySource,
+            DeckfileHelmSource,
             DeckfileKustomizeSource,
         ]
     ]
@@ -93,14 +97,23 @@ class DeckfileDeck(BaseModel):
         if tsources:
             try:
                 for source in tsources:
-                    if source["type"].lower() == "helm":
-                        self.sources.append(DeckfileHelmSource(**source))
-                    elif source["type"].lower() == "file":
-                        self.sources.append(DeckfileFileSource(**source))
-                    elif source["type"].lower() == "directory":
-                        self.sources.append(DeckfileDirectorySource(**source))
-                    elif source["type"].lower() == "kustomize":
-                        self.sources.append(DeckfileKustomizeSource(**source))
+                    # inline deprecated warning
+                    source_type = source["type"].lower()
+                    if source_type == "file" and source.get("content", None):
+                        logger.warning(
+                            "'type: file' is deprecated for inline sources, "
+                            "use 'type: inline' instead",
+                        )
+                        source_type = "inline"
+
+                    source_class = {
+                        "inline": DeckfileInlineSource,
+                        "file": DeckfileFileSource,
+                        "directory": DeckfileDirectorySource,
+                        "kustomize": DeckfileKustomizeSource,
+                        "helm": DeckfileHelmSource,
+                    }.get(source_type)
+                    self.sources.append(source_class(**source))
             except KeyError:
                 raise DeckfileError(
                     f"A source from Deck {data.get('name')} did not specify the 'type' argument."

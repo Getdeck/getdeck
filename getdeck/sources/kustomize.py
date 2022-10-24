@@ -3,18 +3,19 @@ import os
 
 import yaml
 
-from getdeck.sources.tooler import ToolerFetcher
+from getdeck.sources.tooler import Tooler
 from getdeck.sources.types import K8sSourceFile
-from getdeck.utils import sniff_protocol
 
 logger = logging.getLogger("deck")
 
 
-class KustomizeFetcher(ToolerFetcher):
+class Kustomize(Tooler):
     FILENAME = "manifest.yaml"
 
     @property
     def type(self) -> str:
+        from getdeck.sources.utils import sniff_protocol
+
         if self.source.ref is None:
             raise RuntimeError("`source.ref` not specified")
         protocol = sniff_protocol(self.source.ref)

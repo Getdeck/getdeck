@@ -6,16 +6,25 @@ from typing import List
 
 import yaml
 
-from getdeck.sources.tooler import ToolerFetcher
+from getdeck.sources.tooler import Tooler
 from getdeck.sources.types import K8sSourceFile
 
 logger = logging.getLogger("deck")
 
 
-class HelmFetcher(ToolerFetcher):
+class Helm(Tooler):
     @property
     def not_supported_message(self):
         return "This helm source is currently not supported"
+
+    @property
+    def type(self) -> str:
+        from getdeck.sources.utils import sniff_protocol
+
+        if self.source.ref is None:
+            raise RuntimeError("`source.ref` not specified")
+        protocol = sniff_protocol(self.source.ref)
+        return protocol
 
     def build_command(self) -> List[str]:
         helm_cmd = self._helm_prep()

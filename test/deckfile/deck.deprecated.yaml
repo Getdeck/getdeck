@@ -31,37 +31,7 @@ decks:
   - name: hello
     namespace: default
     sources:
-      - type: helm
-        ref: https://kubernetes.github.io/ingress-nginx
-        chart: ingress-nginx
-        releaseName: ingress-nginx
-        namespace: ingress-nginx
-        helmArgs:
-          - --create-namespace
-        parameters:
-          - name: controller.admissionWebhooks.enabled
-            value: false
-          - name: controller.ingressClassResource.default
-            value: true
-
       - type: file
-        ref: ./hello.yaml
-
-      - type: file
-        ref: ./resources/hello.yaml
-
-      - type: file
-        ref: ../resources/file/hello.yaml
-
-      - type: file
-        ref: https://raw.githubusercontent.com/Getdeck/getdeck/main/test/beiboot/hello.yaml
-
-      - type: file
-        ref: git@github.com:Getdeck/getdeck.git
-        targetRevision: main
-        path: test/beiboot/hello.yaml
-
-      - type: inline
         content:
           {
             "kind": "Namespace",

@@ -1,6 +1,4 @@
 import logging
-import os
-import shutil
 from typing import Callable
 
 from getdeck.api import stopwatch, remove
@@ -23,22 +21,23 @@ def run_deck(  # noqa: C901
     progress_callback: Callable = None,
 ) -> bool:
     from getdeck.sources.utils import prepare_k8s_workload_for_deck
-    from getdeck.utils import read_deckfile_from_location, ensure_cluster
+    from getdeck.utils import ensure_cluster
     from getdeck.k8s import k8s_create_or_patch, get_ingress_rules
+    from getdeck.fetch.fetch import fetch_data
 
     cluster_created = False
     if progress_callback:
         progress_callback(0)
 
-    deckfile, working_dir_path, is_temp_dir = read_deckfile_from_location(
-        deckfile_location, config
-    )
+    data_aux = fetch_data(deckfile_location, deck_name=deck_name)
     if progress_callback:
         progress_callback(5)
     #
     # 1. set up a local K8s cluster
     #
-    k8s_provider = ensure_cluster(deckfile, config, ignore_cluster, do_install=True)
+    k8s_provider = ensure_cluster(
+        data_aux.deckfile, config, ignore_cluster, do_install=True
+    )
     if progress_callback:
         progress_callback(10)
     #  1.b check or set up local cluster
@@ -62,9 +61,7 @@ def run_deck(  # noqa: C901
     # 2. generate the Deck's workload
     #
     try:
-        generated_deck = prepare_k8s_workload_for_deck(
-            config, deckfile, deck_name, working_dir_path
-        )
+        generated_deck = prepare_k8s_workload_for_deck(config, data_aux, deck_name)
     except Exception as e:
         if cluster_created:
             # remove this just created cluster as it probably is in an inconsistent state from the beginning
@@ -124,17 +121,16 @@ def run_deck(  # noqa: C901
     if ingress_rules:
         for host, path in ingress_rules:
             logger.info(f"Ingress: {host} -> {path}")
-        handle_hosts_resolution(deckfile_location, deckfile, deck_name)
+        handle_hosts_resolution(deckfile_location, data_aux.deckfile, deck_name)
     logger.info(f"Published ports are: {k8s_provider.get_ports()}")
-    if notes := deckfile.get_deck(deck_name).notes:
+    if notes := data_aux.deckfile.get_deck(deck_name).notes:
         logger.info(notes)
 
-    # TODO: refactor/remove?
-    if is_temp_dir and os.path.isdir(working_dir_path):
-        shutil.rmtree(working_dir_path)
+    del data_aux
 
     if wait:
         _wait_ready(config, generated_deck, timeout)
+
     return True
 
 

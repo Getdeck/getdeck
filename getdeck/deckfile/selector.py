@@ -11,7 +11,6 @@ from getdeck.deckfile.errors import (
     DeckfileVersionError,
     DeckfileError,
 )
-from getdeck.deckfile.file import Deckfile
 from getdeck.deckfile.deckfile_1 import Deckfile_1_0
 
 logger = logging.getLogger("deck")
@@ -21,7 +20,7 @@ class DeckfileSelector:
     def __init__(self, options: dict):
         self.options = options
 
-    def get(self, path_deckfile: str = None) -> Union[Deckfile, Deckfile_1_0, None]:
+    def get(self, path_deckfile: str = None) -> Union[Deckfile_1_0, None]:
         # default file path
         if not path_deckfile:
             path_deckfile = os.path.join(os.getcwd(), configuration.DECKFILE_FILE)

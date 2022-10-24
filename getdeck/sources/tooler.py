@@ -1,3 +1,4 @@
+from abc import abstractmethod
 import io
 import logging
 import os
@@ -8,11 +9,10 @@ import tempfile
 from functools import cached_property
 from typing import List, Union
 
-from git import Repo
-
 from getdeck.configuration import ClientConfiguration
+from getdeck.fetch.types import DeckfileAux, SourceAux
 from getdeck.sources import tooler
-from getdeck.sources.file import FileFetcher
+from getdeck.sources.generator import RenderBehavior
 from getdeck.sources.types import K8sSourceFile
 
 logger = logging.getLogger("deck")
@@ -114,55 +114,33 @@ def build_user_container(config: ClientConfiguration):
     )
 
 
-class ToolerFetcher(FileFetcher):
+class Tooler(RenderBehavior):
     SOURCES = "/sources"
     OUTPUT = "/output"
 
-    def fetch_content(self, **kwargs) -> List[K8sSourceFile]:
-        raise NotImplementedError
-
-    def fetch_local(self, **kwargs):
+    def render(self, deckfile_aux: DeckfileAux, source_aux: SourceAux, **kwargs):
         cmd = self.build_command()
         try:
-            if not os.path.isabs(self.source.ref):
-                path = os.path.join(
-                    self.working_dir, self.source.ref.removeprefix("./")
-                )
-                self._parse_source(ref=path, working_dir=self.working_dir)
-                dst = os.path.join(
-                    self.tmp_source.name, self.source.ref.removeprefix("./")
-                )
-                shutil.copytree(path, dst, dirs_exist_ok=True)
-            else:
-                self._parse_source(ref=self.source.ref)
-                dst = os.path.join(self.tmp_source.name, self.source.ref)
-                shutil.copytree(self.source.ref, dst, dirs_exist_ok=True)
+            if source_aux.path:
+                source_path = os.path.join(source_aux.path, source_aux.name or "")
+                logger.debug(f"Render {source_path}")
+                if not os.path.isabs(source_path):
+                    source_path = os.path.join(
+                        deckfile_aux.path, source_path.removeprefix("./")
+                    )
+
+                if os.path.isdir(source_path):
+                    shutil.copytree(
+                        source_path, self.tmp_source.name, dirs_exist_ok=True
+                    )
+                else:
+                    shutil.copy(source_path, self.tmp_source.name)
+
             self.run_tooler(cmd)
-            return self.collect_workload_files()
+            source_files = self.collect_workload_files()
+            return source_files
         finally:
             self.cleanup()
-
-    def fetch_remote(self, git=False):
-        cmd = self.build_command()
-        try:
-            if git:
-                self._checkout_git()
-            self.run_tooler(cmd)
-            return self.collect_workload_files()
-        finally:
-            self.cleanup()
-
-    def fetch_http(self, **kwargs) -> List[K8sSourceFile]:
-        return self.fetch_remote(git=False)
-
-    def fetch_git(self, **kwargs) -> List[K8sSourceFile]:
-        return self.fetch_remote(git=True)
-
-    def _checkout_git(self):
-        logger.debug(f"Cloning from {self.source.ref} to {self.tmp_source.name}")
-        repo = Repo.clone_from(self.source.ref, self.tmp_source.name)
-        if self.source.targetRevision:
-            repo.git.checkout(self.source.targetRevision)
 
     @cached_property
     def tmp_output(self):
@@ -176,6 +154,7 @@ class ToolerFetcher(FileFetcher):
         self.tmp_output.cleanup()
         self.tmp_source.cleanup()
 
+    @abstractmethod
     def build_command(self) -> List[str]:
         raise NotImplementedError
 
@@ -189,5 +168,6 @@ class ToolerFetcher(FileFetcher):
             ],
         )
 
-    def collect_workload_files(self):
+    @abstractmethod
+    def collect_workload_files(self) -> List[K8sSourceFile]:
         raise NotImplementedError
