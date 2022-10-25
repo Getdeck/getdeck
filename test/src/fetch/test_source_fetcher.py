@@ -65,7 +65,7 @@ class SelectSourceFetchBehaviorTest(TestCase):
 
 
 class SourceFetcherTest(TestCase):
-    def test_inline(self):
+    def test_file(self):
         location = "https://raw.githubusercontent.com/Getdeck/getdeck/main/test/sources/resources/hello.yaml"
         source = DeckfileFileSource(ref=location)
         source_aux = SourceAux(location=location)
