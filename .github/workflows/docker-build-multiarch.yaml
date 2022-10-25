@@ -45,6 +45,8 @@ jobs:
         id: tooler_meta
         uses: docker/metadata-action@v3
         with:
+          labels: |
+            build=${{ GITHUB_SHA }}
           flavor: |
             latest=false
           images: |
@@ -61,3 +63,4 @@ jobs:
           tags: ${{ steps.tooler_meta.outputs.tags }}
           cache-from: type=registry,ref=ghcr.io/getdeck/tooler:latest
           cache-to: type=registry,ref=ghcr.io/getdeck/tooler:latest,mode=max
+          labels: ${{ steps.tooler_meta.outputs.labels }
