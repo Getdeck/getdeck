@@ -3,6 +3,7 @@ import argparse
 import logging
 import os
 import traceback
+from getdeck.telemetry.telemetry import CliTelemetry
 
 
 os.environ["PYOXIDIZER"] = "1"
@@ -108,6 +109,27 @@ hosts_parser.add_argument(
     "--name", help="the Deck whose hosts will be considered", required=False
 )
 
+telemetry_parser = action.add_parser("telemetry")
+telemetry_parser.add_argument("--off", help="Turn off telemetry", action="store_true")
+telemetry_parser.add_argument("--on", help="Turn on telemetry", action="store_true")
+
+try:
+    telemetry = CliTelemetry()
+except Exception:
+    telemetry = False
+
+
+def telemetry_command(on, off):
+    if not telemetry:
+        logger.info("Telemetry in not working on your machine. No action taken.")
+        return
+    if off and not on:
+        telemetry.off()
+    elif on and not off:
+        telemetry.on()
+    else:
+        logger.info("Invalid flags. Please use either --off or --on.")
+
 
 def main():
     from getdeck import configuration
@@ -162,6 +184,8 @@ def main():
                 args.host_action,
                 deck_name=args.name,
             )
+        elif args.action == "telemetry":
+            telemetry_command(on=args.on, off=args.off)
         else:
             parser.print_help()
         exit(0)

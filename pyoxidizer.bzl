@@ -41,6 +41,7 @@ def make_exe():
     exe.add_python_resources(exe.pip_install(["--no-deps", "docker==6.0.0"]))
     exe.add_python_resources(exe.pip_install(["--no-binary", "pydantic", "certifi==2022.06.15", "PyYAML", "pydantic", "kubernetes", "beiboot"]))
     exe.add_python_resources(exe.pip_install(["semantic-version==2.9.0", "GitPython==3.1.27", "python-hosts==1.0.3"]))
+    exe.add_python_resources(exe.pip_install(["cli-tracker"]))
     return exe
 
 def make_win_exe():
@@ -76,6 +77,7 @@ def make_win_exe():
     exe.add_python_resources(exe.pip_install(["--no-binary", "pydantic", "certifi==2022.06.15", "PyYAML", "pydantic", "kubernetes", "beiboot"]))
     exe.add_python_resources(exe.pip_install(["semantic-version==2.9.0", "GitPython==3.1.27", "python-hosts==1.0.3"]))
     exe.add_python_resources(exe.pip_install(["pywin32"]))
+    exe.add_python_resources(exe.pip_install(["cli-tracker"]))
     exe.windows_runtime_dlls_mode = "always"
     return exe
 

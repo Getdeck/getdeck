@@ -25,6 +25,14 @@ jobs:
       - name: Install k3d
         shell: bash
         run: "curl -s https://raw.githubusercontent.com/k3d-io/k3d/main/install.sh | bash"
+      - name: Set Getdeck to no tracking
+        shell: bash
+        run: |
+          mkdir -p ~/.deck
+          cd ~/.deck
+          touch config.ini
+          echo "[telemetry]" >> config.ini
+          echo "track = False" >> config.ini
       - name: Create a cluster using getdeck
         run: |
           poetry run coverage run -a -m getdeck get --name oauth2-demo --wait --timeout 180 https://github.com/gefyrahq/gefyra-demos.git
