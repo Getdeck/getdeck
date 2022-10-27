@@ -91,7 +91,7 @@ def fetch_data(
     file = os.path.join(data_aux.deckfile_aux.path, data_aux.deckfile_aux.name)
     if not os.path.isfile(file):
         del data_aux
-        raise RuntimeError(f"Cannot identify {location} as Deckfile")
+        raise RuntimeError(f"Cannot identify Deckfile at location: '{location}'")
 
     deckfile = deckfile_selector.get(file)
     data_aux.deckfile = deckfile
