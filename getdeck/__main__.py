@@ -9,6 +9,10 @@ from getdeck.telemetry.telemetry import CliTelemetry
 os.environ["PYOXIDIZER"] = "1"
 
 logger = logging.getLogger("deck")
+
+ARGUMENT_DECKFILE_HELP = "the deck.yaml location (as file, git or https)"
+
+
 parser = argparse.ArgumentParser(
     prog="deck",
     description="The Deck CLI. For more help please visit: https://getdeck.dev",
@@ -19,7 +23,7 @@ parser.add_argument("-d", "--debug", action="store_true", help="add debug output
 # list all decks of the given deck.yaml
 list_parser = action.add_parser("list")
 list_parser.add_argument(
-    "Deckfile", help="the deck.yaml location (as file, git or https)"
+    "Deckfile", help=ARGUMENT_DECKFILE_HELP, nargs="?", default="."
 )
 
 # rollout the cluster and install the deck from the given deck.yaml
@@ -59,9 +63,7 @@ get_parser.add_argument(
     type=check_positive,
     required=False,
 )
-get_parser.add_argument(
-    "Deckfile", help="the deck.yaml location (as file, git or https)"
-)
+get_parser.add_argument("Deckfile", help=ARGUMENT_DECKFILE_HELP, nargs="?", default=".")
 
 remove_parser = action.add_parser("remove")
 remove_parser.add_argument(
@@ -82,7 +84,7 @@ remove_parser.add_argument(
     required=False,
 )
 remove_parser.add_argument(
-    "Deckfile", help="the deck.yaml location (as file, git or https)"
+    "Deckfile", help=ARGUMENT_DECKFILE_HELP, nargs="?", default="."
 )
 
 stop_parser = action.add_parser("stop")
@@ -94,7 +96,7 @@ stop_parser.add_argument(
     required=False,
 )
 stop_parser.add_argument(
-    "Deckfile", help="the deck.yaml location (as file, git or https)"
+    "Deckfile", help=ARGUMENT_DECKFILE_HELP, nargs="?", default="."
 )
 
 version_parser = action.add_parser("version")
@@ -103,7 +105,7 @@ version_parser = action.add_parser("version")
 hosts_parser = action.add_parser("hosts")
 hosts_parser.add_argument("host_action", help="list/write/remove")
 hosts_parser.add_argument(
-    "Deckfile", help="the deck.yaml location (as file, git or https)"
+    "Deckfile", help=ARGUMENT_DECKFILE_HELP, nargs="?", default="."
 )
 hosts_parser.add_argument(
     "--name", help="the Deck whose hosts will be considered", required=False
