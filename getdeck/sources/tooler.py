@@ -77,8 +77,8 @@ def gnupg_agent_socket_path() -> str:
 def build_user_container(config: ClientConfiguration):
     logger.info("Building a local Tooler image for source generation")
     if sys.platform != "win32":
-        uid = os.getuid()
-        gid = os.getgid()
+        uid = os.getuid() or 1000
+        gid = os.getgid() or 1000
     else:
         uid = 1000
         gid = 1000
