@@ -88,12 +88,13 @@ def ensure_cluster(
                     f"installed on your system"
                 )
                 if do_install:
-                    confirm = input(
-                        f"Do you want to install {cluster_config.provider} on your local system? [y/N] "
-                    )
-                    if confirm.lower() != "y":
-                        logger.info("Operation aborted")
-                        exit()
+                    if not assume_yes:
+                        confirm = input(
+                            f"Do you want to install {cluster_config.provider} on your local system? [y/N] "
+                        )
+                        if confirm.lower() != "y":
+                            logger.info("Operation aborted")
+                            exit()
                     k8s_provider.install()
         except KeyboardInterrupt:
             print()  # add a newline
