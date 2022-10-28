@@ -20,7 +20,7 @@ def ensure_cluster(
     config: ClientConfiguration,
     ignore_cluster: bool = False,
     do_install: bool = True,
-    assume_yes: bool = False,
+    no_input: bool = False,
 ) -> AbstractProvider:
     from kubernetes.client.rest import ApiException
     from getdeck.provider.factory import cluster_factory
@@ -69,7 +69,7 @@ def ensure_cluster(
                             f"but minVersion is {cluster_config.minVersion}"
                         )
                         if do_install:
-                            if not assume_yes:
+                            if not no_input:
                                 confirm = input(
                                     f"Do you want to update your local {cluster_config.provider}? [y/N] "
                                 )
@@ -88,7 +88,7 @@ def ensure_cluster(
                     f"installed on your system"
                 )
                 if do_install:
-                    if not assume_yes:
+                    if not no_input:
                         confirm = input(
                             f"Do you want to install {cluster_config.provider} on your local system? [y/N] "
                         )

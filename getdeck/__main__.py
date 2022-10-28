@@ -66,7 +66,7 @@ get_parser.add_argument(
 get_parser.add_argument(
     "-y",
     "--no-input",
-    help="Automatic yes to prompts; assume 'yes' as answer to all prompts",
+    help="Disable prompting for input",
     action="store_true",
     default=False,
     required=False,
@@ -178,7 +178,7 @@ def main():
                 ignore_cluster=args.no_cluster,
                 wait=wait,
                 timeout=timeout,
-                auto_install=args.assume_yes,
+                no_input=args.no_input,
             )
         elif args.action == "remove":
             if args.cluster:
