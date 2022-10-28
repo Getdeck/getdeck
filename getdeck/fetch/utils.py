@@ -4,6 +4,16 @@ from typing import Optional, Tuple
 from getdeck import configuration
 
 
+def detect_deckfile() -> Optional[str]:
+    for extension in [".yaml", ".yml"]:
+        name = os.path.splitext(configuration.DECKFILE_FILE)[0] + extension
+        location = os.path.join(os.getcwd(), name)
+        if os.path.isfile(location):
+            return name
+    else:
+        return None
+
+
 def get_path_and_name(location: Optional[str]) -> Tuple[str, str]:
     # None
     if location is None:
@@ -15,16 +25,10 @@ def get_path_and_name(location: Optional[str]) -> Tuple[str, str]:
 
     # ".", ""
     if location in [".", ""]:
-        for extension in [".yaml", ".yml"]:
-            location_default = os.path.join(
-                os.getcwd(),
-                os.path.splitext(configuration.DECKFILE_FILE)[0] + extension,
-            )
-            if os.path.isfile(location_default):
-                location = location_default
-                break
-        else:
-            location = os.path.join(os.getcwd(), configuration.DECKFILE_FILE)
+        name = detect_deckfile()
+        if not name:
+            name = configuration.DECKFILE_FILE
+        location = os.path.join(os.getcwd(), name)
 
     name = os.path.basename(location)
     dirname = os.path.dirname(location)
