@@ -9,7 +9,7 @@ from getdeck.fetch.deck_fetcher import (
     select_deck_fetch_behavior,
 )
 from getdeck.fetch.types import DataAux
-from getdeck.fetch.utils import get_path_and_name
+from getdeck.fetch.utils import detect_deckfile, get_path_and_name
 from getdeck.deckfile.file import DeckfileDeck
 
 from getdeck.deckfile.selector import deckfile_selector
@@ -83,20 +83,28 @@ def fetch_data(
     delete returned DataAux to clean up temporary resources
     """
 
-    logger.info(f"Reading Deckfile from: {location}")
+    # info
+    display_location = location
+    if display_location == ".":
+        display_location = detect_deckfile()
+
+    logger.info(f"Reading Deckfile: {display_location}")
+
+    # fetch deck
     data_aux = DataAux()
     data_aux = _fetch_deck(data_aux=data_aux, location=location)
 
     # validate
-    file = os.path.join(data_aux.deckfile_aux.path, data_aux.deckfile_aux.name)
-    if not os.path.isfile(file):
+    file_detected = os.path.join(data_aux.deckfile_aux.path, data_aux.deckfile_aux.name)
+    if not os.path.isfile(file_detected):
+        logger.debug(f"Absolute file location: {file_detected}")
         del data_aux
-        raise RuntimeError(f"Cannot identify Deckfile at location: '{location}'")
+        raise RuntimeError(f"Cannot identify Deckfile at location: {display_location}")
 
-    deckfile = deckfile_selector.get(file)
+    deckfile = deckfile_selector.get(file_detected)
     data_aux.deckfile = deckfile
 
-    # parse + fetch sources
+    # fetch sources
     if fetch_sources:
         deck = deckfile.get_deck(deck_name)
         source_auxs = _fetch_sources(deck=deck)
