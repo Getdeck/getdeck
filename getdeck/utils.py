@@ -20,6 +20,7 @@ def ensure_cluster(
     config: ClientConfiguration,
     ignore_cluster: bool = False,
     do_install: bool = True,
+    no_input: bool = False,
 ) -> AbstractProvider:
     from kubernetes.client.rest import ApiException
     from getdeck.provider.factory import cluster_factory
@@ -68,12 +69,13 @@ def ensure_cluster(
                             f"but minVersion is {cluster_config.minVersion}"
                         )
                         if do_install:
-                            confirm = input(
-                                f"Do you want to update your local {cluster_config.provider}? [y/N] "
-                            )
-                            if confirm.lower() != "y":
-                                logger.info("Operation aborted")
-                                exit()
+                            if not no_input:
+                                confirm = input(
+                                    f"Do you want to update your local {cluster_config.provider}? [y/N] "
+                                )
+                                if confirm.lower() != "y":
+                                    logger.info("Operation aborted")
+                                    exit()
                             k8s_provider.update()
                 else:
                     logger.debug(
@@ -86,12 +88,13 @@ def ensure_cluster(
                     f"installed on your system"
                 )
                 if do_install:
-                    confirm = input(
-                        f"Do you want to install {cluster_config.provider} on your local system? [y/N] "
-                    )
-                    if confirm.lower() != "y":
-                        logger.info("Operation aborted")
-                        exit()
+                    if not no_input:
+                        confirm = input(
+                            f"Do you want to install {cluster_config.provider} on your local system? [y/N] "
+                        )
+                        if confirm.lower() != "y":
+                            logger.info("Operation aborted")
+                            exit()
                     k8s_provider.install()
         except KeyboardInterrupt:
             print()  # add a newline

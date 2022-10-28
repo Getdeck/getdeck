@@ -17,6 +17,7 @@ def run_deck(  # noqa: C901
     ignore_cluster: bool = False,
     wait: bool = False,
     timeout: int = 120,
+    no_input: bool = False,
     config=default_configuration,
     progress_callback: Callable = None,
 ) -> bool:
@@ -36,7 +37,11 @@ def run_deck(  # noqa: C901
     # 1. set up a local K8s cluster
     #
     k8s_provider = ensure_cluster(
-        data_aux.deckfile, config, ignore_cluster, do_install=True
+        data_aux.deckfile,
+        config,
+        ignore_cluster,
+        do_install=True,
+        no_input=no_input,
     )
     if progress_callback:
         progress_callback(10)

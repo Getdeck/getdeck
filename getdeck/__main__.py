@@ -63,6 +63,14 @@ get_parser.add_argument(
     type=check_positive,
     required=False,
 )
+get_parser.add_argument(
+    "-y",
+    "--no-input",
+    help="Disable prompting for input",
+    action="store_true",
+    default=False,
+    required=False,
+)
 get_parser.add_argument("Deckfile", help=ARGUMENT_DECKFILE_HELP, nargs="?", default=".")
 
 remove_parser = action.add_parser("remove")
@@ -170,6 +178,7 @@ def main():
                 ignore_cluster=args.no_cluster,
                 wait=wait,
                 timeout=timeout,
+                no_input=args.no_input,
             )
         elif args.action == "remove":
             if args.cluster:
