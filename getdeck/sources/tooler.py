@@ -86,8 +86,10 @@ def build_user_container(config: ClientConfiguration):
     if sys.platform in ["darwin", "win32"]:
         user_group_add = "RUN addgroup -S tooler && adduser -S tooler -G tooler"
     else:
-        user_group_add = "RUN cat /etc/group | grep ${GROUP_ID} || addgroup -g ${GROUP_ID} -S tooler && " \
-                         "cat /etc/passwd | grep ${USER_ID} || adduser -u ${USER_ID} -S tooler -G tooler"
+        user_group_add = (
+            "RUN cat /etc/group | grep ${GROUP_ID} || addgroup -g ${GROUP_ID} -S tooler && "
+            "cat /etc/passwd | grep ${USER_ID} || adduser -u ${USER_ID} -S tooler -G tooler"
+        )
 
     Dockerfile = io.BytesIO(
         (
