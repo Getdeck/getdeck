@@ -65,7 +65,7 @@ get_parser.add_argument(
 )
 get_parser.add_argument(
     "-y",
-    "--assume-yes",
+    "--no-input",
     help="Automatic yes to prompts; assume 'yes' as answer to all prompts",
     action="store_true",
     default=False,
