@@ -10,8 +10,7 @@ def detect_deckfile() -> Optional[str]:
         location = os.path.join(os.getcwd(), name)
         if os.path.isfile(location):
             return name
-    else:
-        return None
+    return None
 
 
 def get_path_and_name(location: Optional[str]) -> Tuple[str, str]:
