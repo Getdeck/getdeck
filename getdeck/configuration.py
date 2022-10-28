@@ -10,7 +10,7 @@ console.setFormatter(formatter)
 logger = logging.getLogger("deck")
 logger.addHandler(console)
 
-__VERSION__ = "0.10.1"
+__VERSION__ = "0.11.0"
 
 DECKFILE_FILE = "deck.yaml"
 
