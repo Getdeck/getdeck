@@ -128,8 +128,11 @@ class CMDWrapper(object):
             process.communicate(stdin)
         try:
             if print_output:
-                for stdout_line in iter(process.stdout.readline, ""):
-                    print(stdout_line, end="", flush=True)
+                try:
+                    for stdout_line in iter(process.stdout.readline, ""):
+                        print(stdout_line, end="", flush=True)
+                except Exception as e:
+                    logger.warning(f"Failed to display process output: {str(e)}")
             process.wait()
         except KeyboardInterrupt:
             try:
