@@ -124,14 +124,18 @@ class Tooler(RenderBehavior):
     def render(self, deckfile_aux: DeckfileAux, source_aux: SourceAux, **kwargs):
         cmd = self.build_command()
         try:
-            if source_aux.path:
-                source_path = os.path.join(source_aux.path, source_aux.name or "")
-                logger.debug(f"Render {source_path}")
+            if source_aux.temporary_data:
+                source_path = source_aux.temporary_data.data
+            else:
+                source_path = source_aux.path
+
+            if source_path:
                 if not os.path.isabs(source_path):
                     source_path = os.path.join(
                         deckfile_aux.path, source_path.removeprefix("./")
                     )
 
+                # copy data
                 if os.path.isdir(source_path):
                     shutil.copytree(
                         source_path, self.tmp_source.name, dirs_exist_ok=True
@@ -139,6 +143,7 @@ class Tooler(RenderBehavior):
                 else:
                     shutil.copy(source_path, self.tmp_source.name)
 
+            logger.debug(f"Render: {source_aux.location}")
             self.run_tooler(cmd)
             source_files = self.collect_workload_files()
             return source_files

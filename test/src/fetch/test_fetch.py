@@ -23,7 +23,7 @@ class FetchDataTest(TestCase):
         data_aux = fetch_data(location)
         self.assertIsNotNone(data_aux.deckfile)
         self.assertIsNotNone(data_aux.deckfile_aux)
-        self.assertEqual(len(data_aux.source_auxs), 5)
+        self.assertEqual(len(data_aux.source_auxs), 6)
 
     def test_local_helm(self):
         location = "./test/sources/deck.helm.yaml"
