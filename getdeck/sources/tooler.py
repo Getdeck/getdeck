@@ -143,7 +143,7 @@ class Tooler(RenderBehavior):
                 else:
                     shutil.copy(source_path, self.tmp_source.name)
 
-            logger.debug(f"Render: {source_path}")
+            logger.debug(f"Render: {source_aux.location}")
             self.run_tooler(cmd)
             source_files = self.collect_workload_files()
             return source_files
