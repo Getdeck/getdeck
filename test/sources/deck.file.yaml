@@ -45,5 +45,9 @@ decks:
 
       - type: file
         ref: git@github.com:Getdeck/getdeck.git
+        path: test/resources/test/hello.yaml
+
+      - type: file
+        ref: git@github.com:Getdeck/getdeck.git
         targetRevision: main
-        path: test/beiboot/hello.yaml
+        path: test/resources/test/hello.yaml

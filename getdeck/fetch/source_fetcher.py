@@ -31,24 +31,30 @@ class Git(SourceFetchBehavior):
             ref, rev = location.split("#")
         else:
             ref = location
-            rev = "HEAD"
+            rev = None
 
         rev = kwargs.get("targetRevision", rev)
         path = kwargs.get("path", "")
 
         temporary_folder = tempfile.mkdtemp()
-        path = os.path.join(temporary_folder, path)
-        data.path = os.path.dirname(path)
-        data.name = os.path.basename(path)
         data.temporary_data = TemporaryData(data=temporary_folder, is_folder=True)
 
         try:
             repo = Repo.clone_from(ref, temporary_folder)
-            repo.git.checkout(rev)
+            if rev:
+                repo.git.checkout(rev)
         except GitError as e:
             raise FetchError(f"Cannot checkout {rev} from {ref}: {e}")
         except Exception as e:
             raise e
+
+        temporary_path = os.path.join(temporary_folder, path)
+        if os.path.isdir(temporary_path):
+            data.path = temporary_path
+            data.name = None
+        else:
+            data.name = os.path.basename(temporary_path)
+            data.path = os.path.dirname(temporary_path)
 
         return data
 

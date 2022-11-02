@@ -1,6 +1,6 @@
 import logging
 from abc import ABC, abstractmethod
-from typing import List, Dict, Union
+from typing import List, Dict, Optional, Union
 
 from pydantic import BaseModel
 
@@ -37,7 +37,7 @@ class DeckfileCluster(BaseModel):
 class DeckfileHelmSource(BaseModel):
     type: str = "helm"
     ref: str
-    targetRevision: str = ""
+    targetRevision: Optional[str] = None
     namespace: str = ""
     path: str = None
     chart: str = None  # this is set when pulling directly from a Helm repo
@@ -56,21 +56,21 @@ class DeckfileInlineSource(BaseModel):
 class DeckfileFileSource(BaseModel):
     type: str = "file"
     ref: str = None
-    targetRevision: str = ""
+    targetRevision: Optional[str] = None
     path: str = ""
 
 
 class DeckfileKustomizeSource(BaseModel):
     type: str = "kustomize"
     ref: str
-    targetRevision: str = ""
+    targetRevision: Optional[str] = None
     path: str = ""
 
 
 class DeckfileDirectorySource(BaseModel):
     type: str = "directory"
     ref: str
-    targetRevision: str = ""
+    targetRevision: Optional[str] = None
     path: str
     recursive: bool
 
