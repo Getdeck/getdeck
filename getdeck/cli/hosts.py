@@ -3,7 +3,7 @@ import socket
 
 from python_hosts import Hosts, HostsEntry
 
-from getdeck.api import stopwatch
+from getdeck.cli import stopwatch
 from getdeck.fetch.fetch import fetch_data
 
 logger = logging.getLogger("deck")
@@ -63,3 +63,11 @@ def verify_host(host) -> bool:
 
 def verify_all_hosts(*hosts):
     return all(verify_host(host) for host in hosts)
+
+
+def hosts_command(args):
+    run_hosts(
+        args.Deckfile,
+        args.host_action,
+        deck_name=args.name,
+    )

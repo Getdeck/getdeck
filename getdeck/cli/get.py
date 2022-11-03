@@ -1,8 +1,8 @@
 import logging
 from typing import Callable
 
-from getdeck.api import stopwatch, remove
-from getdeck.api.hosts import verify_all_hosts
+from getdeck.cli import stopwatch, remove
+from getdeck.cli.hosts import verify_all_hosts
 from getdeck.configuration import default_configuration
 from getdeck.k8s import create_namespace
 from getdeck.provider.types import ProviderType
@@ -56,7 +56,7 @@ def run_deck(  # noqa: C901
     if progress_callback:
         progress_callback(20)
 
-    # change api for beiboot
+    # change kubeconfig for beiboot
     if k8s_provider.kubernetes_cluster_type == ProviderType.BEIBOOT:
         _old_kubeconfig = config.kubeconfig
         config.kubeconfig = k8s_provider.get_kubeconfig()
@@ -169,3 +169,21 @@ def _wait_ready(config, generated_deck, timeout):
         raise RuntimeError(
             f"The Pods of this Deck did not become ready in time (timout was {timeout} s)."
         )
+
+
+def get_command(args):
+    if args.wait:
+        wait = True
+        timeout = int(args.timeout)
+    else:
+        wait = False
+        timeout = None
+
+    run_deck(
+        args.Deckfile,
+        args.name,
+        ignore_cluster=args.no_cluster,
+        wait=wait,
+        timeout=timeout,
+        no_input=args.no_input,
+    )

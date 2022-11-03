@@ -90,7 +90,7 @@ def fetch_all_sources(deck: DeckfileDeck) -> List[SourceAux]:
     source_auxs = []
     for source in deck.sources:
         ref = getattr(source, "ref", None)
-        logger.info(f"Fetching {source.__class__.__name__}: {ref or '-'}")
+        logger.info(f"Fetching {source.__class__.__name__}: {ref or 'no ref'}")
         source_aux = fetch_source(source=source, source_fetcher=source_fetcher)
         source_auxs.append(source_aux)
 
@@ -109,7 +109,7 @@ def fetch_data(
     if display_location == ".":
         display_location = detect_deckfile()
 
-    logger.info(f"Reading Deckfile: {display_location}")
+    logger.info(f"Reading Deckfile: {display_location or '.'}")
 
     # fetch deck
     data_aux = DataAux()
@@ -120,7 +120,9 @@ def fetch_data(
     if not os.path.isfile(file_detected):
         logger.debug(f"Absolute file location: {file_detected}")
         del data_aux
-        raise RuntimeError(f"Cannot identify Deckfile at location: {display_location}")
+        raise RuntimeError(
+            f"Cannot identify Deckfile at location: {display_location or '.'}"
+        )
 
     deckfile = deckfile_selector.get(file_detected)
     data_aux.deckfile = deckfile

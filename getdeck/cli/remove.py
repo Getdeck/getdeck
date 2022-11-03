@@ -2,7 +2,7 @@ import logging
 from typing import Callable
 
 from getdeck.configuration import default_configuration
-from getdeck.api import stopwatch
+from getdeck.cli import stopwatch
 from getdeck.fetch.fetch import fetch_data
 
 
@@ -84,3 +84,10 @@ def remove_deck(
 
     del data_aux
     return True
+
+
+def remove_command(args):
+    if args.cluster:
+        remove_cluster(args.Deckfile, ignore_cluster=args.no_cluster)
+    else:
+        remove_deck(args.Deckfile, args.name, ignore_cluster=args.no_cluster)
