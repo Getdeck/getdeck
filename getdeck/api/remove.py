@@ -17,7 +17,7 @@ def remove_cluster(
 ) -> bool:
     from getdeck.utils import ensure_cluster
 
-    data_aux = fetch_data(deckfile_location, fetch_sources=False)
+    data_aux = fetch_data(deckfile_location, fetch_sources_flag=False)
     k8s_provider = ensure_cluster(
         data_aux.deckfile, config, ignore_cluster, do_install=False
     )

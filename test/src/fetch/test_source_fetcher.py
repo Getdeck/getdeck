@@ -1,8 +1,8 @@
 from unittest import TestCase
 from getdeck.deckfile.file import (
-    DeckfileFileSource,
-    DeckfileHelmSource,
-    DeckfileInlineSource,
+    FileSource,
+    HelmSource,
+    InlineSource,
 )
 from getdeck.fetch.source_fetcher import (
     Git,
@@ -16,46 +16,46 @@ from getdeck.fetch.types import SourceAux
 
 class SelectSourceFetchBehaviorTest(TestCase):
     def test_git_file_source(self):
-        source = DeckfileFileSource(ref="git@github.com:Getdeck/getdeck.git")
+        source = FileSource(ref="git@github.com:Getdeck/getdeck.git")
         fetch_behavior = select_source_fetch_behavior(source=source)
         self.assertIsInstance(fetch_behavior, Git)
 
     def test_git_file_source_https(self):
-        source = DeckfileFileSource(ref="https://github.com/Getdeck/getdeck.git")
+        source = FileSource(ref="https://github.com/Getdeck/getdeck.git")
         fetch_behavior = select_source_fetch_behavior(source=source)
         self.assertIsInstance(fetch_behavior, Git)
 
     def test_git_helm_source(self):
-        source = DeckfileHelmSource(
+        source = HelmSource(
             ref="git@github.com:Getdeck/getdeck.git", releaseName="test"
         )
         fetch_behavior = select_source_fetch_behavior(source=source)
         self.assertIsInstance(fetch_behavior, Git)
 
     def test_http_file_source(self):
-        source = DeckfileFileSource(
+        source = FileSource(
             ref="https://raw.githubusercontent.com/Getdeck/getdeck/main/test/sources/resources/hello.yaml"
         )
         fetch_behavior = select_source_fetch_behavior(source=source)
         self.assertIsInstance(fetch_behavior, Http)
 
     def test_local_file_source_dot(self):
-        source = DeckfileFileSource(ref=".")
+        source = FileSource(ref=".")
         fetch_behavior = select_source_fetch_behavior(source=source)
         self.assertIsInstance(fetch_behavior, Local)
 
     def test_local_file_source_path(self):
-        source = DeckfileFileSource(ref="./test/hello.yaml")
+        source = FileSource(ref="./test/hello.yaml")
         fetch_behavior = select_source_fetch_behavior(source=source)
         self.assertIsInstance(fetch_behavior, Local)
 
     def test_none_inline_source(self):
-        source = DeckfileInlineSource(content={})
+        source = InlineSource(content={})
         fetch_behavior = select_source_fetch_behavior(source=source)
         self.assertIsNone(fetch_behavior)
 
     def test_none_helm_source(self):
-        source = DeckfileHelmSource(
+        source = HelmSource(
             ref="https://kubernetes.github.io/dashboard/",
             chart="kubernetes-dashboard",
             releaseName="dashboard",
@@ -67,7 +67,7 @@ class SelectSourceFetchBehaviorTest(TestCase):
 class SourceFetcherTest(TestCase):
     def test_file(self):
         location = "https://raw.githubusercontent.com/Getdeck/getdeck/main/test/sources/resources/hello.yaml"
-        source = DeckfileFileSource(ref=location)
+        source = FileSource(ref=location)
         source_aux = SourceAux(location=location)
         source_aux.source = source
 

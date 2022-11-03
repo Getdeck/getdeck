@@ -1,6 +1,36 @@
 from unittest import TestCase
+from getdeck.deckfile.file import FileSource, InlineSource
 
-from getdeck.fetch.fetch import fetch_data
+from getdeck.fetch.fetch import fetch_data, fetch_source
+
+
+GIT_REF = "git@github.com:Getdeck/getdeck.git"
+
+
+class FetchSourceTest(TestCase):
+    def test_local_inline(self):
+        source = InlineSource(content={})
+        source_aux = fetch_source(source=source)
+        self.assertIsNotNone(source_aux.source)
+
+    def test_local_file(self):
+        source = FileSource(ref="./test/resources/file/hello.yaml")
+        source_aux = fetch_source(source=source)
+        self.assertIsNotNone(source_aux.source)
+        self.assertEqual(source_aux.location, "./test/resources/file/hello.yaml")
+        self.assertEqual(source_aux.name, "hello.yaml")
+        self.assertEqual(source_aux.path, "./test/resources/file")
+
+    def test_git_file(self):
+        source = FileSource(
+            ref=GIT_REF,
+            path="test/resources/test/hello.yaml",
+        )
+        source_aux = fetch_source(source=source)
+        self.assertIsNotNone(source_aux.source)
+        self.assertEqual(source_aux.location, GIT_REF)
+        self.assertEqual(source_aux.name, "hello.yaml")
+        self.assertIn("/test/resources/test", source_aux.path)
 
 
 class FetchDataTest(TestCase):
@@ -30,10 +60,10 @@ class FetchDataTest(TestCase):
         data_aux = fetch_data(location)
         self.assertIsNotNone(data_aux.deckfile)
         self.assertIsNotNone(data_aux.deckfile_aux)
-        self.assertEqual(len(data_aux.source_auxs), 1)
+        self.assertEqual(len(data_aux.source_auxs), 2)
 
     def test_git_with_no_deckfile(self):
-        location = "git@github.com:Getdeck/getdeck.git"
+        location = GIT_REF
         with self.assertRaises(RuntimeError):
             _ = fetch_data(location)
 
