@@ -1,5 +1,5 @@
 from unittest import TestCase
-from getdeck.deckfile.file import DeckfileInlineSource
+from getdeck.deckfile.file import InlineSource
 from getdeck.fetch.types import DeckfileAux, SourceAux
 from getdeck.sources.inline import Inline
 import itertools
@@ -16,7 +16,7 @@ class InlineTest(TestCase):
             content = combination[1]
 
             deckfile_aux = DeckfileAux(location="test")
-            source_aux = SourceAux(source=DeckfileInlineSource(content=content))
+            source_aux = SourceAux(source=InlineSource(content=content))
 
             render_behavior = Inline(
                 path=None,

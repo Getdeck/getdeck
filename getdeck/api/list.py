@@ -9,7 +9,7 @@ logger = logging.getLogger("deck")
 
 @stopwatch
 def get_available_decks(deckfile_location: str) -> List:
-    data_aux = fetch_data(deckfile_location, fetch_sources=False)
+    data_aux = fetch_data(deckfile_location, fetch_sources_flag=False)
     available_decks = data_aux.deckfile.get_decks()
     del data_aux
 

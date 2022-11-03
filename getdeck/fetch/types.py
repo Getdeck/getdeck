@@ -8,11 +8,11 @@ import shutil
 
 from getdeck import configuration
 from getdeck.deckfile.file import (
-    DeckfileDirectorySource,
-    DeckfileFileSource,
-    DeckfileHelmSource,
-    DeckfileInlineSource,
-    DeckfileKustomizeSource,
+    DirectorySource,
+    FileSource,
+    HelmSource,
+    InlineSource,
+    KustomizeSource,
 )
 
 
@@ -30,11 +30,11 @@ class SourceAux(BaseModel):
 
     source: Optional[
         Union[
-            DeckfileInlineSource,
-            DeckfileFileSource,
-            DeckfileDirectorySource,
-            DeckfileHelmSource,
-            DeckfileKustomizeSource,
+            InlineSource,
+            FileSource,
+            DirectorySource,
+            HelmSource,
+            KustomizeSource,
         ]
     ] = None
 

@@ -34,7 +34,19 @@ class DeckfileCluster(BaseModel):
             raise e
 
 
-class DeckfileHelmSource(BaseModel):
+class InlineSource(BaseModel):
+    type: str = "inline"
+    content: Dict = None
+
+
+class FileSource(BaseModel):
+    type: str = "file"
+    ref: str = None
+    targetRevision: Optional[str] = None
+    path: str = ""
+
+
+class HelmSource(BaseModel):
     type: str = "helm"
     ref: str
     targetRevision: Optional[str] = None
@@ -48,26 +60,14 @@ class DeckfileHelmSource(BaseModel):
     helmPlugins: List[str] = None
 
 
-class DeckfileInlineSource(BaseModel):
-    type: str = "inline"
-    content: Dict = None
-
-
-class DeckfileFileSource(BaseModel):
-    type: str = "file"
-    ref: str = None
-    targetRevision: Optional[str] = None
-    path: str = ""
-
-
-class DeckfileKustomizeSource(BaseModel):
+class KustomizeSource(BaseModel):
     type: str = "kustomize"
     ref: str
     targetRevision: Optional[str] = None
     path: str = ""
 
 
-class DeckfileDirectorySource(BaseModel):
+class DirectorySource(BaseModel):
     type: str = "directory"
     ref: str
     targetRevision: Optional[str] = None
@@ -82,11 +82,11 @@ class DeckfileDeck(BaseModel):
     hosts: List[str] = []
     sources: List[
         Union[
-            DeckfileInlineSource,
-            DeckfileFileSource,
-            DeckfileDirectorySource,
-            DeckfileHelmSource,
-            DeckfileKustomizeSource,
+            InlineSource,
+            FileSource,
+            DirectorySource,
+            HelmSource,
+            KustomizeSource,
         ]
     ]
 
@@ -107,11 +107,11 @@ class DeckfileDeck(BaseModel):
                         source_type = "inline"
 
                     source_class = {
-                        "inline": DeckfileInlineSource,
-                        "file": DeckfileFileSource,
-                        "directory": DeckfileDirectorySource,
-                        "kustomize": DeckfileKustomizeSource,
-                        "helm": DeckfileHelmSource,
+                        "inline": InlineSource,
+                        "file": FileSource,
+                        "directory": DirectorySource,
+                        "kustomize": KustomizeSource,
+                        "helm": HelmSource,
                     }.get(source_type)
                     self.sources.append(source_class(**source))
             except KeyError:

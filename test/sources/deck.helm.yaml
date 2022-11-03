@@ -43,3 +43,9 @@ decks:
             value: false
           - name: controller.ingressClassResource.default
             value: true
+
+      - type: helm
+        ref: ../resources/helm/empty
+        path: .
+        chart: empty
+        releaseName: empty

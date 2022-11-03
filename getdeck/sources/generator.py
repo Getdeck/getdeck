@@ -4,11 +4,11 @@ from typing import List, Union
 
 from getdeck.configuration import ClientConfiguration
 from getdeck.deckfile.file import (
-    DeckfileDirectorySource,
-    DeckfileFileSource,
-    DeckfileInlineSource,
-    DeckfileKustomizeSource,
-    DeckfileHelmSource,
+    DirectorySource,
+    FileSource,
+    InlineSource,
+    KustomizeSource,
+    HelmSource,
 )
 from getdeck.fetch.types import DeckfileAux, SourceAux
 from getdeck.sources.types import K8sSourceFile
@@ -25,11 +25,11 @@ class RenderBehavior(ABC):
         self,
         path: str,
         source: Union[
-            DeckfileInlineSource,
-            DeckfileFileSource,
-            DeckfileDirectorySource,
-            DeckfileHelmSource,
-            DeckfileKustomizeSource,
+            InlineSource,
+            FileSource,
+            DirectorySource,
+            HelmSource,
+            KustomizeSource,
         ],
         config: ClientConfiguration,
         namespace: str,
