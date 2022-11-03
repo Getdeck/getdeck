@@ -4,6 +4,9 @@ from getdeck.deckfile.file import FileSource, InlineSource
 from getdeck.fetch.fetch import fetch_data, fetch_source
 
 
+GIT_REF = "git@github.com:Getdeck/getdeck.git"
+
+
 class FetchSourceTest(TestCase):
     def test_local_inline(self):
         source = InlineSource(content={})
@@ -20,12 +23,12 @@ class FetchSourceTest(TestCase):
 
     def test_git_file(self):
         source = FileSource(
-            ref="git@github.com:Getdeck/getdeck.git",
+            ref=GIT_REF,
             path="test/resources/test/hello.yaml",
         )
         source_aux = fetch_source(source=source)
         self.assertIsNotNone(source_aux.source)
-        self.assertEqual(source_aux.location, "git@github.com:Getdeck/getdeck.git")
+        self.assertEqual(source_aux.location, GIT_REF)
         self.assertEqual(source_aux.name, "hello.yaml")
         self.assertIn("/test/resources/test", source_aux.path)
 
@@ -60,7 +63,7 @@ class FetchDataTest(TestCase):
         self.assertEqual(len(data_aux.source_auxs), 2)
 
     def test_git_with_no_deckfile(self):
-        location = "git@github.com:Getdeck/getdeck.git"
+        location = GIT_REF
         with self.assertRaises(RuntimeError):
             _ = fetch_data(location)
 
