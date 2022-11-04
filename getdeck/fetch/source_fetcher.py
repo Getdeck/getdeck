@@ -6,7 +6,6 @@ import logging
 import tempfile
 
 import requests
-from git import Repo, GitError
 from getdeck.fetch.types import SourceAux, TemporaryData
 
 
@@ -25,6 +24,12 @@ class SourceFetchBehavior(ABC):
 
 class Git(SourceFetchBehavior):
     def fetch(self, data: SourceAux, *args, **kwargs) -> SourceAux:
+        try:
+            from git import Repo, GitError
+        except Exception as e:
+            logger.debug(e)
+            raise FetchError("Git import error.")
+
         location = data.location
 
         if "#" in location:
