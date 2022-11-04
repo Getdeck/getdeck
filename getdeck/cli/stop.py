@@ -1,6 +1,6 @@
 import logging
 
-from getdeck.api import stopwatch
+from getdeck.cli import stopwatch
 from getdeck.configuration import default_configuration
 from getdeck.fetch.fetch import fetch_data
 
@@ -23,3 +23,7 @@ def stop_cluster(
 
     del data_aux
     k8s_provider.stop()
+
+
+def stop_command(args):
+    stop_cluster(args.Deckfile, ignore_cluster=args.no_cluster)

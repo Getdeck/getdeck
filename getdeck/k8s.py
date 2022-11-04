@@ -16,17 +16,6 @@ def _call_and_log(config, api, verb, obj, namespace, **kwargs):
         )
 
 
-def _delete_and_create(config, api, obj, namespace, **kwargs):
-    logger.debug(
-        f"Kubernetes: replacing {k8s_describe_object(obj)} "
-        f"failed. Attempting deletion and recreation."
-    )
-    k8s_call_api(config, api, "delete", obj, namespace, **kwargs)
-    if api:
-        logger.debug(f"Kubernetes: {k8s_describe_object(obj)} deleted")
-    _call_and_log(config, api, "create", obj, namespace, **kwargs)
-
-
 def create_namespace(config, name: str) -> None:
     from kubernetes.client.rest import ApiException
     from kubernetes.client import V1Namespace, V1ObjectMeta

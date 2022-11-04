@@ -1,7 +1,7 @@
 import logging
 from typing import List
 
-from getdeck.api.utils import stopwatch
+from getdeck.cli.utils import stopwatch
 from getdeck.fetch.fetch import fetch_data
 
 logger = logging.getLogger("deck")
@@ -15,3 +15,9 @@ def get_available_decks(deckfile_location: str) -> List:
 
     logger.debug(available_decks)
     return available_decks
+
+
+def list_command(args):
+    decks = get_available_decks(args.Deckfile)
+    names = [deck.name for deck in decks]
+    logger.info(names)
