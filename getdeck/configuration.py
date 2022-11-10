@@ -6,7 +6,7 @@ import logging
 logger = logging.getLogger("deck")
 
 
-__VERSION__ = "0.11.0"
+__VERSION__ = "0.11.1"
 
 DECKFILE_FILE = "deck.yaml"
 
