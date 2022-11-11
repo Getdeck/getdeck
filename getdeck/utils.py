@@ -4,6 +4,7 @@ import subprocess
 from time import sleep
 
 from semantic_version import Version
+from getdeck.api.cluster import initialize
 
 from getdeck.configuration import ClientConfiguration
 from getdeck.deckfile.file import Deckfile
@@ -54,7 +55,13 @@ def ensure_cluster(
             native_config=None,
         )
     else:
-        k8s_provider = cluster_config.get_provider(config)
+        k8s_provider = initialize(
+            provider_type=ProviderType(cluster_config.provider.lower()),
+            config=config,
+            name=cluster_config.name,
+            native_config=cluster_config.nativeConfig,
+        )
+
         try:
             try:
                 try:

@@ -5,7 +5,6 @@ from typing import List, Dict, Optional, Union
 from pydantic import BaseModel
 
 from getdeck.deckfile.errors import DeckfileError
-from getdeck.provider.abstract import AbstractProvider
 
 logger = logging.getLogger("deck")
 
@@ -15,23 +14,6 @@ class DeckfileCluster(BaseModel):
     minVersion: str = None
     name: str
     nativeConfig: dict = None
-
-    def get_provider(self, config) -> AbstractProvider:
-        from getdeck.provider.factory import cluster_factory
-        from getdeck.provider.types import ProviderType
-
-        # get selected kubernetes cluster from factory
-        try:
-            cluster = cluster_factory.get(
-                ProviderType(self.provider.lower()),
-                config,
-                name=self.name,
-                native_config=self.nativeConfig,
-            )
-            return cluster
-        except Exception as e:
-            logger.error(e)
-            raise e
 
 
 class InlineSource(BaseModel):
