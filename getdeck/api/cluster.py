@@ -3,7 +3,6 @@ from getdeck.configuration import ClientConfiguration
 from getdeck.provider.abstract import AbstractProvider
 
 from getdeck.provider.types import ProviderType
-from getdeck.provider.factory import cluster_factory
 
 
 logger = logging.getLogger("deck")
@@ -15,6 +14,8 @@ def initialize(
     name: str,
     native_config: dict = None,
 ) -> AbstractProvider:
+    from getdeck.provider.factory import cluster_factory
+
     try:
         cluster = cluster_factory.get(
             provider_type=provider_type,
