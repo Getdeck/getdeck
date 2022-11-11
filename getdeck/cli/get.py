@@ -1,8 +1,10 @@
 import logging
 from typing import Callable
+from getdeck import api
 
 from getdeck.cli import stopwatch, remove
 from getdeck.cli.hosts import verify_all_hosts
+from getdeck.cli.utils import get_cluster_initialize_arguments, install_provider
 from getdeck.configuration import default_configuration
 from getdeck.k8s import create_namespace
 from getdeck.provider.types import ProviderType
@@ -22,7 +24,6 @@ def run_deck(  # noqa: C901
     progress_callback: Callable = None,
 ) -> bool:
     from getdeck.sources.utils import prepare_k8s_workload_for_deck
-    from getdeck.utils import ensure_cluster
     from getdeck.k8s import k8s_create_or_patch, get_ingress_rules
     from getdeck.fetch.fetch import fetch_data
 
@@ -31,35 +32,44 @@ def run_deck(  # noqa: C901
         progress_callback(0)
 
     data_aux = fetch_data(deckfile_location, deck_name=deck_name)
+    cluster_config = data_aux.deckfile.get_cluster()
+
     if progress_callback:
         progress_callback(5)
+
     #
     # 1. set up a local K8s cluster
     #
-    k8s_provider = ensure_cluster(
-        data_aux.deckfile,
-        config,
-        ignore_cluster,
-        do_install=True,
-        no_input=no_input,
+    provider_type, name, native_config = get_cluster_initialize_arguments(
+        cluster_config=cluster_config, ignore_cluster=ignore_cluster, no_input=no_input
     )
+
+    cluster = api.cluster.initialize(
+        provider_type=provider_type,
+        name=name,
+        native_config=native_config,
+        config=config,
+    )
+
+    install_provider(cluster, cluster_config, do_install=True, no_input=no_input)
+
     if progress_callback:
         progress_callback(10)
     #  1.b check or set up local cluster
-    if not k8s_provider.exists():
-        k8s_provider.create()
+    if not cluster.exists():
+        cluster.create()
         cluster_created = True
     else:
         logger.info("Cluster already exists, starting it")
-        k8s_provider.start()
+        cluster.start()
 
     if progress_callback:
         progress_callback(20)
 
     # change kubeconfig for beiboot
-    if k8s_provider.kubernetes_cluster_type == ProviderType.BEIBOOT:
+    if cluster.kubernetes_cluster_type == ProviderType.BEIBOOT:
         _old_kubeconfig = config.kubeconfig
-        config.kubeconfig = k8s_provider.get_kubeconfig()
+        config.kubeconfig = cluster.get_kubeconfig()
         config._init_kubeapi(context="default")
 
     #
@@ -70,7 +80,7 @@ def run_deck(  # noqa: C901
     except Exception as e:
         if cluster_created:
             # remove this just created cluster as it probably is in an inconsistent state from the beginning
-            if k8s_provider.kubernetes_cluster_type == ProviderType.BEIBOOT:
+            if cluster.kubernetes_cluster_type == ProviderType.BEIBOOT:
                 config.kubeconfig = _old_kubeconfig
                 config._init_kubeapi()
             remove.remove_cluster(deckfile_location, config)
@@ -111,7 +121,7 @@ def run_deck(  # noqa: C901
                 "There was an error installing the workload. Now removing the cluster."
             )
             if cluster_created:
-                if k8s_provider.kubernetes_cluster_type == ProviderType.BEIBOOT:
+                if cluster.kubernetes_cluster_type == ProviderType.BEIBOOT:
                     config.kubeconfig = _old_kubeconfig
                     config._init_kubeapi()
                 # remove this just created cluster as it probably is in an inconsistent state from the beginning
@@ -127,7 +137,7 @@ def run_deck(  # noqa: C901
         for host, path in ingress_rules:
             logger.info(f"Ingress: {host} -> {path}")
         handle_hosts_resolution(deckfile_location, data_aux.deckfile, deck_name)
-    logger.info(f"Published ports are: {k8s_provider.get_ports()}")
+    logger.info(f"Published ports are: {cluster.get_ports()}")
     if notes := data_aux.deckfile.get_deck(deck_name).notes:
         logger.info(notes)
 

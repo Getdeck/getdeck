@@ -3,7 +3,7 @@ version: "1"
 cluster:
   provider: k3d
   minVersion: 4.0.0
-  name: test-sources-file
+  name: test-deprecated
   nativeConfig:
     apiVersion: k3d.io/v1alpha4
     kind: Simple
