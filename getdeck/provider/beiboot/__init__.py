@@ -171,9 +171,6 @@ class Beiboot(AbstractProvider):
     def install(self) -> bool:
         raise NotSupportedError(NOT_SUPPORTED_ERROR)
 
-    def update(self) -> bool:
-        raise NotSupportedError(NOT_SUPPORTED_ERROR)
-
     def version(self) -> Version:
         import beiboot.configuration
 

@@ -128,9 +128,6 @@ class UtilityProvider(AbstractProvider, CMDWrapper):
         # this functionality has to be implemented
         raise NotImplementedError
 
-    def update(self) -> bool:
-        return self.install()
-
     def get_ports(self) -> List[str]:
         try:
             ports = self.native_config["ports"]

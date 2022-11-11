@@ -58,14 +58,6 @@ class AbstractProvider(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update(self) -> bool:
-        """
-        Update this K8s provider on the local system
-        :return:
-        """
-        raise NotImplementedError
-
-    @abstractmethod
     def version(self) -> Version:
         """
         Best return a type that allows working comparisons between versions of the same provider.

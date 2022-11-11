@@ -83,7 +83,7 @@ def ensure_cluster(
                                 if confirm.lower() != "y":
                                     logger.info("Operation aborted")
                                     exit()
-                            k8s_provider.update()
+                            k8s_provider.install()
                 else:
                     logger.debug(
                         f"{cluster_config.provider} is installed in version {version}"
