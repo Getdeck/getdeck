@@ -1,15 +1,8 @@
 from abc import ABC, abstractmethod
 import logging
-from typing import List, Union
+from typing import List
 
 from getdeck.configuration import ClientConfiguration
-from getdeck.deckfile.file import (
-    DirectorySource,
-    FileSource,
-    InlineSource,
-    KustomizeSource,
-    HelmSource,
-)
 from getdeck.fetch.types import DeckfileAux, SourceAux
 from getdeck.sources.types import K8sSourceFile
 
@@ -23,25 +16,9 @@ class RenderError(Exception):
 class RenderBehavior(ABC):
     def __init__(
         self,
-        path: str,
-        source: Union[
-            InlineSource,
-            FileSource,
-            DirectorySource,
-            HelmSource,
-            KustomizeSource,
-        ],
         config: ClientConfiguration,
-        namespace: str,
     ):
-        self.path = path
-        self.source = source
         self.config = config
-        self.namespace = namespace
-
-    @property
-    def not_supported_message(self):
-        return "Could not render source"
 
     @abstractmethod
     def render(self, **kwargs) -> List[K8sSourceFile]:

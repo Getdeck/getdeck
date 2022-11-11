@@ -63,11 +63,11 @@ def prepare_k8s_workload_for_deck(
             namespace = deck.namespace or "default"
 
         # render source files
-        resource_generator.render_behavior = render_behavior(
-            data_aux.deckfile.file_path, source_aux.source, config, namespace
-        )
+        resource_generator.render_behavior = render_behavior(config)
         source_files = resource_generator.render(
-            deckfile_aux=data_aux.deckfile_aux, source_aux=source_aux
+            deckfile_aux=data_aux.deckfile_aux,
+            source_aux=source_aux,
+            namespace=namespace,
         )
         generated_deck.files.extend(source_files)
 

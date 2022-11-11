@@ -14,10 +14,6 @@ logger = logging.getLogger("deck")
 
 class Helm(Tooler):
     @property
-    def not_supported_message(self):
-        return "This helm source is currently not supported"
-
-    @property
     def type(self) -> str:
         from getdeck.sources.utils import sniff_protocol
 

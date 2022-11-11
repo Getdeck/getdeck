@@ -9,12 +9,14 @@ logger = logging.getLogger("deck")
 
 
 class Inline(RenderBehavior):
-    def render(self, deckfile_aux: DeckfileAux, source_aux: SourceAux):
+    def render(
+        self, deckfile_aux: DeckfileAux, source_aux: SourceAux, namespace: str = None
+    ):
         try:
             # optional arguments
             arguments = {}
-            if self.namespace:
-                arguments["namespace"] = self.namespace
+            if namespace:
+                arguments["namespace"] = namespace
 
             source_file = K8sSourceFile(
                 name="Deckfile",
