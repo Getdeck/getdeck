@@ -50,7 +50,7 @@ class File(RenderBehavior):
             k8s_workload_files = self._parse_source_file(ref=ref)
         return k8s_workload_files
 
-    def render(self, deckfile_aux: DeckfileAux, source_aux: SourceAux, **kwargs):
+    def render(self, deckfile_aux: DeckfileAux, source_aux: SourceAux):
         try:
             source_file = os.path.join(source_aux.path, source_aux.name or "")
             logger.debug(f"Render file {source_file}")

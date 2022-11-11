@@ -9,7 +9,7 @@ logger = logging.getLogger("deck")
 
 
 class Inline(RenderBehavior):
-    def render(self, deckfile_aux: DeckfileAux, source_aux: SourceAux, **kwargs):
+    def render(self, deckfile_aux: DeckfileAux, source_aux: SourceAux):
         try:
             # optional arguments
             arguments = {}

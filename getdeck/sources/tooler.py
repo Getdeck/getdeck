@@ -121,7 +121,7 @@ class Tooler(RenderBehavior):
     SOURCES = "/sources"
     OUTPUT = "/output"
 
-    def render(self, deckfile_aux: DeckfileAux, source_aux: SourceAux, **kwargs):
+    def render(self, deckfile_aux: DeckfileAux, source_aux: SourceAux):
         cmd = self.build_command()
         try:
             if source_aux.temporary_data:
