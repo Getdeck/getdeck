@@ -121,8 +121,8 @@ class Tooler(RenderBehavior):
     SOURCES = "/sources"
     OUTPUT = "/output"
 
-    def __init__(self, config: ClientConfiguration, namespace: str):
-        super().__init__(config, namespace)
+    def __init__(self, config: ClientConfiguration):
+        super().__init__(config)
         self.source = None
 
     def render(

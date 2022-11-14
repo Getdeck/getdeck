@@ -16,23 +16,6 @@ def _call_and_log(config, api, verb, obj, namespace, **kwargs):
         )
 
 
-def create_namespace(config, name: str) -> None:
-    from kubernetes.client.rest import ApiException
-    from kubernetes.client import V1Namespace, V1ObjectMeta
-
-    logger.debug(f"Creating namespace {name}")
-    try:
-        config.K8S_CORE_API.create_namespace(
-            body=V1Namespace(metadata=V1ObjectMeta(name=name))
-        )
-    except ApiException as e:
-        if e.status == 409:
-            # namespace does already exist
-            pass
-        else:
-            raise e
-
-
 def k8s_create_or_patch(
     config: ClientConfiguration, obj, namespace: str, **kwargs
 ) -> None:

@@ -125,7 +125,6 @@ class UtilityProvider(AbstractProvider, CMDWrapper):
         return Version(version_str)
 
     def ready(self) -> bool:
-        # this functionality has to be implemented
         raise NotImplementedError
 
     def get_ports(self) -> List[str]:

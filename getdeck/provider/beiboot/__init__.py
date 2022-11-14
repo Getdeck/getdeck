@@ -99,6 +99,12 @@ class Beiboot(AbstractProvider):
                 f"to use this Deckfile."
             )
 
+    def get_config(self):
+        config = ClientConfiguration()
+        config.kubeconfig = self.get_kubeconfig()
+        config._init_kubeapi(context="default")
+        return config
+
     def get_kubeconfig(self) -> str:
         kubeconfig_file = api.get_connection(
             cluster_name=self.cluster_name, configuration=self._bbt_conf
