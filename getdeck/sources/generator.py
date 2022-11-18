@@ -38,9 +38,9 @@ class ResourceGenerator:
         self._render_behavior = render_behavior
 
     def render(
-        self, deckfile_aux: DeckfileAux, source_aux: SourceAux
+        self, deckfile_aux: DeckfileAux, source_aux: SourceAux, namespace: str
     ) -> List[K8sSourceFile]:
         source_files = self._render_behavior.render(
-            deckfile_aux=deckfile_aux, source_aux=source_aux
+            deckfile_aux=deckfile_aux, source_aux=source_aux, namespace=namespace
         )
         return source_files
