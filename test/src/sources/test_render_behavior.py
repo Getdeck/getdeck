@@ -18,14 +18,9 @@ class InlineTest(TestCase):
             deckfile_aux = DeckfileAux(location="test")
             source_aux = SourceAux(source=InlineSource(content=content))
 
-            render_behavior = Inline(
-                path=None,
-                source=None,
-                config=None,
-                namespace=namespace,
-            )
+            render_behavior = Inline(config=None)
             source_files = render_behavior.render(
-                deckfile_aux=deckfile_aux, source_aux=source_aux
+                deckfile_aux=deckfile_aux, source_aux=source_aux, namespace=namespace
             )
 
             self.assertEqual(len(source_files), 1)

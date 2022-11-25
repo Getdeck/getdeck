@@ -58,9 +58,6 @@ class KubectlCtx(AbstractProvider):
     def install(self) -> bool:
         raise RuntimeError("Installing a KubectlCtx cluster is not possible for Deck")
 
-    def update(self) -> bool:
-        raise RuntimeError("Updating a KubectlCtx cluster is not possible for Deck")
-
     def get_ports(self) -> List[str]:
         return []
 

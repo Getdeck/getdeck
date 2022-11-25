@@ -3,7 +3,7 @@ version: "1"
 cluster:
   provider: k3d
   minVersion: 4.0.0
-  name: test-deprecated
+  name: beiboot-host
   nativeConfig:
     apiVersion: k3d.io/v1alpha4
     kind: Simple
@@ -28,13 +28,8 @@ cluster:
           - agent:0
 
 decks:
-  - name: hello
+  - name: beiboot
     namespace: default
     sources:
       - type: file
-        content:
-          {
-            "kind": "Namespace",
-            "apiVersion": "v1",
-            "metadata": { "name": "content", "labels": { "name": "content" } },
-          }
+        ref: https://raw.githubusercontent.com/Getdeck/beiboot/main/operator/manifests/beiboot.yaml

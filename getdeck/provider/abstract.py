@@ -3,6 +3,10 @@ from typing import List
 
 from semantic_version import Version
 
+import logging
+
+logger = logging.getLogger("deck")
+
 
 class AbstractProvider(ABC):
     provider_type = None
@@ -13,6 +17,7 @@ class AbstractProvider(ABC):
         name: str = None,
     ) -> None:
         self.name = name
+        self.config = None
 
     @property
     def display_name(self):
@@ -20,6 +25,19 @@ class AbstractProvider(ABC):
         if name:
             return name
         return name
+
+    def get_config(self):
+        return self.config
+
+    def start_or_create(self) -> bool:
+        if self.exists():
+            logger.info("Cluster already exists, starting it")
+            self.start()
+            created = False
+        else:
+            self.create()
+            created = True
+        return created
 
     @abstractmethod
     def get_kubeconfig(self) -> bool:
@@ -58,14 +76,6 @@ class AbstractProvider(ABC):
         raise NotImplementedError
 
     @abstractmethod
-    def update(self) -> bool:
-        """
-        Update this K8s provider on the local system
-        :return:
-        """
-        raise NotImplementedError
-
-    @abstractmethod
     def version(self) -> Version:
         """
         Best return a type that allows working comparisons between versions of the same provider.
@@ -79,3 +89,19 @@ class AbstractProvider(ABC):
         Return the published ports
         """
         raise NotImplementedError
+
+    def create_namespace(self, name: str) -> None:
+        from kubernetes.client.rest import ApiException
+        from kubernetes.client import V1Namespace, V1ObjectMeta
+
+        logger.debug(f"Creating namespace {name}")
+        try:
+            self.config.K8S_CORE_API.create_namespace(
+                body=V1Namespace(metadata=V1ObjectMeta(name=name))
+            )
+        except ApiException as e:
+            if e.status == 409:
+                # namespace does already exist
+                pass
+            else:
+                raise e

@@ -1,5 +1,7 @@
 import logging
 from typing import Callable
+from getdeck import api
+from getdeck.cli.utils import get_cluster_initialize_arguments
 
 from getdeck.configuration import default_configuration
 from getdeck.cli import stopwatch
@@ -15,18 +17,26 @@ def remove_cluster(
     config=default_configuration,
     ignore_cluster: bool = False,
 ) -> bool:
-    from getdeck.utils import ensure_cluster
+    data_aux = fetch_data(deckfile_location)
+    cluster_config = data_aux.deckfile.get_cluster()
+    del data_aux
 
-    data_aux = fetch_data(deckfile_location, fetch_sources_flag=False)
-    k8s_provider = ensure_cluster(
-        data_aux.deckfile, config, ignore_cluster, do_install=False
+    provider_type, name, native_config = get_cluster_initialize_arguments(
+        cluster_config=cluster_config, ignore_cluster=ignore_cluster, no_input=False
     )
-    if k8s_provider.exists():
-        k8s_provider.delete()
+
+    cluster = api.cluster.initialize(
+        provider_type=provider_type,
+        name=name,
+        native_config=native_config,
+        config=config,
+    )
+
+    if cluster.exists():
+        cluster.delete()
     else:
         logger.info("Cluster does not exist")
 
-    del data_aux
     return True
 
 
@@ -41,27 +51,36 @@ def remove_deck(
     if progress_callback:
         progress_callback(0)
 
-    from getdeck.utils import ensure_cluster
     from getdeck.k8s import k8s_delete_object
     from getdeck.sources.utils import prepare_k8s_workload_for_deck
 
     data_aux = fetch_data(deckfile_location, deck_name=deck_name)
+    cluster_config = data_aux.deckfile.get_cluster()
 
     if progress_callback:
         progress_callback(10)
-    k8s_provider = ensure_cluster(
-        data_aux.deckfile, config, ignore_cluster, do_install=False
+
+    provider_type, name, native_config = get_cluster_initialize_arguments(
+        cluster_config=cluster_config, ignore_cluster=ignore_cluster, no_input=False
     )
+
+    cluster = api.cluster.initialize(
+        provider_type=provider_type,
+        name=name,
+        native_config=native_config,
+        config=config,
+    )
+
     if progress_callback:
         progress_callback(20)
 
-    config.kubeconfig = k8s_provider.get_kubeconfig()
-    if k8s_provider.exists():
+    config.kubeconfig = cluster.get_kubeconfig()
+    if cluster.exists():
         generated_deck = prepare_k8s_workload_for_deck(config, data_aux, deck_name)
         logger.info(f"Removing Deck {generated_deck.name}")
         if progress_callback:
             progress_callback(30)
-        config.kubeconfig = k8s_provider.get_kubeconfig()
+        config.kubeconfig = cluster.get_kubeconfig()
         if progress_callback:
             progress_callback(50)
         total = len(generated_deck.files)

@@ -12,7 +12,9 @@ logger = logging.getLogger("deck")
 
 
 class File(RenderBehavior):
-    def _parse_source_file(self, ref: str) -> List[K8sSourceFile]:
+    def _parse_source_file(
+        self, ref: str, namespace: str = None
+    ) -> List[K8sSourceFile]:
         with open(ref, "r") as input_file:
             docs = yaml.load_all(input_file.read(), Loader=yaml.FullLoader)
 
@@ -20,11 +22,13 @@ class File(RenderBehavior):
         for doc in docs:
             if doc:
                 k8s_workload_files.append(
-                    K8sSourceFile(name=ref, content=doc, namespace=self.namespace)
+                    K8sSourceFile(name=ref, content=doc, namespace=namespace)
                 )
         return k8s_workload_files
 
-    def _parse_source_directory(self, ref: str) -> List[K8sSourceFile]:
+    def _parse_source_directory(
+        self, ref: str, namespace: str = None
+    ) -> List[K8sSourceFile]:
         refs = []
 
         if not os.path.isdir(ref):
@@ -38,19 +42,23 @@ class File(RenderBehavior):
         # parse workloads
         k8s_workload_files = []
         for ref in refs:
-            workloads = self._parse_source_file(ref=ref)
+            workloads = self._parse_source_file(ref=ref, namespace=namespace)
             k8s_workload_files += workloads
 
         return k8s_workload_files
 
-    def _parse_source(self, ref: str) -> List[K8sSourceFile]:
+    def _parse_source(self, ref: str, namespace: str = None) -> List[K8sSourceFile]:
         if os.path.isdir(ref):
-            k8s_workload_files = self._parse_source_directory(ref=ref)
+            k8s_workload_files = self._parse_source_directory(
+                ref=ref, namespace=namespace
+            )
         else:
-            k8s_workload_files = self._parse_source_file(ref=ref)
+            k8s_workload_files = self._parse_source_file(ref=ref, namespace=namespace)
         return k8s_workload_files
 
-    def render(self, deckfile_aux: DeckfileAux, source_aux: SourceAux, **kwargs):
+    def render(
+        self, deckfile_aux: DeckfileAux, source_aux: SourceAux, namespace: str = None
+    ):
         try:
             source_file = os.path.join(source_aux.path, source_aux.name or "")
             logger.debug(f"Render file {source_file}")
@@ -59,7 +67,9 @@ class File(RenderBehavior):
                     deckfile_aux.path, source_file.removeprefix("./")
                 )
 
-            k8s_workload_files = self._parse_source(ref=source_file)
+            k8s_workload_files = self._parse_source(
+                ref=source_file, namespace=namespace
+            )
         except Exception as e:
             logger.error(f"Error processing file: {e}")
             raise e

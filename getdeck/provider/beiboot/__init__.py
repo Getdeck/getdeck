@@ -99,6 +99,12 @@ class Beiboot(AbstractProvider):
                 f"to use this Deckfile."
             )
 
+    def get_config(self):
+        config = ClientConfiguration()
+        config.kubeconfig = self.get_kubeconfig()
+        config._init_kubeapi(context="default")
+        return config
+
     def get_kubeconfig(self) -> str:
         kubeconfig_file = api.get_connection(
             cluster_name=self.cluster_name, configuration=self._bbt_conf
@@ -121,10 +127,10 @@ class Beiboot(AbstractProvider):
                 connect=True,
                 configuration=self._bbt_conf,
             )
-        except TimeoutError as timeout:
-            # this happens when either the cluster was not ready in time, or the api connection
+        except Exception as e:
+            logger.debug(e)
             self.delete()
-            raise timeout
+            raise e
 
         kubeconfig_location = self.get_kubeconfig()
         logger.info(
@@ -134,7 +140,6 @@ class Beiboot(AbstractProvider):
         return True
 
     def start(self) -> bool:
-
         if not self._check_api_proxy_running():
             api.establish_connection(
                 cluster_name=self.cluster_name, configuration=self._bbt_conf
@@ -169,9 +174,6 @@ class Beiboot(AbstractProvider):
         raise NotImplementedError
 
     def install(self) -> bool:
-        raise NotSupportedError(NOT_SUPPORTED_ERROR)
-
-    def update(self) -> bool:
         raise NotSupportedError(NOT_SUPPORTED_ERROR)
 
     def version(self) -> Version:
