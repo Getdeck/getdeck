@@ -32,7 +32,7 @@ semantic-version = "^2.9.0"
 GitPython = "^3.1.27"
 PyYAML = "^6.0"
 python-hosts = "^1.0.3"
-beiboot = "^0.11"
+beiboot = ">=0.11,<1.4"
 cli-tracker = "^0.3.0"
 
 
