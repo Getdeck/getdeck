@@ -51,7 +51,11 @@ def run_deck(  # noqa: C901
         progress_callback(10)
 
     #  1.b check or set up local cluster
-    cluster_created = cluster.start_or_create()
+    if not ignore_cluster:
+        logger.info("Cluster already exists, starting it")
+        cluster_created = cluster.start_or_create()
+    else:
+        cluster_created = False
 
     if progress_callback:
         progress_callback(20)
@@ -111,13 +115,9 @@ def run_deck(  # noqa: C901
             if progress_callback:
                 progress_callback(max(50, int(i / total * 50) - 1))
         except Exception as e:
-            logger.error(
-                "There was an error installing the workload. Now removing the cluster."
-            )
+            logger.error("There was an error installing the workload.")
             if cluster_created:
-                # if cluster.kubernetes_cluster_type == ProviderType.BEIBOOT:
-                #     config.kubeconfig = _old_kubeconfig
-                #     config._init_kubeapi()
+                logger.info("Now removing the cluster.")
                 # remove this just created cluster as it probably is in an inconsistent state from the beginning
                 remove.remove_cluster(deckfile_location, cluster.get_config())
             raise e
@@ -129,7 +129,7 @@ def run_deck(  # noqa: C901
     ingress_rules = get_ingress_rules(cluster.get_config(), generated_deck.namespace)
     if ingress_rules:
         for host, path in ingress_rules:
-            logger.info(f"Ingress: {host} -> {path}")
+            logger.info(f"Ingress: http://{host} -> {path}")
         handle_hosts_resolution(deckfile_location, data_aux.deckfile, deck_name)
     logger.info(f"Published ports are: {cluster.get_ports()}")
     if notes := data_aux.deckfile.get_deck(deck_name).notes:

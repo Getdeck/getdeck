@@ -1,4 +1,3 @@
-import logging
 import sys
 import subprocess
 from typing import List, Dict, Optional
@@ -6,8 +5,6 @@ from typing import List, Dict, Optional
 from getdeck.configuration import ClientConfiguration
 from getdeck.provider.types import ProviderType
 from getdeck.provider.utility_provider import UtilityProvider
-
-logger = logging.getLogger("deck")
 
 
 class K3d(UtilityProvider):
@@ -76,7 +73,6 @@ class K3d(UtilityProvider):
         return True
 
     def delete(self):
-        logger.info(f"Deleting the k3d cluster with name {self.cluster_name}")
         arguments = ["cluster", "delete", self.cluster_name]
         self._execute(arguments)
         return True

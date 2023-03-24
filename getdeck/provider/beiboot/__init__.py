@@ -156,7 +156,6 @@ class Beiboot(AbstractProvider):
         raise NotSupportedError(NOT_SUPPORTED_ERROR)
 
     def delete(self) -> bool:
-        logger.info(f"Now deleting Beiboot '{self.cluster_name}'.")
         api.remove_cluster(cluster_name=self.cluster_name, configuration=self._bbt_conf)
         return True
 

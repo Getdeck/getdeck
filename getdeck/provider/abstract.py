@@ -31,7 +31,6 @@ class AbstractProvider(ABC):
 
     def start_or_create(self) -> bool:
         if self.exists():
-            logger.info("Cluster already exists, starting it")
             self.start()
             created = False
         else:

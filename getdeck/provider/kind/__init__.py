@@ -1,4 +1,3 @@
-import logging
 import sys
 import subprocess
 from typing import List, Dict, Optional
@@ -7,8 +6,6 @@ from getdeck.configuration import ClientConfiguration
 from getdeck.provider.types import ProviderType
 from getdeck.provider.utility_provider import UtilityProvider
 import platform
-
-logger = logging.getLogger("deck")
 
 
 class Kind(UtilityProvider):
@@ -90,7 +87,6 @@ class Kind(UtilityProvider):
         return True
 
     def delete(self):
-        logger.info(f"Deleting the kind cluster with name {self.cluster_name}")
         arguments = ["delete", "cluster", "--name", self.cluster_name]
         self._execute(arguments)
         return True

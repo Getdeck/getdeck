@@ -33,6 +33,9 @@ def remove_cluster(
     )
 
     if cluster.exists():
+        logger.info(
+            f"Deleting the {cluster.provider_type} cluster with name {cluster.cluster_name}"
+        )
         cluster.delete()
     else:
         logger.info("Cluster does not exist")

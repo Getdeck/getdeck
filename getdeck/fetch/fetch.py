@@ -106,7 +106,7 @@ def fetch_data(
 
     # info
     display_location = location
-    if display_location == ".":
+    if display_location in [".", "", None]:
         display_location = detect_deckfile()
 
     logger.info(f"Reading Deckfile: {display_location or '.'}")
