@@ -1,4 +1,3 @@
-import logging
 from typing import List, Optional
 
 from semantic_version import Version
@@ -6,9 +5,6 @@ from semantic_version import Version
 from getdeck.configuration import ClientConfiguration
 from getdeck.provider.abstract import AbstractProvider
 from getdeck.provider.types import ProviderType
-
-
-logger = logging.getLogger("deck")
 
 
 class KubectlCtx(AbstractProvider):
